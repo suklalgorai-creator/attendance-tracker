@@ -1,13 +1,20 @@
-import { todayStr, addDays, isClassDay } from './date';
+import { todayStr, addDays, isClassDay, classDayRangeDesc, getPeriodsForDate } from './date';
 
-export function computeStats(records, minPercent, startDate) {
+export function computeStats(records, minPercent, startDate, classDays = [1,2,3,4,5], timetable = {}) {
   const today = todayStr();
   let totalHeld = 0;
   let totalAttended = 0;
-  Object.entries(records).forEach(([date, r]) => {
-    if (date >= startDate && date <= today) {
+  
+  const expectedDates = classDayRangeDesc(startDate, today, classDays);
+  
+  expectedDates.forEach(date => {
+    const r = records[date];
+    if (r) {
       totalHeld += r.held;
       totalAttended += r.attended;
+    } else {
+      const periods = getPeriodsForDate(date, timetable);
+      totalHeld += (periods ? periods.length : 1);
     }
   });
   const currentPercent = totalHeld === 0 ? null : (totalAttended / totalHeld) * 100;

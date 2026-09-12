@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { formatDateLabel } from '../utils/date';
 import Stepper from './Stepper';
 
-export default function DayRow({ dateStr, record, isToday, periods, onSave, onClear }) {
-  const [expanded, setExpanded] = useState(false);
+export default function DayRow({ dateStr, record, isToday, isMainCard, periods, onSave, onClear }) {
+  const [expanded, setExpanded] = useState(isMainCard); // Auto-expand main card
   const [custom, setCustom] = useState(false);
   const [held, setHeld] = useState(record ? record.held : 1);
   const [attended, setAttended] = useState(record ? record.attended : 1);
@@ -16,7 +16,11 @@ export default function DayRow({ dateStr, record, isToday, periods, onSave, onCl
 
   const hasPeriods = periods && periods.length > 0;
 
+  const todayStr = new Date().toLocaleDateString('en-CA');
+  const isFuture = dateStr > todayStr;
+
   const openEditor = () => {
+    if (isFuture) return;
     if (!expanded) {
       if (hasPeriods) setPeriodChecks(periods.map(() => true));
       setCustom(false);
@@ -27,7 +31,10 @@ export default function DayRow({ dateStr, record, isToday, periods, onSave, onCl
   let rowClass = 'day-row';
   let statusLabel = 'Not marked';
   let statusColor = 'var(--muted)';
-  if (record) {
+  if (isFuture) {
+    statusLabel = 'Upcoming';
+    statusColor = 'var(--muted)';
+  } else if (record) {
     if (record.held === 0) {
       statusLabel = 'Holiday / No class';
       statusColor = 'var(--muted)';
@@ -44,8 +51,8 @@ export default function DayRow({ dateStr, record, isToday, periods, onSave, onCl
   }
 
   return (
-    <div className={rowClass}>
-      <div className="day-row-main" onClick={openEditor}>
+    <div className={`${rowClass} ${isMainCard ? 'main-card-row' : ''} ${isFuture ? 'future-row' : ''}`}>
+      <div className="day-row-main" onClick={openEditor} style={{ cursor: isFuture ? 'default' : 'pointer', opacity: isFuture ? 0.5 : 1 }}>
         <div className="day-date">
           {formatDateLabel(dateStr)}
           {isToday && <span className="today-tag">today</span>}
