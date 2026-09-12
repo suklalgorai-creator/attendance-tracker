@@ -32,8 +32,8 @@ export default function AttendanceTracker() {
   
   const syncTimeoutRef = useRef(null);
 
-  // TODO: Change this to your actual admin email
-  const ADMIN_EMAIL = 'suklalgorai@gmail.com';
+  // Get admin email from .env to hide it from public source code
+  const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || '';
 
   const [formProgram, setFormProgram] = useState('');
   const [formCourse, setFormCourse] = useState('');
