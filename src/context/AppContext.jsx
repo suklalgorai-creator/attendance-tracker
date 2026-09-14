@@ -27,7 +27,9 @@ export function AppProvider({ children }) {
   const [viewMode, setViewMode] = useState('week');
   const [showAdmin, setShowAdmin] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'dark';
+  });
   const [showStreakPopup, setShowStreakPopup] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
 
@@ -40,6 +42,7 @@ export function AppProvider({ children }) {
   // Theme
   useEffect(() => {
     document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
   }, [theme]);
 
   // Auth listener
@@ -62,6 +65,7 @@ export function AppProvider({ children }) {
       if (isMounted) {
         setData(result);
         latestDataRef.current = result;
+        if (result.theme) setTheme(result.theme);
         setLoading(false);
       }
     })();
@@ -138,6 +142,14 @@ export function AppProvider({ children }) {
     persist({ ...data, ...patch });
   };
 
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    if (data) {
+      persist({ ...data, theme: next });
+    }
+  };
+
   const resetAll = () => {
     persist({
       programName: data.programName,
@@ -149,6 +161,7 @@ export function AppProvider({ children }) {
       reminderTime: data.reminderTime || '18:00',
       records: {},
       bestPercent: 0,
+      theme: theme,
     });
   };
 
@@ -165,7 +178,7 @@ export function AppProvider({ children }) {
     viewMode, setViewMode,
     showAdmin, setShowAdmin,
     errorMsg, setErrorMsg,
-    theme, setTheme,
+    theme, toggleTheme,
     showStreakPopup, setShowStreakPopup,
     showDrawer, setShowDrawer,
     // Actions

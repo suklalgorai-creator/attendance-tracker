@@ -43,10 +43,13 @@ export function computeStats(records, minPercent, startDate, classDays = [1,2,3,
 }
 
 export function computeStreak(records, classDays) {
+  if (!classDays || classDays.length === 0) return 0;
   let streak = 0;
   let cursor = todayStr();
   if (!records[cursor] && isClassDay(cursor, classDays)) cursor = addDays(cursor, -1);
-  while (true) {
+  let safety = 0;
+  while (safety < 3000) { // Safety limit to prevent infinite loops
+    safety++;
     if (!isClassDay(cursor, classDays)) {
       cursor = addDays(cursor, -1);
       continue;

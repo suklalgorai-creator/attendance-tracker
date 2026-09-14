@@ -16,9 +16,14 @@ export function dateRangeDesc(startStr, endStr) {
   if (!startStr || !endStr || startStr > endStr) return [];
   const out = [];
   let cur = endStr;
-  while (cur >= startStr) {
+  let safety = 0;
+  while (cur >= startStr && safety < 3000) { // Limit to ~8 years to prevent freeze
     out.push(cur);
-    cur = addDays(cur, -1);
+    const d = new Date(cur + 'T00:00:00');
+    if (isNaN(d)) break;
+    d.setDate(d.getDate() - 1);
+    cur = d.toLocaleDateString('en-CA');
+    safety++;
   }
   return out;
 }

@@ -6,7 +6,7 @@ import { DEFAULT_MIN, DEFAULT_CLASS_DAYS } from '../constants';
 import { todayStr } from '../utils/date';
 
 export default function SettingsPage() {
-  const { user, data, theme, setTheme, saveSettings, resetAll, handleLogout, setShowAdmin, ADMIN_EMAIL, toTitleCase } = useApp();
+  const { user, data, theme, toggleTheme, saveSettings, resetAll, handleLogout, setShowAdmin, ADMIN_EMAIL, toTitleCase } = useApp();
   const { permission, requestPermission } = useReminders(data);
 
   return (
@@ -44,7 +44,7 @@ export default function SettingsPage() {
         <div className="card-title">Personalization</div>
         <label className="field">
           <span>Theme</span>
-          <button className="btn-ghost" onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} style={{ border: '1px solid var(--rule)', padding: '12px', width: '100%', fontWeight: '700' }}>
+          <button className="btn-ghost" onClick={toggleTheme} style={{ border: '1px solid var(--rule)', padding: '12px', width: '100%', fontWeight: '700' }}>
             {theme === 'dark' ? '☀️ Switch to Light Mode' : '🌙 Switch to Dark Mode'}
           </button>
         </label>

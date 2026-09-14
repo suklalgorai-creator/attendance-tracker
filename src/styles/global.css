@@ -101,7 +101,7 @@ body::after {
 @media (max-width: 768px) {
   body::before, body::after, .app-root::before {
     animation: none; /* Disable expensive animation */
-    filter: blur(60px); /* Lower blur radius */
+    filter: blur(40px); /* Much lower blur radius for better FPS */
     transform: translateZ(0); /* Hardware acceleration */
   }
 }

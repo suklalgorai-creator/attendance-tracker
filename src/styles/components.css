@@ -48,8 +48,9 @@
 
 @media (max-width: 768px) {
   .card {
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(24, 24, 27, 0.75); /* Slightly darker to compensate for less blur */
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
   }
 }
 
