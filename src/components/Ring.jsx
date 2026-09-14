@@ -15,11 +15,19 @@ export default function Ring({ percent, minPercent, statusColor }) {
   const outer = polarToCartesian(cx, cy, r + 11, thresholdAngle);
 
   return (
-    <svg viewBox="0 0 200 200" width="220" height="220">
+    <svg viewBox="0 0 200 200" width="100%" height="100%">
+      <defs>
+        <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#3B82F6" /> {/* Blue */}
+          <stop offset="50%" stopColor="#8B5CF6" /> {/* Purple */}
+          <stop offset="100%" stopColor="#10B981" /> {/* Emerald */}
+        </linearGradient>
+      </defs>
       <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--rule)" strokeWidth={sw} />
       <circle
         cx={cx} cy={cy} r={r} fill="none"
-        stroke={statusColor} strokeWidth={sw} strokeLinecap="round"
+        stroke={statusColor === 'var(--ink-green)' ? 'url(#ringGrad)' : statusColor} 
+        strokeWidth={sw} strokeLinecap="round"
         strokeDasharray={circumference} strokeDashoffset={dashoffset}
         transform={`rotate(-90 ${cx} ${cy})`}
         style={{ transition: 'stroke-dashoffset 700ms cubic-bezier(.4,0,.2,1), stroke 400ms ease' }}
@@ -29,8 +37,8 @@ export default function Ring({ percent, minPercent, statusColor }) {
         {percent === null ? '—' : Math.round(percent * 10) / 10}
         {percent !== null && <tspan fontSize="20">%</tspan>}
       </text>
-      <text x={cx} y={cy + 22} textAnchor="middle" fontSize="12" fill="var(--muted)" letterSpacing="0.5" fontFamily="'Outfit', sans-serif">
-        target {minPercent}%
+      <text x={cx} y={cy + 24} textAnchor="middle" fontSize="11" fill="var(--muted)" letterSpacing="1.5" fontFamily="'Outfit', sans-serif" fontWeight="600">
+        TARGET <tspan fill="var(--paper)" fontWeight="800">{minPercent}%</tspan>
       </text>
     </svg>
   );

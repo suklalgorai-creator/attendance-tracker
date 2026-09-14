@@ -4,6 +4,7 @@ export function computeStats(records, minPercent, startDate, classDays = [1,2,3,
   const today = todayStr();
   let totalHeld = 0;
   let totalAttended = 0;
+  let unmarkedPastDays = 0;
   
   const expectedDates = classDayRangeDesc(startDate, today, classDays);
   
@@ -15,6 +16,9 @@ export function computeStats(records, minPercent, startDate, classDays = [1,2,3,
     } else {
       const periods = getPeriodsForDate(date, timetable);
       totalHeld += (periods ? periods.length : 1);
+      if (date < today) {
+        unmarkedPastDays++;
+      }
     }
   });
   const currentPercent = totalHeld === 0 ? null : (totalAttended / totalHeld) * 100;
@@ -35,7 +39,7 @@ export function computeStats(records, minPercent, startDate, classDays = [1,2,3,
       }
     }
   }
-  return { totalHeld, totalAttended, currentPercent, status, value, impossible };
+  return { totalHeld, totalAttended, currentPercent, status, value, impossible, unmarkedPastDays };
 }
 
 export function computeStreak(records, classDays) {

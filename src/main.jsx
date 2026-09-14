@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import AttendanceTracker from "./AttendanceTracker";
+import App from './App';
 
 // Polyfill for window.storage used in the component
 if (!window.storage) {
@@ -17,6 +17,6 @@ if (!window.storage) {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <AttendanceTracker />
+    <App />
   </React.StrictMode>
 );

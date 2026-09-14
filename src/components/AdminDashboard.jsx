@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
-import { CSS } from '../styles';
+
 
 export default function AdminDashboard({ onBack }) {
   const [users, setUsers] = useState([]);
@@ -30,7 +30,6 @@ export default function AdminDashboard({ onBack }) {
 
   return (
     <div className="app-root">
-      <style>{CSS}</style>
       <div className="header">
         <div>
           <div className="eyebrow">Admin Panel</div>

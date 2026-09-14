@@ -1,0 +1,133 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+/* ----- DEFAULT THEME (DARK) ----- */
+body {
+  --bg-primary: #050505;
+  --mesh-1: rgba(16, 185, 129, 0.15);
+  --mesh-2: rgba(244, 63, 94, 0.15);
+  --mesh-3: rgba(59, 130, 246, 0.15);
+
+  --surface: rgba(24, 24, 27, 0.65);
+  --surface-hover: rgba(39, 39, 42, 0.85);
+  --surface-solid: #18181b;
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --rule: rgba(255, 255, 255, 0.06);
+  --rule-bright: rgba(255, 255, 255, 0.12);
+
+  --paper: #FFFFFF;
+  --muted: #A1A1AA;
+  --text-gradient-start: #FFFFFF;
+  --text-gradient-end: #A1A1AA;
+
+  --ink-green: #10B981;
+  --ink-green-soft: rgba(16, 185, 129, 0.15);
+  --pen-red: #F43F5E;
+  --pen-red-soft: rgba(244, 63, 94, 0.15);
+  --amber: #F59E0B;
+  --amber-soft: rgba(245, 158, 11, 0.15);
+
+  --card-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  --card-shadow-hover: 0 16px 50px rgba(0, 0, 0, 0.5);
+  --input-bg: rgba(0, 0, 0, 0.4);
+}
+
+/* ----- LIGHT THEME ----- */
+body[data-theme="light"] {
+  --bg-primary: #F8FAFC;
+  --mesh-1: rgba(52, 211, 153, 0.4);
+  --mesh-2: rgba(251, 113, 133, 0.3);
+  --mesh-3: rgba(96, 165, 250, 0.4);
+
+  --surface: rgba(255, 255, 255, 0.7);
+  --surface-hover: rgba(255, 255, 255, 0.95);
+  --surface-solid: #FFFFFF;
+  --glass-border: rgba(0, 0, 0, 0.05);
+  --rule: rgba(0, 0, 0, 0.06);
+  --rule-bright: rgba(0, 0, 0, 0.12);
+
+  --paper: #0F172A;
+  --muted: #64748B;
+  --text-gradient-start: #0F172A;
+  --text-gradient-end: #475569;
+
+  --card-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+  --card-shadow-hover: 0 16px 50px rgba(0, 0, 0, 0.08);
+  --input-bg: rgba(255, 255, 255, 0.5);
+}
+
+/* Body Resets */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-primary);
+  color: var(--paper);
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: background-color 0.5s ease;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* --- ANIMATED MESH BACKGROUND --- */
+body::before, body::after, .app-root::before {
+  content: "";
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: -1;
+  animation: float 20s infinite alternate cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  opacity: 0.8;
+  transition: all 0.8s ease;
+  will-change: transform;
+}
+body::before {
+  top: -10%; left: -10%;
+  width: 60vw; height: 60vh;
+  background: var(--mesh-1);
+}
+body::after {
+  bottom: -10%; right: -10%;
+  width: 50vw; height: 50vh;
+  background: var(--mesh-2);
+  animation-delay: -5s;
+}
+.app-root::before {
+  top: 40%; left: 30%;
+  width: 40vw; height: 40vh;
+  background: var(--mesh-3);
+  animation-delay: -10s;
+}
+
+/* Performance fix for mobile lag */
+@media (max-width: 768px) {
+  body::before, body::after, .app-root::before {
+    animation: none; /* Disable expensive animation */
+    filter: blur(60px); /* Lower blur radius */
+    transform: translateZ(0); /* Hardware acceleration */
+  }
+}
+
+/* --- Keyframe Animations --- */
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(10%, 15%) scale(1.1); }
+  100% { transform: translate(-5%, -10%) scale(0.9); }
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fireBurn {
+  0% { transform: scale(1) rotate(-8deg); filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.4)); }
+  100% { transform: scale(1.1) rotate(8deg); filter: drop-shadow(0 0 25px rgba(245, 158, 11, 0.8)); }
+}
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes slideRight {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(0); }
+}
+
+/* Global Utility */
+.loading { text-align: center; padding: 60px 0; color: var(--muted); font-size: 16px; font-weight: 500; }
+.toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--surface-solid); color: var(--paper); padding: 14px 28px; border-radius: 16px; font-size: 14px; font-weight: 700; border: 1px solid var(--rule-bright); box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 9999; animation: slideUp 0.3s ease; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }

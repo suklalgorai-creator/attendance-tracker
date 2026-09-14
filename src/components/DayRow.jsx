@@ -4,7 +4,6 @@ import Stepper from './Stepper';
 
 export default function DayRow({ dateStr, record, isToday, isMainCard, periods, onSave, onClear }) {
   const [expanded, setExpanded] = useState(isMainCard); // Auto-expand main card
-  const [custom, setCustom] = useState(false);
   const [held, setHeld] = useState(record ? record.held : 1);
   const [attended, setAttended] = useState(record ? record.attended : 1);
   const [periodChecks, setPeriodChecks] = useState([]);
@@ -23,7 +22,6 @@ export default function DayRow({ dateStr, record, isToday, isMainCard, periods, 
     if (isFuture) return;
     if (!expanded) {
       if (hasPeriods) setPeriodChecks(periods.map(() => true));
-      setCustom(false);
     }
     setExpanded((e) => !e);
   };
@@ -61,7 +59,7 @@ export default function DayRow({ dateStr, record, isToday, isMainCard, periods, 
       </div>
       {expanded && (
         <div className="day-editor">
-          {hasPeriods && !custom && (
+          {hasPeriods && (
             <div className="periods-checklist">
               {periods.map((name, i) => (
                 <button
@@ -73,7 +71,6 @@ export default function DayRow({ dateStr, record, isToday, isMainCard, periods, 
                 </button>
               ))}
               <div className="custom-actions">
-                <button className="btn-ghost" onClick={() => setCustom(true)}>Enter manually</button>
                 <button className="btn-ghost" onClick={() => { onSave(dateStr, 0, 0); setExpanded(false); }}>Holiday</button>
                 {record && <button className="btn-clear" onClick={() => { onClear(dateStr); setExpanded(false); }}>Clear</button>}
                 <button
@@ -88,29 +85,12 @@ export default function DayRow({ dateStr, record, isToday, isMainCard, periods, 
               </div>
             </div>
           )}
-          {!hasPeriods && !custom && (
+          {!hasPeriods && (
             <div className="quick-actions">
               <button className="btn-present" onClick={() => { onSave(dateStr, 1, 1); setExpanded(false); }}>Present</button>
               <button className="btn-absent" onClick={() => { onSave(dateStr, 1, 0); setExpanded(false); }}>Absent</button>
               <button className="btn-ghost" onClick={() => { onSave(dateStr, 0, 0); setExpanded(false); }}>Holiday</button>
-              <button className="btn-ghost" onClick={() => setCustom(true)}>Multiple periods…</button>
               {record && <button className="btn-clear" onClick={() => { onClear(dateStr); setExpanded(false); }}>Clear</button>}
-            </div>
-          )}
-          {custom && (
-            <div className="custom-editor">
-              <div className="custom-row">
-                <span>Classes held</span>
-                <Stepper value={held} onChange={(v) => { setHeld(v); if (attended > v) setAttended(v); }} min={0} />
-              </div>
-              <div className="custom-row">
-                <span>You attended</span>
-                <Stepper value={attended} onChange={setAttended} min={0} max={held} />
-              </div>
-              <div className="custom-actions">
-                <button className="btn-ghost" onClick={() => setCustom(false)}>Back</button>
-                <button className="btn-present" onClick={() => { onSave(dateStr, held, attended); setExpanded(false); setCustom(false); }}>Save</button>
-              </div>
             </div>
           )}
         </div>

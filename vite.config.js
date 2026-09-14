@@ -12,8 +12,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'College Attendance Tracker',
-        short_name: 'Attendance',
+        name: 'My Attendance',
+        short_name: 'My Attendance',
         description: 'Track your daily college attendance.',
         theme_color: '#14171F',
         background_color: '#14171F',
