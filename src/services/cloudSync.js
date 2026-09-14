@@ -18,7 +18,11 @@ export async function loadUserData(uid) {
   } catch (e) {}
 
   // 2. Check if cloud data is newer (only 1 read per session)
-  const lastSync = parseInt(localStorage.getItem(lastSyncKey) || '0', 10);
+  let lastSync = 0;
+  try {
+    lastSync = parseInt(localStorage.getItem(lastSyncKey) || '0', 10);
+  } catch (e) {}
+  
   const now = Date.now();
   const ONE_HOUR = 60 * 60 * 1000;
 

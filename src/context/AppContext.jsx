@@ -61,12 +61,18 @@ export function AppProvider({ children }) {
     let isMounted = true;
     (async () => {
       setLoading(true);
-      const result = await loadUserData(user.uid);
-      if (isMounted) {
-        setData(result);
-        latestDataRef.current = result;
-        if (result.theme) setTheme(result.theme);
-        setLoading(false);
+      try {
+        const result = await loadUserData(user.uid);
+        if (isMounted) {
+          setData(result);
+          latestDataRef.current = result;
+          if (result && result.theme) setTheme(result.theme);
+        }
+      } catch (err) {
+        console.error("Failed to load user data:", err);
+        if (isMounted) setErrorMsg("Data load error. Retrying...");
+      } finally {
+        if (isMounted) setLoading(false);
       }
     })();
     return () => { isMounted = false; };
