@@ -102,9 +102,9 @@ export function AppProvider({ children }) {
     setData(next);
     latestDataRef.current = next;
     isDirtyRef.current = true;
-    saveLocal(next);
-
+    
     if (user) {
+      saveLocal(user.uid, next);
       if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
       syncTimeoutRef.current = setTimeout(() => doFlush(), 30000);
     }
@@ -166,6 +166,9 @@ export function AppProvider({ children }) {
   };
 
   const handleLogout = () => {
+    setData(null);
+    latestDataRef.current = null;
+    isDirtyRef.current = false;
     signOut(auth);
   };
 
