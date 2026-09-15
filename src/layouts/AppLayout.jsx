@@ -26,12 +26,13 @@ export default function AppLayout() {
     errorMsg, streak,
     showStreakPopup, setShowStreakPopup,
     showDrawer, setShowDrawer,
+    saveSettings,
   } = useApp();
 
   const { showInstallPopup, deferredPrompt, handleInstall, handleDismiss } = useInstallPrompt();
   
-  // Activate reminders
-  useReminders(data);
+  // Activate reminders (pass saveSettings so FCM token can be saved)
+  useReminders(data, saveSettings);
 
   // Check if desktop
   const isDesktop = useMediaQuery('(min-width: 1024px)');

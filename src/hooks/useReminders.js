@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { todayStr, isClassDay, getPeriodsForDate } from '../utils/date';
+import { requestFCMToken } from '../firebase';
 
-export function useReminders(data) {
+export function useReminders(data, saveSettings) {
   const [permission, setPermission] = useState(
     'Notification' in window ? Notification.permission : 'denied'
   );
@@ -13,7 +14,37 @@ export function useReminders(data) {
     }
     const perm = await Notification.requestPermission();
     setPermission(perm);
-  }, []);
+
+    // If granted, get FCM token and save it to user data
+    if (perm === 'granted') {
+      try {
+        const token = await requestFCMToken();
+        if (token && saveSettings) {
+          saveSettings({ fcmToken: token });
+          console.log('FCM Token saved to cloud.');
+        }
+      } catch (e) {
+        console.warn('Could not get FCM token:', e);
+      }
+    }
+  }, [saveSettings]);
+
+  // Refresh FCM token on load if permission is already granted
+  useEffect(() => {
+    if (permission !== 'granted' || !saveSettings) return;
+    
+    (async () => {
+      try {
+        const token = await requestFCMToken();
+        if (token && data && data.fcmToken !== token) {
+          saveSettings({ fcmToken: token });
+          console.log('FCM Token refreshed.');
+        }
+      } catch (e) {
+        // Silent fail — token refresh is not critical
+      }
+    })();
+  }, [permission]); // Only run once on mount
 
   useEffect(() => {
     if (permission !== 'granted' || !data) return;
@@ -49,8 +80,8 @@ export function useReminders(data) {
               navigator.serviceWorker.ready.then(registration => {
                 registration.showNotification('Attendance Reminder ⏰', {
                   body: bodyText,
-                  icon: '/icon-192x192.png',
-                  badge: '/icon-192x192.png',
+                  icon: '/icon.svg',
+                  badge: '/icon.svg',
                   vibrate: [200, 100, 200]
                 });
               });
@@ -58,7 +89,7 @@ export function useReminders(data) {
               // Fallback for desktop/non-SW
               new Notification('Attendance Reminder ⏰', {
                 body: bodyText,
-                icon: '/icon-192x192.png'
+                icon: '/icon.svg'
               });
             }
             
