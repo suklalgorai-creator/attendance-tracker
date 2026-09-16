@@ -1,18 +1,29 @@
 import admin from 'firebase-admin';
 
-// Initialize Firebase Admin (only once)
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      // The private key comes as a string with escaped newlines from env vars
-      privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
-    }),
-  });
+let adminInitError = null;
+
+try {
+  if (!admin.apps.length) {
+    let pk = process.env.FIREBASE_PRIVATE_KEY || '';
+    if (pk.startsWith('"') && pk.endsWith('"')) {
+      pk = pk.slice(1, -1);
+    }
+    pk = pk.replace(/\\n/g, '\n');
+
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: pk,
+      }),
+    });
+  }
+} catch (e) {
+  console.error("Firebase Admin Init Error:", e);
+  adminInitError = e.message;
 }
 
-const db = admin.firestore();
+const db = admin.apps.length ? admin.firestore() : null;
 
 /**
  * Vercel Serverless Function: /api/send-notification
@@ -32,6 +43,11 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Return early if initialization failed
+    if (adminInitError) {
+      return res.status(500).json({ error: 'Server configuration error (Admin Init)', details: adminInitError });
+    }
+
     // ===== MODE 1: Admin sends notification to a specific user =====
     if (req.method === 'POST') {
       const { uid, title, body } = req.body;
