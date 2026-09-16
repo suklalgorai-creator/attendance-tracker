@@ -38,8 +38,7 @@ export function AppProvider({ children }) {
   const syncTimeoutRef = useRef(null);
   const isDirtyRef = useRef(false);
   const latestDataRef = useRef(null);
-
-  const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || '';
+  const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'suklalgorai36@gmail.com';
 
   // Theme
   useEffect(() => {
