@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import SupportModal from './SupportModal';
 
 export default function DrawerMenu({ data, onClose, canInstall, onInstall }) {
-  const { theme, setTheme } = useApp();
+  const { theme, toggleTheme } = useApp();
 
   const handleExportCSV = () => {
     if (!data || !data.records) {
@@ -75,7 +75,7 @@ export default function DrawerMenu({ data, onClose, canInstall, onInstall }) {
               <span>📲</span> Install App
             </button>
           )}
-          <button className="drawer-item" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+          <button className="drawer-item" onClick={toggleTheme}>
             <span>{theme === 'dark' ? '☀️' : '🌙'}</span> {theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           </button>
           <button className="drawer-item" onClick={handleWhatsNew}>
