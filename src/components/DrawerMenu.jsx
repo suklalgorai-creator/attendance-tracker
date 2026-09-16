@@ -96,7 +96,7 @@ export default function DrawerMenu({ data, onClose, canInstall, onInstall }) {
           <button className="drawer-item" onClick={() => setShowSupport(true)}>
             <span>☕</span> Support Developer
           </button>
-          <a href="mailto:suklalgorai@gmail.com?subject=Attendance App Feedback" className="drawer-item" onClick={onClose} style={{ textDecoration: 'none' }}>
+          <a href="mailto:codecraftdigital.in@gmail.com?subject=Attendance App Feedback" className="drawer-item" onClick={onClose} style={{ textDecoration: 'none' }}>
             <span>✉️</span> Send Feedback
           </a>
           <a href="mailto:support@example.com" className="drawer-item" onClick={onClose} style={{ textDecoration: 'none' }}>

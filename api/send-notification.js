@@ -34,11 +34,25 @@ export default async function handler(req, res) {
   try {
     // ===== MODE 1: Admin sends notification to a specific user =====
     if (req.method === 'POST') {
-      const { uid, title, body, adminKey } = req.body;
+      const { uid, title, body } = req.body;
 
-      // Simple auth check — only allow requests with the correct admin key
-      if (adminKey !== process.env.ADMIN_SECRET_KEY) {
-        return res.status(403).json({ error: 'Unauthorized' });
+      // Extract Auth Token
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Missing or invalid authorization header' });
+      }
+
+      const idToken = authHeader.split('Bearer ')[1];
+      let decodedToken;
+      try {
+        decodedToken = await admin.auth().verifyIdToken(idToken);
+      } catch (error) {
+        return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+      }
+
+      // Check if user is Admin
+      if (decodedToken.email !== process.env.VITE_ADMIN_EMAIL && decodedToken.email !== process.env.ADMIN_EMAIL) {
+        return res.status(403).json({ error: 'Forbidden: Admin access required' });
       }
 
       if (!uid || !body) {

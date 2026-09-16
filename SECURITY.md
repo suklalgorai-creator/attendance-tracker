@@ -7,7 +7,7 @@ Only the latest version of this software is supported.
 
 If you discover any security vulnerabilities in this project, please **do not create a public issue**. Instead, report them privately via email:
 
-* **Email:** suklalgorai@gmail.com
+* **Email:** codecraftdigital.in@gmail.com
 
 You will receive an acknowledgment within 48 hours of reporting. 
 

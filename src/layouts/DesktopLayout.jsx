@@ -86,7 +86,7 @@ export default function DesktopLayout({ children }) {
           <button className="nav-btn" onClick={handleWhatsNew} style={{ padding: '12px 16px', background: 'transparent', border: 'none', color: 'var(--muted)', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', borderRadius: '12px' }}>
             <span>✨</span> What's New
           </button>
-          <a href="mailto:suklalgorai@gmail.com?subject=Attendance App Feedback" className="nav-btn" style={{ padding: '12px 16px', background: 'transparent', border: 'none', color: 'var(--muted)', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', borderRadius: '12px', textDecoration: 'none' }}>
+          <a href="mailto:codecraftdigital.in@gmail.com?subject=Attendance App Feedback" className="nav-btn" style={{ padding: '12px 16px', background: 'transparent', border: 'none', color: 'var(--muted)', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', borderRadius: '12px', textDecoration: 'none' }}>
             <span>✉️</span> Send Feedback
           </a>
           <button className="nav-btn" onClick={handleShare} style={{ padding: '12px 16px', background: 'transparent', border: 'none', color: 'var(--muted)', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', borderRadius: '12px' }}>

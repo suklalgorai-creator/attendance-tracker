@@ -4,15 +4,20 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // Function to check if the user is the admin
     function isAdmin() {
-      return request.auth != null && request.auth.token.email == 'suklalgorai@gmail.com';
+      return request.auth != null && request.auth.token.email == 'suklalgorai36@gmail.com';
     }
 
     match /users/{userId} {
       // Users can read/write their own data
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      
-      // Admin can read all user data
-      allow read: if isAdmin();
+      // Admin can read and write all user data
+      allow read, write: if (request.auth != null && request.auth.uid == userId) || isAdmin();
+    }
+
+    match /settings/global {
+      // Any authenticated user can read global settings (like holidays)
+      allow read: if request.auth != null;
+      // Only Admin can modify global settings
+      allow write: if isAdmin();
     }
   }
 }

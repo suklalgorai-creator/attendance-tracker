@@ -41,17 +41,20 @@ export default function AdminDashboard({ onBack }) {
       
       // Auto-notify logic
       if (notifyStudents) {
+        const idToken = await user.getIdToken();
         const usersWithTokens = users.filter(u => u.fcmToken);
         for (const u of usersWithTokens) {
           try {
             await fetch('/api/send-notification', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${idToken}`
+              },
               body: JSON.stringify({
                 uid: u.id,
                 title: `🌴 Holiday Declared: ${holidayName || 'Holiday'}`,
-                body: "Today is a holiday. Don't worry about your attendance, the tracker is auto-updated!",
-                adminKey: import.meta.env.VITE_ADMIN_SECRET_KEY || '',
+                body: "Today is a holiday. Don't worry about your attendance, the tracker is auto-updated!"
               }),
             });
           } catch(e) {}
@@ -190,6 +193,8 @@ export default function AdminDashboard({ onBack }) {
     setNotifStatus('Sending...');
 
     try {
+      const idToken = await user.getIdToken();
+
       if (isBroadcast) {
         const usersWithTokens = users.filter(u => u.fcmToken);
         let successCount = 0, failCount = 0;
@@ -198,12 +203,14 @@ export default function AdminDashboard({ onBack }) {
           try {
             const res = await fetch('/api/send-notification', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${idToken}`
+              },
               body: JSON.stringify({
                 uid: u.id,
                 title: notifTitle || 'Attendance Reminder ⏰',
-                body: notifBody,
-                adminKey: import.meta.env.VITE_ADMIN_SECRET_KEY || '',
+                body: notifBody
               }),
             });
             if (res.ok) successCount++; else failCount++;
@@ -213,12 +220,14 @@ export default function AdminDashboard({ onBack }) {
       } else {
         const res = await fetch('/api/send-notification', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`
+          },
           body: JSON.stringify({
             uid: targetUid,
             title: notifTitle || 'Attendance Reminder ⏰',
-            body: notifBody,
-            adminKey: import.meta.env.VITE_ADMIN_SECRET_KEY || '',
+            body: notifBody
           }),
         });
         const data = await res.json();
