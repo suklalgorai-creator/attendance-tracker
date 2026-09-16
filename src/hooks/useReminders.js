@@ -20,7 +20,7 @@ export function useReminders(data, saveSettings, globalSettings) {
       try {
         const token = await requestFCMToken();
         if (token && saveSettings) {
-          saveSettings({ fcmToken: token });
+          saveSettings({ fcmToken: token, pushNotificationsEnabled: true });
           console.log('FCM Token saved to cloud.');
         }
       } catch (e) {
@@ -32,12 +32,13 @@ export function useReminders(data, saveSettings, globalSettings) {
   // Refresh FCM token on load if permission is already granted
   useEffect(() => {
     if (permission !== 'granted' || !saveSettings) return;
+    if (data?.pushNotificationsEnabled === false) return;
     
     (async () => {
       try {
         const token = await requestFCMToken();
         if (token && data && data.fcmToken !== token) {
-          saveSettings({ fcmToken: token });
+          saveSettings({ fcmToken: token, pushNotificationsEnabled: true });
           console.log('FCM Token refreshed.');
         }
       } catch (e) {
@@ -45,6 +46,12 @@ export function useReminders(data, saveSettings, globalSettings) {
       }
     })();
   }, [permission]); // Only run once on mount
+
+  const revokePermission = useCallback(() => {
+    if (saveSettings) {
+      saveSettings({ fcmToken: null, pushNotificationsEnabled: false });
+    }
+  }, [saveSettings]);
 
   useEffect(() => {
     if (permission !== 'granted' || !data) return;
@@ -112,5 +119,5 @@ export function useReminders(data, saveSettings, globalSettings) {
     return () => clearInterval(interval);
   }, [permission, data, globalSettings]);
 
-  return { permission, requestPermission };
+  return { permission, requestPermission, revokePermission };
 }

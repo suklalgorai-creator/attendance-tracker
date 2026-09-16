@@ -7,7 +7,7 @@ import { todayStr } from '../utils/date';
 
 export default function SettingsPage() {
   const { user, data, theme, toggleTheme, saveSettings, resetAll, handleLogout, setShowAdmin, ADMIN_EMAIL, toTitleCase, globalSettings } = useApp();
-  const { permission, requestPermission } = useReminders(data);
+  const { permission, requestPermission, revokePermission } = useReminders(data, saveSettings, globalSettings);
 
   const defaultPrograms = ["B.Tech CSE", "B.Tech IT", "B.Tech ECE", "B.Tech Mechanical", "B.Tech Civil", "BCA", "MCA", "BBA", "MBA", "B.Sc", "B.Com", "BA"];
   const defaultSemesters = ["Semester 1", "Semester 2", "Semester 3", "Semester 4", "Semester 5", "Semester 6", "Semester 7", "Semester 8"];
@@ -112,10 +112,16 @@ export default function SettingsPage() {
           <span>Push Notifications</span>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--input-bg)', border: '1px solid var(--rule-bright)', borderRadius: '16px', padding: '16px 20px' }}>
             <span style={{ margin: 0, fontWeight: 700, color: 'var(--paper)' }}>
-              {permission === 'granted' ? '✅ Enabled' : permission === 'denied' ? '❌ Blocked' : 'Not setup'}
+              {data?.pushNotificationsEnabled === false ? '❌ Disabled' : permission === 'granted' ? '✅ Enabled' : permission === 'denied' ? '❌ Blocked' : 'Not setup'}
             </span>
-            {permission !== 'granted' && permission !== 'denied' && (
-              <button className="btn-present" style={{ padding: '8px 16px', fontSize: '13px' }} onClick={requestPermission}>Enable</button>
+            {permission !== 'denied' && (
+              data?.pushNotificationsEnabled === false ? (
+                <button className="btn-present" style={{ padding: '8px 16px', fontSize: '13px' }} onClick={requestPermission}>Enable</button>
+              ) : permission === 'granted' ? (
+                <button className="btn-ghost" style={{ padding: '8px 16px', fontSize: '13px', border: '1px solid var(--rule)' }} onClick={revokePermission}>Disable</button>
+              ) : (
+                <button className="btn-present" style={{ padding: '8px 16px', fontSize: '13px' }} onClick={requestPermission}>Enable</button>
+              )
             )}
           </div>
           {permission === 'denied' ? (
