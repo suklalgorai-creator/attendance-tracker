@@ -5,13 +5,19 @@ import { DEFAULT_MIN, DEFAULT_CLASS_DAYS } from '../constants';
 import { todayStr } from '../utils/date';
 
 export default function OnboardingPage() {
-  const { persist, toTitleCase } = useApp();
+  const { persist, toTitleCase, globalSettings } = useApp();
 
   const [formProgram, setFormProgram] = useState('');
   const [formCourse, setFormCourse] = useState('');
   const [formStart, setFormStart] = useState(todayStr());
   const [formMin, setFormMin] = useState(DEFAULT_MIN);
   const [formClassDays, setFormClassDays] = useState(DEFAULT_CLASS_DAYS);
+
+  const defaultPrograms = ["B.Tech CSE", "B.Tech IT", "B.Tech ECE", "B.Tech Mechanical", "B.Tech Civil", "BCA", "MCA", "BBA", "MBA", "B.Sc", "B.Com", "BA"];
+  const defaultSemesters = ["Semester 1", "Semester 2", "Semester 3", "Semester 4", "Semester 5", "Semester 6", "Semester 7", "Semester 8"];
+  
+  const programOptions = globalSettings?.programs?.length > 0 ? globalSettings.programs : defaultPrograms;
+  const semesterOptions = globalSettings?.semesters?.length > 0 ? globalSettings.semesters : defaultSemesters;
 
   const handleOnboard = () => {
     const next = {
@@ -40,18 +46,7 @@ export default function OnboardingPage() {
           placeholder="e.g. B.Tech CSE"
         />
         <datalist id="program-options">
-          <option value="B.Tech CSE" />
-          <option value="B.Tech IT" />
-          <option value="B.Tech ECE" />
-          <option value="B.Tech Mechanical" />
-          <option value="B.Tech Civil" />
-          <option value="BCA" />
-          <option value="MCA" />
-          <option value="BBA" />
-          <option value="MBA" />
-          <option value="B.Sc" />
-          <option value="B.Com" />
-          <option value="BA" />
+          {programOptions.map(p => <option key={p} value={p} />)}
         </datalist>
       </label>
       <label className="field">
@@ -64,14 +59,7 @@ export default function OnboardingPage() {
           placeholder="e.g. Semester 3"
         />
         <datalist id="semester-options">
-          <option value="Semester 1" />
-          <option value="Semester 2" />
-          <option value="Semester 3" />
-          <option value="Semester 4" />
-          <option value="Semester 5" />
-          <option value="Semester 6" />
-          <option value="Semester 7" />
-          <option value="Semester 8" />
+          {semesterOptions.map(s => <option key={s} value={s} />)}
         </datalist>
       </label>
       <label className="field">

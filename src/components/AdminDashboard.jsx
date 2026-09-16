@@ -9,7 +9,7 @@ export default function AdminDashboard({ onBack }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const [activeTab, setActiveTab] = useState('overview'); // overview, users, broadcast, holidays
+  const [activeTab, setActiveTab] = useState('overview'); // overview, users, holidays, broadcast, courseConfig
   
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all'); // all, danger, safe, inactive
@@ -30,6 +30,50 @@ export default function AdminDashboard({ onBack }) {
   const [holidayName, setHolidayName] = useState('');
 
   const [notifyStudents, setNotifyStudents] = useState(true);
+
+  // Course Config state
+  const [programsList, setProgramsList] = useState(globalSettings?.programs || []);
+  const [semestersList, setSemestersList] = useState(globalSettings?.semesters || []);
+  const [newProgram, setNewProgram] = useState('');
+  const [newSemester, setNewSemester] = useState('');
+
+  const updateGlobalSettings = async (key, value) => {
+    try {
+      const { doc, setDoc } = await import('firebase/firestore');
+      await setDoc(doc(db, 'settings', 'global'), { [key]: value }, { merge: true });
+    } catch (e) {
+      alert('Failed to update settings: ' + e.message);
+      throw e;
+    }
+  };
+
+  const addProgram = async () => {
+    if (!newProgram.trim()) return;
+    const newList = [...programsList, newProgram.trim()];
+    await updateGlobalSettings('programs', newList);
+    setProgramsList(newList);
+    setNewProgram('');
+  };
+
+  const removeProgram = async (item) => {
+    const newList = programsList.filter(p => p !== item);
+    await updateGlobalSettings('programs', newList);
+    setProgramsList(newList);
+  };
+
+  const addSemester = async () => {
+    if (!newSemester.trim()) return;
+    const newList = [...semestersList, newSemester.trim()];
+    await updateGlobalSettings('semesters', newList);
+    setSemestersList(newList);
+    setNewSemester('');
+  };
+
+  const removeSemester = async (item) => {
+    const newList = semestersList.filter(s => s !== item);
+    await updateGlobalSettings('semesters', newList);
+    setSemestersList(newList);
+  };
 
   const saveHoliday = async () => {
     if (!holidayDate) return;
@@ -272,9 +316,10 @@ export default function AdminDashboard({ onBack }) {
       {/* Tabs Navigation */}
       <div className="admin-tabs">
         <button className={`admin-tab-btn ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>Overview</button>
-        <button className={`admin-tab-btn ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>Users Management ({users.length})</button>
-        <button className={`admin-tab-btn ${activeTab === 'holidays' ? 'active' : ''}`} onClick={() => setActiveTab('holidays')}>College Calendar</button>
-        <button className={`admin-tab-btn ${activeTab === 'broadcast' ? 'active' : ''}`} onClick={() => setActiveTab('broadcast')}>Mass Broadcast</button>
+        <button className={`admin-tab-btn ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>Users ({users.length})</button>
+        <button className={`admin-tab-btn ${activeTab === 'holidays' ? 'active' : ''}`} onClick={() => setActiveTab('holidays')}>Calendar</button>
+        <button className={`admin-tab-btn ${activeTab === 'broadcast' ? 'active' : ''}`} onClick={() => setActiveTab('broadcast')}>Broadcast</button>
+        <button className={`admin-tab-btn ${activeTab === 'courseConfig' ? 'active' : ''}`} onClick={() => setActiveTab('courseConfig')}>Courses</button>
       </div>
 
       {/* Overview Tab */}
@@ -470,6 +515,72 @@ export default function AdminDashboard({ onBack }) {
                 {notifStatus}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Course Config Tab */}
+      {activeTab === 'courseConfig' && (
+        <div className="card" style={{ animation: 'fadeIn 0.3s' }}>
+          <div className="card-title">🏫 Course Management</div>
+          <p className="hint" style={{ marginBottom: '20px' }}>
+            Configure the list of Programs and Semesters. Students will see these as auto-complete suggestions when they register.
+          </p>
+
+          <div style={{ display: 'grid', gap: '24px', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+            {/* Programs */}
+            <div>
+              <h4 style={{ color: 'var(--paper)', fontSize: '15px', fontWeight: 800, marginBottom: '12px' }}>Programs / Degrees</h4>
+              <div className="custom-row" style={{ gap: '8px', marginBottom: '12px' }}>
+                <input 
+                  type="text" 
+                  placeholder="e.g. B.Tech CSE" 
+                  value={newProgram} 
+                  onChange={e => setNewProgram(e.target.value)}
+                  style={{ flex: 1, padding: '12px 16px', borderRadius: '12px', border: '1px solid var(--rule-bright)', background: 'var(--input-bg)', color: 'var(--paper)' }}
+                />
+                <button className="btn-present" onClick={addProgram} disabled={!newProgram.trim()} style={{ padding: '0 20px' }}>Add</button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
+                {programsList.length === 0 ? (
+                  <div style={{ color: 'var(--muted)', fontSize: '13px' }}>No programs configured. Using default suggestions.</div>
+                ) : (
+                  programsList.map(p => (
+                    <div key={p} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--input-bg)', padding: '10px 16px', borderRadius: '12px', border: '1px solid var(--rule-bright)' }}>
+                      <span style={{ color: 'var(--paper)', fontWeight: 600, fontSize: '14px' }}>{p}</span>
+                      <button className="icon-btn" style={{ color: 'var(--pen-red)' }} onClick={() => removeProgram(p)}>✕</button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Semesters */}
+            <div>
+              <h4 style={{ color: 'var(--paper)', fontSize: '15px', fontWeight: 800, marginBottom: '12px' }}>Semesters / Terms</h4>
+              <div className="custom-row" style={{ gap: '8px', marginBottom: '12px' }}>
+                <input 
+                  type="text" 
+                  placeholder="e.g. Semester 1" 
+                  value={newSemester} 
+                  onChange={e => setNewSemester(e.target.value)}
+                  style={{ flex: 1, padding: '12px 16px', borderRadius: '12px', border: '1px solid var(--rule-bright)', background: 'var(--input-bg)', color: 'var(--paper)' }}
+                />
+                <button className="btn-present" onClick={addSemester} disabled={!newSemester.trim()} style={{ padding: '0 20px' }}>Add</button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
+                {semestersList.length === 0 ? (
+                  <div style={{ color: 'var(--muted)', fontSize: '13px' }}>No semesters configured. Using default suggestions.</div>
+                ) : (
+                  semestersList.map(s => (
+                    <div key={s} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--input-bg)', padding: '10px 16px', borderRadius: '12px', border: '1px solid var(--rule-bright)' }}>
+                      <span style={{ color: 'var(--paper)', fontWeight: 600, fontSize: '14px' }}>{s}</span>
+                      <button className="icon-btn" style={{ color: 'var(--pen-red)' }} onClick={() => removeSemester(s)}>✕</button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}
