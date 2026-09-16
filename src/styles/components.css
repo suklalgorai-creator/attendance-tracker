@@ -48,7 +48,7 @@
 
 @media (max-width: 768px) {
   .card {
-    background: rgba(24, 24, 27, 0.75); /* Slightly darker to compensate for less blur */
+    background: var(--surface);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
   }
@@ -413,3 +413,43 @@ button { font-family: inherit; }
 }
 .streak-popup-title { font-size: 26px; font-weight: 900; color: var(--paper); margin-bottom: 8px; }
 .streak-popup-desc { font-size: 15px; color: var(--muted); line-height: 1.5; margin-bottom: 32px; }
+
+/* ===== ADMIN DASHBOARD V2 ===== */
+.admin-tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--rule-bright); padding-bottom: 12px; overflow-x: auto; scrollbar-width: none; }
+.admin-tabs::-webkit-scrollbar { display: none; }
+.admin-tab-btn { background: transparent; border: none; color: var(--muted); font-size: 14px; font-weight: 700; padding: 8px 16px; border-radius: 999px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.admin-tab-btn:hover { color: var(--paper); background: var(--rule); }
+.admin-tab-btn.active { background: var(--surface); color: var(--paper); box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid var(--glass-border); }
+
+.admin-search-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.admin-search-bar input, .admin-search-bar select {
+  background: var(--input-bg); border: 1px solid var(--rule-bright); border-radius: 12px;
+  padding: 12px 16px; color: var(--paper); font-size: 14px; flex: 1; min-width: 200px;
+}
+.admin-search-bar input:focus, .admin-search-bar select:focus { outline: none; border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-soft); }
+
+.status-badge { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+.status-safe { background: var(--ink-green-soft); color: var(--ink-green); border: 1px solid rgba(16,185,129,0.3); }
+.status-danger { background: var(--pen-red-soft); color: var(--pen-red); border: 1px solid rgba(244,63,94,0.3); }
+.status-neutral { background: var(--rule-bright); color: var(--muted); border: 1px solid var(--glass-border); }
+
+.admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.admin-user-card { background: var(--input-bg); border: 1px solid var(--rule-bright); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; transition: all 0.2s; }
+.admin-user-card:hover { transform: translateY(-2px); border-color: var(--glass-border); box-shadow: 0 8px 24px rgba(0,0,0,0.05); }
+
+.user-card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.user-card-header h3 { font-size: 16px; font-weight: 800; color: var(--paper); margin: 0 0 4px 0; }
+.user-card-header p { font-size: 13px; color: var(--muted); margin: 0; }
+
+.user-card-stats { display: flex; justify-content: space-between; background: var(--surface); padding: 12px; border-radius: 12px; border: 1px solid var(--rule); }
+.user-card-stat { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.user-card-stat-val { font-size: 16px; font-weight: 800; color: var(--paper); }
+.user-card-stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+
+.user-card-actions { display: flex; gap: 8px; margin-top: 4px; }
+.user-card-actions button { flex: 1; padding: 10px; font-size: 13px; }
+
+/* Admin stats box */
+.admin-stat-box { background: var(--input-bg); border: 1px solid var(--rule-bright); border-radius: 16px; padding: 20px; flex: 1; min-width: 120px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.admin-stat-box .stat-value { font-size: 32px; font-weight: 900; color: var(--paper); }
+.admin-stat-box .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; text-align: center; }

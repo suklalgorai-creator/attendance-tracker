@@ -49,7 +49,7 @@ export default function DrawerMenu({ data, onClose, canInstall, onInstall }) {
   };
 
   const handleWhatsNew = () => {
-    alert("What's New in v1.1:\n\n🚀 Super fast Dashboard Quick Add\n📱 Clean, premium Mobile UI Layout\n📊 CSV Export for all data\n🔗 Native Social Sharing\n🌙 Quick Theme toggle\n📲 Install as Native App");
+    alert("What's New in v2.0:\n\n👑 All New Admin Dashboard\n📅 Global Holidays & Exam Days\n🔔 Smart Push Reminders (Auto-skip on holidays)\n💬 Broadcast Announcements\n📊 CSV Export & Analytics\n✨ Bug fixes & UI improvements");
     onClose();
   };
 

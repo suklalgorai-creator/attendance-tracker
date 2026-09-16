@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { todayStr, isClassDay, getPeriodsForDate } from '../utils/date';
 import { requestFCMToken } from '../firebase';
 
-export function useReminders(data, saveSettings) {
+export function useReminders(data, saveSettings, globalSettings) {
   const [permission, setPermission] = useState(
     'Notification' in window ? Notification.permission : 'denied'
   );
@@ -58,6 +58,10 @@ export function useReminders(data, saveSettings) {
       
       // Check if today is a class day and attendance isn't marked
       if (!isClassDay(today, classDays) || records[today]) return;
+      
+      // Check if today is a global holiday
+      const globalHolidays = globalSettings?.holidays || {};
+      if (globalHolidays[today]) return;
 
       const now = new Date();
       const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -106,7 +110,7 @@ export function useReminders(data, saveSettings) {
     const interval = setInterval(checkAndNotify, 60 * 1000);
 
     return () => clearInterval(interval);
-  }, [permission, data]);
+  }, [permission, data, globalSettings]);
 
   return { permission, requestPermission };
 }

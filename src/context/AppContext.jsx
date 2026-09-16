@@ -4,7 +4,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { STORAGE_KEY, DEFAULT_MIN, DEFAULT_CLASS_DAYS } from '../constants';
 import { computeStats, computeStreak } from '../utils/stats';
 import { todayStr } from '../utils/date';
-import { loadUserData, saveLocal, flushToCloud } from '../services/cloudSync';
+import { loadUserData, saveLocal, flushToCloud, getGlobalSettings } from '../services/cloudSync';
 
 const AppContext = createContext(null);
 
@@ -24,6 +24,7 @@ export function AppProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
+  const [globalSettings, setGlobalSettings] = useState({ holidays: {} });
   const [viewMode, setViewMode] = useState('week');
   const [showAdmin, setShowAdmin] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -32,6 +33,7 @@ export function AppProvider({ children }) {
   });
   const [showStreakPopup, setShowStreakPopup] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
+  const [guestMode, setGuestMode] = useState(() => localStorage.getItem('guestMode') === 'true');
 
   const syncTimeoutRef = useRef(null);
   const isDirtyRef = useRef(false);
@@ -50,23 +52,59 @@ export function AppProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setAuthLoading(false);
-      if (!currentUser) setData(null);
+      if (!currentUser && localStorage.getItem('guestMode') !== 'true') setData(null);
     });
     return unsubscribe;
   }, []);
 
+  // Flush to cloud
+  const doFlush = useCallback(async () => {
+    if (!isDirtyRef.current || !user || !latestDataRef.current) return;
+    isDirtyRef.current = false;
+    try {
+      await flushToCloud(user, latestDataRef.current);
+    } catch (e) {
+      isDirtyRef.current = true;
+      setErrorMsg('Cloud sync failed. Data saved locally.');
+      setTimeout(() => setErrorMsg(''), 3000);
+    }
+  }, [user]);
+
   // Load data
   useEffect(() => {
-    if (!user) return;
+    if (!user && !guestMode) return;
+    const currentUid = user ? user.uid : 'guest';
     let isMounted = true;
     (async () => {
       setLoading(true);
       try {
-        const result = await loadUserData(user.uid);
+        const result = await loadUserData(currentUid);
         if (isMounted) {
-          setData(result);
-          latestDataRef.current = result;
-          if (result && result.theme) setTheme(result.theme);
+          let finalData = result;
+          
+          // Data Migration: Merge guest data into newly logged in account
+          if (user) {
+            const guestDataStr = localStorage.getItem(`${STORAGE_KEY}_guest`);
+            if (guestDataStr) {
+              try {
+                const guestData = JSON.parse(guestDataStr);
+                const mergedRecords = { ...((result && result.records) || {}), ...((guestData && guestData.records) || {}) };
+                finalData = { ...guestData, ...result, records: mergedRecords };
+                localStorage.removeItem(`${STORAGE_KEY}_guest`);
+                localStorage.removeItem('guestMode');
+                setGuestMode(false);
+                isDirtyRef.current = true;
+              } catch(e) {}
+            }
+          }
+
+          setData(finalData);
+          latestDataRef.current = finalData;
+          if (finalData && finalData.theme) setTheme(finalData.theme);
+          
+          if (user && isDirtyRef.current) {
+            doFlush();
+          }
         }
       } catch (err) {
         console.error("Failed to load user data:", err);
@@ -74,22 +112,16 @@ export function AppProvider({ children }) {
       } finally {
         if (isMounted) setLoading(false);
       }
+      
+      try {
+        const gs = await getGlobalSettings();
+        if (isMounted) setGlobalSettings(gs || { holidays: {} });
+      } catch (e) {}
+      
     })();
     return () => { isMounted = false; };
-  }, [user]);
+  }, [user, guestMode, doFlush]);
 
-  // Flush to cloud
-  const doFlush = useCallback(async () => {
-    if (!isDirtyRef.current || !user || !latestDataRef.current) return;
-    isDirtyRef.current = false;
-    try {
-      await flushToCloud(user.uid, user.email, latestDataRef.current);
-    } catch (e) {
-      isDirtyRef.current = true;
-      setErrorMsg('Cloud sync failed. Data saved locally.');
-      setTimeout(() => setErrorMsg(''), 3000);
-    }
-  }, [user]);
 
   // Auto-sync on tab hide / close
   useEffect(() => {
@@ -109,12 +141,15 @@ export function AppProvider({ children }) {
     latestDataRef.current = next;
     isDirtyRef.current = true;
     
-    if (user) {
-      saveLocal(user.uid, next);
-      if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
-      syncTimeoutRef.current = setTimeout(() => doFlush(), 30000);
+    const currentUid = user ? user.uid : (guestMode ? 'guest' : null);
+    if (currentUid) {
+      saveLocal(currentUid, next);
+      if (user) {
+        if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
+        syncTimeoutRef.current = setTimeout(() => doFlush(), 30000);
+      }
     }
-  }, [user, doFlush]);
+  }, [user, guestMode, doFlush]);
 
   // Computed values
   const stats = useMemo(() => {
@@ -175,6 +210,8 @@ export function AppProvider({ children }) {
     setData(null);
     latestDataRef.current = null;
     isDirtyRef.current = false;
+    localStorage.removeItem('guestMode');
+    setGuestMode(false);
     signOut(auth);
   };
 
@@ -182,7 +219,7 @@ export function AppProvider({ children }) {
     // Auth
     authLoading, user, ADMIN_EMAIL,
     // Data
-    loading, data, stats, streak,
+    loading, data, stats, streak, globalSettings,
     // UI State
     viewMode, setViewMode,
     showAdmin, setShowAdmin,
@@ -190,6 +227,7 @@ export function AppProvider({ children }) {
     theme, toggleTheme,
     showStreakPopup, setShowStreakPopup,
     showDrawer, setShowDrawer,
+    guestMode, setGuestMode,
     // Actions
     persist, markDay, clearDay, saveSettings, resetAll, handleLogout,
     // Helpers

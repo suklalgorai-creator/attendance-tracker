@@ -17,20 +17,26 @@ export default function SettingsPage() {
         <div className="card-title">Profile</div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={{ width: '88px', height: '88px', borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--glass-border)', marginBottom: '16px', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}>
-            {user.photoURL ? (
+            {user?.photoURL ? (
               <img src={user.photoURL} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} referrerPolicy="no-referrer" />
             ) : (
               <div style={{ width: '100%', height: '100%', background: 'var(--rule)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', fontWeight: '800', color: 'var(--paper)' }}>
-                {user.email ? user.email.charAt(0).toUpperCase() : 'U'}
+                {user?.email ? user.email.charAt(0).toUpperCase() : 'G'}
               </div>
             )}
           </div>
-          <div style={{ fontSize: '22px', fontWeight: '800', color: 'var(--paper)' }}>{data.name || user.displayName || 'Student'}</div>
-          <div style={{ fontSize: '15px', color: 'var(--muted)', marginTop: '4px', fontWeight: '500' }}>{user.email}</div>
+          <div style={{ fontSize: '22px', fontWeight: '800', color: 'var(--paper)' }}>{data.name || user?.displayName || 'Guest User'}</div>
+          <div style={{ fontSize: '15px', color: 'var(--muted)', marginTop: '4px', fontWeight: '500' }}>{user?.email || 'Not logged in (Local Data Only)'}</div>
 
           <div style={{ display: 'flex', gap: '12px', marginTop: '24px', width: '100%' }}>
-            <button className="btn-ghost" onClick={handleLogout} style={{ flex: 1 }}>Log Out</button>
-            {user.email === ADMIN_EMAIL && (
+            {user ? (
+              <button className="btn-ghost" onClick={handleLogout} style={{ flex: 1 }}>Log Out</button>
+            ) : (
+              <button className="btn-present" onClick={handleLogout} style={{ flex: 1, boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)' }}>
+                Sign In to Backup Data
+              </button>
+            )}
+            {user?.email === ADMIN_EMAIL && (
               <button className="btn-present" onClick={() => setShowAdmin(true)} style={{ flex: 1 }}>
                 Admin Dashboard
               </button>
@@ -50,7 +56,7 @@ export default function SettingsPage() {
         </label>
         <label className="field">
           <span>Your Name</span>
-          <input type="text" value={data.name || ''} placeholder={user.displayName || 'Enter your name'} onChange={(e) => saveSettings({ name: e.target.value })} />
+          <input type="text" value={data.name || ''} placeholder={user?.displayName || 'Enter your name'} onChange={(e) => saveSettings({ name: e.target.value })} />
         </label>
         <label className="field">
           <span>Degree / Program name</span>

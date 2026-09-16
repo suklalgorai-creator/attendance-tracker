@@ -28,7 +28,7 @@ export async function loadUserData(uid) {
 
   let cloudData = null;
 
-  if (!localData || (now - lastSync) > ONE_HOUR) {
+  if (uid !== 'guest' && (!localData || (now - lastSync) > ONE_HOUR)) {
     try {
       const docRef = doc(db, 'users', uid);
       const docSnap = await getDoc(docRef);
@@ -67,9 +67,25 @@ export function saveLocal(uid, data) {
 /**
  * Flush data to Firestore
  */
-export async function flushToCloud(uid, email, data) {
-  if (!uid) return;
-  const lastSyncKey = `${BASE_STORAGE_KEY}_${uid}_lastSync`;
-  await setDoc(doc(db, 'users', uid), { ...data, email });
+export async function flushToCloud(user, data) {
+  if (!user || !user.uid || user.uid === 'guest') return;
+  const lastSyncKey = `${BASE_STORAGE_KEY}_${user.uid}_lastSync`;
+  await setDoc(doc(db, 'users', user.uid), { ...data, email: user.email, displayName: user.displayName || '' });
   localStorage.setItem(lastSyncKey, String(Date.now()));
+}
+
+/**
+ * Fetch Global Settings (Holidays, etc)
+ */
+export async function getGlobalSettings() {
+  try {
+    const docRef = doc(db, 'settings', 'global');
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data();
+    }
+  } catch (e) {
+    console.warn('Failed to fetch global settings:', e);
+  }
+  return { holidays: {} };
 }

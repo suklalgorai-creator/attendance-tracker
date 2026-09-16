@@ -23,16 +23,18 @@ export default function AppLayout() {
   const {
     authLoading, user, loading, data, stats,
     showAdmin, setShowAdmin,
-    errorMsg, streak,
+    errorMsg, streak, globalSettings,
+    theme, toggleTheme,
     showStreakPopup, setShowStreakPopup,
     showDrawer, setShowDrawer,
+    guestMode, setGuestMode,
     saveSettings,
   } = useApp();
 
   const { showInstallPopup, deferredPrompt, handleInstall, handleDismiss } = useInstallPrompt();
   
   // Activate reminders (pass saveSettings so FCM token can be saved)
-  useReminders(data, saveSettings);
+  const { permission, requestPermission } = useReminders(data, saveSettings, globalSettings);
 
   // Check if desktop
   const isDesktop = useMediaQuery('(min-width: 1024px)');
@@ -46,7 +48,7 @@ export default function AppLayout() {
     );
   }
 
-  if (!user) {
+  if (!user && !guestMode) {
     return <Auth />;
   }
 
@@ -111,7 +113,12 @@ export default function AppLayout() {
               <div className="course-name">My Attendance</div>
             </div>
           </div>
-          <div className="header-right">
+          <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {isDesktop && (
+              <button className="icon-btn" style={{ width: '40px', height: '40px', fontSize: '18px' }} onClick={toggleTheme} title="Toggle Theme">
+                {theme === 'dark' ? '☀️' : '🌙'}
+              </button>
+            )}
             {streak > 0 && (
               <button className="streak-badge-btn" onClick={() => setShowStreakPopup(true)}>
                 <span className="streak-fire">🔥</span>
@@ -128,6 +135,16 @@ export default function AppLayout() {
           </div>
         )}
 
+        {/* Guest Banner */}
+        {!user && guestMode && (
+          <div className="reminder-banner" style={{ backgroundColor: 'var(--amber)', color: '#000', cursor: 'pointer' }} onClick={() => {
+            localStorage.removeItem('guestMode');
+            setGuestMode(false);
+          }}>
+            ⚠️ Data not backed up! <b>Tap here to Sign in</b> and save your attendance in the cloud.
+          </div>
+        )}
+
         {/* Modals */}
         {showInstallPopup && deferredPrompt && (
           <InstallPopup onInstall={handleInstall} onDismiss={handleDismiss} />
@@ -135,6 +152,37 @@ export default function AppLayout() {
 
         {showStreakPopup && (
           <StreakPopup streak={streak} onClose={() => setShowStreakPopup(false)} />
+        )}
+
+        {data?.adminRequestedPush && permission !== 'granted' && (
+          <div className="modal-overlay" style={{ zIndex: 99999 }}>
+            <div className="modal-content" style={{ textAlign: 'center', maxWidth: '320px' }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px', animation: 'fireBurn 2s infinite' }}>🔔</div>
+              <h3 style={{ margin: '0 0 12px 0', fontSize: '20px', fontWeight: 800, color: 'var(--paper)' }}>Stay on Track!</h3>
+              <p style={{ color: 'var(--muted)', fontSize: '15px', marginBottom: '24px', lineHeight: 1.5 }}>
+                Enable push notifications to get timely updates and auto-reminders of your attendance, especially when your days become busy!
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <button 
+                  className="btn-present"
+                  style={{ width: '100%' }}
+                  onClick={() => {
+                    requestPermission();
+                    saveSettings({ adminRequestedPush: false, pushEnabled: true });
+                  }}
+                >
+                  Enable Notifications
+                </button>
+                <button 
+                  className="btn-ghost" 
+                  style={{ width: '100%' }}
+                  onClick={() => saveSettings({ adminRequestedPush: false })}
+                >
+                  Maybe Later
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {showDrawer && !isDesktop && (

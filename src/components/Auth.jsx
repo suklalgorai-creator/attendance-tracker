@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
 import { auth } from '../firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { useApp } from '../context/AppContext';
 
 
 export default function Auth() {
+  const { setGuestMode } = useApp();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const handleGuest = () => {
+    localStorage.setItem('guestMode', 'true');
+    setGuestMode(true);
+  };
 
   const handleGoogle = async () => {
     setError('');
@@ -52,6 +59,16 @@ export default function Auth() {
               Continue with Google
             </>
           )}
+        </button>
+
+        <button
+          type="button"
+          className="btn-ghost btn-wide"
+          onClick={handleGuest}
+          disabled={loading}
+          style={{ marginTop: '16px', padding: '16px', color: 'var(--muted)' }}
+        >
+          Skip for now (Use as Guest)
         </button>
       </div>
     </div>

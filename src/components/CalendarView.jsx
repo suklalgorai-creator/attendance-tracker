@@ -4,7 +4,8 @@ function formatDateKey(year, month, day) {
   return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
-export default function CalendarView({ records = {} }) {
+export default function CalendarView({ records = {}, globalSettings = {} }) {
+  const globalHolidays = globalSettings?.holidays || {};
   const [currentDate, setCurrentDate] = useState(new Date());
   
   const year = currentDate.getFullYear();
@@ -31,6 +32,7 @@ export default function CalendarView({ records = {} }) {
   const todayStr = formatDateKey(today.getFullYear(), today.getMonth(), today.getDate());
 
   const getColorClass = (dateStr) => {
+    if (globalHolidays[dateStr]) return 'cal-holiday';
     const r = records[dateStr];
     if (!r) return 'cal-empty';
     if (r.held === 0) return 'cal-holiday';
@@ -45,13 +47,17 @@ export default function CalendarView({ records = {} }) {
   
   for (let i = 1; i <= daysInMonth; i++) {
     const dateStr = formatDateKey(year, month, i);
-    const r = records[dateStr];
-    if (r) {
-      if (r.held === 0) {
-        monthHolidays++;
-      } else {
-        monthHeld += r.held;
-        monthAttended += r.attended;
+    if (globalHolidays[dateStr]) {
+      monthHolidays++;
+    } else {
+      const r = records[dateStr];
+      if (r) {
+        if (r.held === 0) {
+          monthHolidays++;
+        } else {
+          monthHeld += r.held;
+          monthAttended += r.attended;
+        }
       }
     }
   }

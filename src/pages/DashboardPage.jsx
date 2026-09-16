@@ -9,11 +9,12 @@ import { todayStr, isClassDay } from '../utils/date';
 const CalendarView = React.lazy(() => import('../components/CalendarView'));
 
 export default function DashboardPage() {
-  const { data, stats, streak, markDay } = useApp();
+  const { data, stats, streak, markDay, globalSettings } = useApp();
 
   const statusColor = stats.status === 'safe' ? 'var(--ink-green)' : stats.status === 'danger' ? 'var(--pen-red)' : 'var(--rule)';
   const today = todayStr();
   const isTodayClassDay = isClassDay(today, data.classDays || [1,2,3,4,5]);
+  const isGlobalHoliday = !!(globalSettings?.holidays && globalSettings.holidays[today]);
   const todayRecord = data.records[today];
 
   return (
@@ -28,7 +29,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {isTodayClassDay && !todayRecord && (
+      {isTodayClassDay && !todayRecord && !isGlobalHoliday && (
         <div className="card" style={{ gridColumn: '1 / -1', padding: '16px 20px' }}>
           <div className="card-title" style={{ marginBottom: '12px' }}>Mark Today's Attendance</div>
           <div className="quick-actions">
@@ -69,7 +70,7 @@ export default function DashboardPage() {
             <span>Activity</span>
           </div>
           <React.Suspense fallback={<div className="loading">Loading...</div>}>
-            <CalendarView records={data.records} />
+            <CalendarView records={data.records} globalSettings={globalSettings} />
           </React.Suspense>
         </div>
 
