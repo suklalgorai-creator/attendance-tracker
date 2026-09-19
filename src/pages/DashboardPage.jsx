@@ -1,7 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import Ring from '../components/Ring';
-import { BADGES, STREAK_BADGES } from '../constants';
 import { Link } from 'react-router-dom';
 
 import { todayStr, isClassDay } from '../utils/date';
@@ -72,30 +71,6 @@ export default function DashboardPage() {
           <React.Suspense fallback={<div className="loading">Loading...</div>}>
             <CalendarView records={data.records} globalSettings={globalSettings} />
           </React.Suspense>
-        </div>
-
-        <div className="card badges-card" style={{ display: 'none' }}>
-          <div className="card-title">Badges</div>
-          <div className="badges-row">
-            {BADGES.map((b) => {
-              const unlocked = (data.bestPercent || 0) >= b.min;
-              return (
-                <div key={b.id} className="badge" style={{ opacity: unlocked ? 1 : 0.35 }}>
-                  <div className="badge-dot" style={{ background: unlocked ? b.color : 'var(--rule)' }} />
-                  <span>{b.label}</span>
-                </div>
-              );
-            })}
-            {STREAK_BADGES.map((b) => {
-              const unlocked = streak >= b.min;
-              return (
-                <div key={b.id} className="badge" style={{ opacity: unlocked ? 1 : 0.35 }}>
-                  <div className="badge-dot" style={{ background: unlocked ? 'var(--amber)' : 'var(--rule)' }} />
-                  <span>{b.label}</span>
-                </div>
-              );
-            })}
-          </div>
         </div>
       </div>
     </div>

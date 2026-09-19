@@ -154,22 +154,17 @@ export function AppProvider({ children }) {
   const stats = useMemo(() => {
     if (!data) return null;
     return computeStats(data.records, data.minPercent, data.startDate, data.classDays || DEFAULT_CLASS_DAYS, data.timetable || {});
-  }, [data]);
+  }, [data?.records, data?.minPercent, data?.startDate, data?.classDays, data?.timetable]);
 
   const streak = useMemo(
     () => (data ? computeStreak(data.records, data.classDays || DEFAULT_CLASS_DAYS) : 0),
-    [data]
+    [data?.records, data?.classDays]
   );
 
   // Actions
   const markDay = (dateStr, held, attended) => {
     const nextRecords = { ...data.records, [dateStr]: { held, attended } };
-    const s = computeStats(nextRecords, data.minPercent, data.startDate, data.classDays || DEFAULT_CLASS_DAYS, data.timetable || {});
-    let bestPercent = data.bestPercent || 0;
-    if (s.currentPercent !== null && s.totalHeld >= 5 && s.currentPercent > bestPercent) {
-      bestPercent = s.currentPercent;
-    }
-    persist({ ...data, records: nextRecords, bestPercent });
+    persist({ ...data, records: nextRecords });
   };
 
   const clearDay = (dateStr) => {

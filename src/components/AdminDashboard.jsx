@@ -39,7 +39,6 @@ export default function AdminDashboard({ onBack }) {
 
   const updateGlobalSettings = async (key, value) => {
     try {
-      const { doc, setDoc } = await import('firebase/firestore');
       await setDoc(doc(db, 'settings', 'global'), { [key]: value }, { merge: true });
     } catch (e) {
       alert('Failed to update settings: ' + e.message);
@@ -79,7 +78,6 @@ export default function AdminDashboard({ onBack }) {
     if (!holidayDate) return;
     const newHolidays = { ...holidays, [holidayDate]: holidayName || 'Holiday' };
     try {
-      const { doc, setDoc } = await import('firebase/firestore');
       await setDoc(doc(db, 'settings', 'global'), { holidays: newHolidays }, { merge: true });
       setHolidays(newHolidays);
       
@@ -119,7 +117,6 @@ export default function AdminDashboard({ onBack }) {
     const newHolidays = { ...holidays };
     delete newHolidays[dateStr];
     try {
-      const { doc, setDoc } = await import('firebase/firestore');
       await setDoc(doc(db, 'settings', 'global'), { holidays: newHolidays }, { merge: true });
       setHolidays(newHolidays);
     } catch (e) {
@@ -408,8 +405,7 @@ export default function AdminDashboard({ onBack }) {
                       <button 
                         className="btn-clear" 
                         onClick={async () => {
-                          try {
-                            const { doc, updateDoc } = await import('firebase/firestore');
+                        try {
                             await updateDoc(doc(db, 'users', u.id), { adminRequestedPush: true });
                             alert(`Requested ${u.displayName || u.email} to enable push notifications! They will see a prompt next time they open the app.`);
                           } catch (e) {

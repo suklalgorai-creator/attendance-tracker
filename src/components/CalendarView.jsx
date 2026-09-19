@@ -4,7 +4,7 @@ function formatDateKey(year, month, day) {
   return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
-export default function CalendarView({ records = {}, globalSettings = {} }) {
+function CalendarView({ records = {}, globalSettings = {} }) {
   const globalHolidays = globalSettings?.holidays || {};
   const [currentDate, setCurrentDate] = useState(new Date());
   
@@ -113,3 +113,5 @@ export default function CalendarView({ records = {}, globalSettings = {} }) {
     </div>
   );
 }
+
+export default React.memo(CalendarView);

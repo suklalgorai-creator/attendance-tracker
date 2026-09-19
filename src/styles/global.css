@@ -72,12 +72,11 @@ body::before, body::after, .app-root::before {
   content: "";
   position: fixed;
   border-radius: 50%;
-  filter: blur(100px);
+  filter: blur(60px);
   z-index: -1;
   animation: float 20s infinite alternate cubic-bezier(0.45, 0.05, 0.55, 0.95);
   opacity: 0.8;
-  transition: all 0.8s ease;
-  will-change: transform;
+  transition: opacity 0.8s ease;
 }
 body::before {
   top: -10%; left: -10%;
@@ -97,12 +96,12 @@ body::after {
   animation-delay: -10s;
 }
 
-/* Performance fix for mobile lag */
+/* Performance fix for mobile — no blur, no animation, just soft gradients */
 @media (max-width: 768px) {
   body::before, body::after, .app-root::before {
-    animation: none; /* Disable expensive animation */
-    filter: blur(40px); /* Much lower blur radius for better FPS */
-    transform: translateZ(0); /* Hardware acceleration */
+    animation: none;
+    filter: none;
+    opacity: 0.4;
   }
 }
 
