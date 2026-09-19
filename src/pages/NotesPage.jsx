@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import NoteModal from '../components/NoteModal';
-import { v4 as uuidv4 } from 'uuid';
 
 export default function NotesPage() {
   const { data, saveSettings } = useApp();
@@ -15,7 +14,8 @@ export default function NotesPage() {
     if (editingNote) {
       nextNotes = notes.map((n) => (n.id === editingNote.id ? { ...noteData, id: n.id, createdAt: n.createdAt } : n));
     } else {
-      nextNotes = [...notes, { ...noteData, id: uuidv4(), createdAt: new Date().toISOString() }];
+      const newId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString();
+      nextNotes = [...notes, { ...noteData, id: newId, createdAt: new Date().toISOString() }];
     }
     saveSettings({ notes: nextNotes });
     setIsModalOpen(false);
