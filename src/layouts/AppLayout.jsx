@@ -87,7 +87,7 @@ export default function AppLayout() {
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
   const reminderMinutes = (rh || 0) * 60 + (rm || 0);
   const todayPeriods = getPeriodsForDate(today, timetable);
-  const showReminder = isClassDay(today, classDays) && !data.records[today] && nowMinutes >= reminderMinutes;
+  const showReminder = isClassDay(today, classDays) && !(data.records && data.records[today]) && nowMinutes >= reminderMinutes;
 
   const ActiveLayout = isDesktop ? DesktopLayout : MobileLayout;
 
