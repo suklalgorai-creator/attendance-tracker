@@ -14,6 +14,7 @@ import DashboardPage from '../pages/DashboardPage';
 import RegisterPage from '../pages/RegisterPage';
 import SettingsPage from '../pages/SettingsPage';
 import OnboardingPage from '../pages/OnboardingPage';
+import NotesPage from '../pages/NotesPage';
 import DesktopLayout from './DesktopLayout';
 import MobileLayout from './MobileLayout';
 
@@ -199,6 +200,7 @@ export default function AppLayout() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/notes" element={<NotesPage />} />
         </Routes>
       </ActiveLayout>
 

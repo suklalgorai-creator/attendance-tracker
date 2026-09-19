@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import SupportModal from './SupportModal';
-
+import { NavLink } from 'react-router-dom';
 export default function DrawerMenu({ data, onClose, canInstall, onInstall }) {
   const { theme, toggleTheme } = useApp();
 
@@ -82,9 +82,9 @@ export default function DrawerMenu({ data, onClose, canInstall, onInstall }) {
             <span>✨</span> What's New
           </button>
           <div className="drawer-divider"></div>
-          <button className="drawer-item" onClick={() => alert("My Resources feature is coming soon!")}>
-            <span>📚</span> My Resources
-          </button>
+          <NavLink to="/notes" className="drawer-item" onClick={onClose} style={{ textDecoration: 'none' }}>
+            <span>📝</span> Sticky Notes
+          </NavLink>
           <div className="drawer-divider"></div>
           <button className="drawer-item" onClick={handleExportCSV}>
             <span>📊</span> Export Data (CSV)

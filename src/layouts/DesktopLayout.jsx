@@ -74,9 +74,9 @@ export default function DesktopLayout({ children }) {
         </div>
 
         <div className="sidebar-footer" style={{ marginTop: 'auto', paddingTop: '24px', borderTop: '1px solid var(--rule)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <button className="nav-btn" onClick={() => alert("My Resources feature is coming soon!")} style={{ padding: '12px 16px', background: 'transparent', border: 'none', color: 'var(--muted)', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', borderRadius: '12px' }}>
-            <span>📚</span> My Resources
-          </button>
+          <NavLink to="/notes" className="nav-btn" style={{ padding: '12px 16px', background: 'transparent', border: 'none', color: 'var(--muted)', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', borderRadius: '12px', textDecoration: 'none' }}>
+            <span>📝</span> Sticky Notes
+          </NavLink>
           <button className="nav-btn" onClick={handleExportCSV} style={{ padding: '12px 16px', background: 'transparent', border: 'none', color: 'var(--muted)', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', borderRadius: '12px' }}>
             <span>📊</span> Export Data
           </button>
