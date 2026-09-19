@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import NoteModal from '../components/NoteModal';
+import ReactMarkdown from 'react-markdown';
 
 export default function NotesPage() {
   const { data, saveSettings } = useApp();
@@ -65,7 +66,9 @@ export default function NotesPage() {
               style={{ backgroundColor: note.color || 'var(--input-bg)' }}
               onClick={() => openEditNote(note)}
             >
-              <div className="note-content">{note.content}</div>
+              <div className="note-content markdown-body">
+                <ReactMarkdown>{note.content}</ReactMarkdown>
+              </div>
               
               <div className="note-footer">
                 <div className="note-meta">

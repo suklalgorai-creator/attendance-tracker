@@ -69,7 +69,18 @@ export default function DrawerMenu({ data, onClose, canInstall, onInstall }) {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
         </div>
-        <div className="drawer-content">
+        <div className="drawer-content" style={{ padding: '8px 0' }}>
+          <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--muted)', textTransform: 'uppercase', padding: '12px 16px 4px', letterSpacing: '1px' }}>Additional Features</div>
+          <NavLink to="/notes" className="drawer-item" onClick={onClose} style={{ textDecoration: 'none' }}>
+            <span>📝</span> Sticky Notes
+          </NavLink>
+          <button className="drawer-item" onClick={handleExportCSV}>
+            <span>📊</span> Export Data (CSV)
+          </button>
+
+          <div className="drawer-divider" style={{ margin: '8px 0' }}></div>
+          <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--muted)', textTransform: 'uppercase', padding: '12px 16px 4px', letterSpacing: '1px' }}>App & Settings</div>
+          
           {canInstall && (
             <button className="drawer-item" onClick={onInstall} style={{ color: 'var(--amber)' }}>
               <span>📲</span> Install App
@@ -81,18 +92,13 @@ export default function DrawerMenu({ data, onClose, canInstall, onInstall }) {
           <button className="drawer-item" onClick={handleWhatsNew}>
             <span>✨</span> What's New
           </button>
-          <div className="drawer-divider"></div>
-          <NavLink to="/notes" className="drawer-item" onClick={onClose} style={{ textDecoration: 'none' }}>
-            <span>📝</span> Sticky Notes
-          </NavLink>
-          <div className="drawer-divider"></div>
-          <button className="drawer-item" onClick={handleExportCSV}>
-            <span>📊</span> Export Data (CSV)
-          </button>
           <button className="drawer-item" onClick={handleShare}>
             <span>🔗</span> Share App
           </button>
-          <div className="drawer-divider"></div>
+
+          <div className="drawer-divider" style={{ margin: '8px 0' }}></div>
+          <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--muted)', textTransform: 'uppercase', padding: '12px 16px 4px', letterSpacing: '1px' }}>Support</div>
+
           <button className="drawer-item" onClick={() => setShowSupport(true)}>
             <span>☕</span> Support Developer
           </button>

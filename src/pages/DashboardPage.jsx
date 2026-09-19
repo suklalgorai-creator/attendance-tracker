@@ -62,13 +62,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <Link to="/notes" className="card" style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px 20px', textDecoration: 'none', marginTop: '16px', background: 'var(--surface)', border: '1px solid var(--rule)' }}>
-          <div style={{ fontSize: '24px' }}>📝</div>
-          <div>
-            <div style={{ fontWeight: 800, color: 'var(--paper)', fontSize: '16px' }}>Sticky Notes</div>
-            <div style={{ color: 'var(--muted)', fontSize: '13px' }}>View and manage your quick reminders</div>
-          </div>
-        </Link>
+
       </div>
 
       <div className="dashboard-stats">
