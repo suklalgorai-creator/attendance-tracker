@@ -1,5 +1,10 @@
 # College Attendance Tracker - Changelog
 
+## 🐛 Version 2.1.1 - Background Notifications Fix
+- **Cron Job Crash Fix**: Fixed a critical `TypeError` in the Vercel serverless function (`api/send-notification.js`) caused by treating `classDays` as a string array instead of a number array.
+- **IST Timezone Fix**: Corrected the server time calculation to use Indian Standard Time (IST) instead of UTC when determining the current date for sending attendance reminders.
+- **Spam Prevention**: Added a `lastNotified` check to prevent the GitHub Action hourly cron job from spamming users who forgot to mark their attendance.
+
 ## 🚀 Performance Optimizations (Latest Update)
 The app underwent a significant performance overhaul, particularly targeting lag on mobile devices caused by heavy CSS rendering.
 

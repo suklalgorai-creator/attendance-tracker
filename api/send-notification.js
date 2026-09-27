@@ -115,10 +115,12 @@ export default async function handler(req, res) {
         return res.status(403).json({ error: 'Unauthorized cron request' });
       }
 
+      // Get current date and time in IST (Indian Standard Time)
       const now = new Date();
-      const currentDay = now.toLocaleDateString('en-US', { weekday: 'short' }); // "Mon", "Tue", etc.
-      const currentMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
-      const todayStr = now.toISOString().slice(0, 10); // "2026-09-14"
+      const istTime = new Date(now.getTime() + (330 * 60000));
+      const currentDayNumber = istTime.getUTCDay(); // 0 (Sun) to 6 (Sat)
+      const istMinutes = istTime.getUTCHours() * 60 + istTime.getUTCMinutes();
+      const todayStr = istTime.toISOString().slice(0, 10); // "YYYY-MM-DD" in IST
 
       const usersSnapshot = await db.collection('users').get();
       let sent = 0;
@@ -136,21 +138,20 @@ export default async function handler(req, res) {
         // Skip if no FCM token
         if (!fcmToken) { skipped++; return; }
 
-        // Skip if today is not a class day
-        const isClassDay = classDays.some(d => 
-          d.substring(0, 3).toLowerCase() === currentDay.toLowerCase()
-        );
+        // Skip if today is not a class day (classDays is an array of numbers 0-6)
+        const isClassDay = classDays.includes(currentDayNumber);
         if (!isClassDay) { skipped++; return; }
 
         // Skip if attendance already marked
         if (records[todayStr]) { skipped++; return; }
 
-        // Check if current time is past reminder time (convert to user's perspective)
+        // Check if current time is past reminder time
         const [rh, rm] = reminderTime.split(':').map(Number);
         const reminderMinutes = (rh || 0) * 60 + (rm || 0);
-        // Note: We use IST offset (+5:30 = 330 min) since target audience is Indian students
-        const istMinutes = currentMinutes + 330;
         if (istMinutes < reminderMinutes) { skipped++; return; }
+        
+        // Skip if already notified today (to avoid hourly spam)
+        if (data.lastNotified === todayStr) { skipped++; return; }
 
         // Send reminder
         const message = {
@@ -170,7 +171,11 @@ export default async function handler(req, res) {
 
         sendPromises.push(
           admin.messaging().send(message)
-            .then(() => { sent++; })
+            .then(() => { 
+              sent++; 
+              // Update lastNotified in Firestore to prevent hourly spam
+              return db.collection('users').doc(doc.id).update({ lastNotified: todayStr }).catch(() => {});
+            })
             .catch((err) => {
               console.error(`Failed to send to ${doc.id}:`, err.message);
               skipped++;
