@@ -3,6 +3,7 @@ import { AppProvider } from './context/AppContext';
 import { BrowserRouter } from 'react-router-dom';
 import AppLayout from './layouts/AppLayout';
 import ReloadPrompt from './components/ReloadPrompt';
+import { Analytics } from '@vercel/analytics/react';
 import './styles/global.css';
 import './styles/layout.css';
 import './styles/components.css';
@@ -13,6 +14,7 @@ export default function App() {
       <AppProvider>
         <AppLayout />
         <ReloadPrompt />
+        <Analytics />
       </AppProvider>
     </BrowserRouter>
   );
