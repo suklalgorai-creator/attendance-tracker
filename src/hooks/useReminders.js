@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { todayStr, isClassDay, getPeriodsForDate } from '../utils/date';
+import { computeStats } from '../utils/stats';
 import { requestFCMToken } from '../firebase';
 
 export function useReminders(data, saveSettings, globalSettings) {
@@ -81,11 +82,23 @@ export function useReminders(data, saveSettings, globalSettings) {
       const today = todayStr();
       
       // 1. Check Attendance Reminders
-      const classDays = data.classDays || [];
+      const classDays = data.classDays || [1, 2, 3, 4, 5];
       const records = data.records || {};
       const timetable = data.timetable || {};
       const reminderTime = data.reminderTime || '18:00';
       const globalHolidays = globalSettings?.holidays || {};
+      const minPercent = data.minPercent || 75;
+      const startDate = data.startDate || today;
+
+      // Check unmarked past days
+      const { unmarkedPastDays } = computeStats(records, minPercent, startDate, classDays, timetable);
+      if (unmarkedPastDays > 0) {
+        const lastPastDaysNotified = localStorage.getItem('lastPastDaysReminderDate');
+        if (lastPastDaysNotified !== today) {
+          sendPushNotification('Pending Attendance ⏰', `You have ${unmarkedPastDays} past class days that haven't been marked. Please update them!`);
+          localStorage.setItem('lastPastDaysReminderDate', today);
+        }
+      }
 
       if (isClassDay(today, classDays) && !records[today] && !globalHolidays[today]) {
         const [rh, rm] = reminderTime.split(':').map(Number);

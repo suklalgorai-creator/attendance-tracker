@@ -122,6 +122,17 @@ export default async function handler(req, res) {
       const istMinutes = istTime.getUTCHours() * 60 + istTime.getUTCMinutes();
       const todayStr = istTime.toISOString().slice(0, 10); // "YYYY-MM-DD" in IST
 
+      // Fetch global settings (holidays)
+      let globalHolidays = {};
+      try {
+        const settingsDoc = await db.collection('settings').doc('global').get();
+        if (settingsDoc.exists) {
+          globalHolidays = settingsDoc.data().holidays || {};
+        }
+      } catch (e) {
+        console.warn('Failed to fetch global settings in cron:', e);
+      }
+
       const usersSnapshot = await db.collection('users').get();
       let sent = 0;
       let skipped = 0;
@@ -131,12 +142,15 @@ export default async function handler(req, res) {
       usersSnapshot.forEach((doc) => {
         const data = doc.data();
         const fcmToken = data.fcmToken;
-        const classDays = data.classDays || [];
+        const classDays = data.classDays || [1, 2, 3, 4, 5];
         const records = data.records || {};
         const reminderTime = data.reminderTime || '18:00';
 
         // Skip if no FCM token
         if (!fcmToken) { skipped++; return; }
+
+        // Skip if today is a global holiday
+        if (globalHolidays[todayStr]) { skipped++; return; }
 
         // Skip if today is not a class day (classDays is an array of numbers 0-6)
         const isClassDay = classDays.includes(currentDayNumber);

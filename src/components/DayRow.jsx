@@ -6,23 +6,32 @@ export default function DayRow({ dateStr, record, isToday, isMainCard, periods, 
   const [expanded, setExpanded] = useState(isMainCard); // Auto-expand main card
   const [held, setHeld] = useState(record ? record.held : 1);
   const [attended, setAttended] = useState(record ? record.attended : 1);
-  const [periodChecks, setPeriodChecks] = useState([]);
+  
+  const hasPeriods = periods && periods.length > 0;
+
+  const [periodChecks, setPeriodChecks] = useState(() => {
+    if (!hasPeriods) return [];
+    if (record) return periods.map((_, i) => i < record.attended);
+    return periods.map(() => true);
+  });
 
   useEffect(() => {
     setHeld(record ? record.held : (periods ? periods.length : 1));
     setAttended(record ? record.attended : (periods ? periods.length : 1));
-  }, [record, expanded, periods]);
-
-  const hasPeriods = periods && periods.length > 0;
+    if (hasPeriods) {
+      if (record) {
+        setPeriodChecks(periods.map((_, i) => i < record.attended));
+      } else {
+        setPeriodChecks(periods.map(() => true));
+      }
+    }
+  }, [record, expanded, periods, hasPeriods]);
 
   const todayStr = new Date().toLocaleDateString('en-CA');
   const isFuture = dateStr > todayStr;
 
   const openEditor = () => {
     if (isFuture) return;
-    if (!expanded) {
-      if (hasPeriods) setPeriodChecks(periods.map(() => true));
-    }
     setExpanded((e) => !e);
   };
 

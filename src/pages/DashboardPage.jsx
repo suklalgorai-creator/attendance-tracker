@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import Ring from '../components/Ring';
 import { Link } from 'react-router-dom';
 
-import { todayStr, isClassDay } from '../utils/date';
+import { todayStr, isClassDay, getPeriodsForDate } from '../utils/date';
 
 const CalendarView = React.lazy(() => import('../components/CalendarView'));
 
@@ -15,6 +15,8 @@ export default function DashboardPage() {
   const isTodayClassDay = isClassDay(today, data.classDays || [1,2,3,4,5]);
   const isGlobalHoliday = !!(globalSettings?.holidays && globalSettings.holidays[today]);
   const todayRecord = data.records[today];
+  const todayPeriods = getPeriodsForDate(today, data.timetable);
+  const todayHeld = todayPeriods ? todayPeriods.length : 1;
 
   return (
     <div className="dashboard-container">
@@ -32,8 +34,8 @@ export default function DashboardPage() {
         <div className="card" style={{ gridColumn: '1 / -1', padding: '16px 20px' }}>
           <div className="card-title" style={{ marginBottom: '12px' }}>Mark Today's Attendance</div>
           <div className="quick-actions">
-            <button className="btn-present" onClick={() => markDay(today, 1, 1)}>Present</button>
-            <button className="btn-absent" onClick={() => markDay(today, 1, 0)}>Absent</button>
+            <button className="btn-present" onClick={() => markDay(today, todayHeld, todayHeld)}>Present</button>
+            <button className="btn-absent" onClick={() => markDay(today, todayHeld, 0)}>Absent</button>
             <button className="btn-ghost" onClick={() => markDay(today, 0, 0)}>Holiday</button>
           </div>
         </div>
