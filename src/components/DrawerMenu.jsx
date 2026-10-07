@@ -71,6 +71,9 @@ export default function DrawerMenu({ data, onClose, canInstall, onInstall }) {
         </div>
         <div className="drawer-content" style={{ padding: '8px 0' }}>
           <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--muted)', textTransform: 'uppercase', padding: '12px 16px 4px', letterSpacing: '1px' }}>Additional Features</div>
+          <NavLink to="/leaderboard" className="drawer-item" onClick={onClose} style={{ textDecoration: 'none' }}>
+            <span>🏆</span> Leaderboard
+          </NavLink>
           <NavLink to="/notes" className="drawer-item" onClick={onClose} style={{ textDecoration: 'none' }}>
             <span>📝</span> Sticky Notes
           </NavLink>

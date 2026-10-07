@@ -137,6 +137,14 @@ export default async function handler(req, res) {
       let sent = 0;
       let skipped = 0;
 
+      // First pass: count how many students already marked today
+      let markedTodayCount = 0;
+      usersSnapshot.forEach((doc) => {
+        const data = doc.data();
+        const records = data.records || {};
+        if (records[todayStr]) markedTodayCount++;
+      });
+
       const sendPromises = [];
 
       usersSnapshot.forEach((doc) => {
@@ -145,6 +153,7 @@ export default async function handler(req, res) {
         const classDays = data.classDays || [1, 2, 3, 4, 5];
         const records = data.records || {};
         const reminderTime = data.reminderTime || '18:00';
+        const points = data.consistencyPoints || 0;
 
         // Skip if no FCM token
         if (!fcmToken) { skipped++; return; }
@@ -167,12 +176,19 @@ export default async function handler(req, res) {
         // Skip if already notified today (to avoid hourly spam)
         if (data.lastNotified === todayStr) { skipped++; return; }
 
+        // Build peer-pressure notification body
+        const peerMsg = markedTodayCount > 0
+          ? `🔥 ${markedTodayCount} student${markedTodayCount !== 1 ? 's' : ''} already marked today!`
+          : `Aaj ki attendance abhi tak mark nahi ki!`;
+        const pointsMsg = points > 0 ? ` You have ${points} pts — don't fall behind!` : ` Start earning consistency points today!`;
+        const body = `${peerMsg}${pointsMsg} 📝`;
+
         // Send reminder
         const message = {
           token: fcmToken,
           notification: {
             title: 'Attendance Reminder ⏰',
-            body: "Aaj ki attendance abhi tak mark nahi ki! Don't forget! 📝",
+            body: body,
           },
           webpush: {
             notification: {

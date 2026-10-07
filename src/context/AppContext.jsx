@@ -164,13 +164,29 @@ export function AppProvider({ children }) {
   // Actions
   const markDay = (dateStr, held, attended) => {
     const nextRecords = { ...data.records, [dateStr]: { held, attended } };
-    persist({ ...data, records: nextRecords });
+    const today = todayStr();
+    let nextPoints = data.consistencyPoints || 0;
+    
+    // Award 10 points ONLY if marking today's attendance for the first time
+    if (dateStr === today && !data.records[dateStr]) {
+      nextPoints += 10;
+    }
+    
+    persist({ ...data, records: nextRecords, consistencyPoints: nextPoints });
   };
 
   const clearDay = (dateStr) => {
     const nextRecords = { ...data.records };
+    const today = todayStr();
+    let nextPoints = data.consistencyPoints || 0;
+    
+    // Deduct points only if clearing today's record
+    if (dateStr === today && nextRecords[dateStr]) {
+      nextPoints = Math.max(0, nextPoints - 10);
+    }
+    
     delete nextRecords[dateStr];
-    persist({ ...data, records: nextRecords });
+    persist({ ...data, records: nextRecords, consistencyPoints: nextPoints });
   };
 
   const saveSettings = (patch) => {

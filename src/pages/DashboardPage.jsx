@@ -64,6 +64,20 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Leaderboard Teaser */}
+        <Link to="/leaderboard" className="card" style={{ textDecoration: 'none', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', border: '1px solid var(--rule-bright)', transition: 'border-color 0.2s' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '20px' }}>🏆</span>
+            <div>
+              <div style={{ color: 'var(--paper)', fontWeight: 700, fontSize: '14px' }}>Consistency Points</div>
+              <div style={{ color: 'var(--muted)', fontSize: '12px' }}>Mark daily to earn points & climb the ranks!</div>
+            </div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ color: 'var(--amber)', fontWeight: 800, fontSize: '20px' }}>{data.consistencyPoints || 0}</div>
+            <div style={{ color: 'var(--muted)', fontSize: '10px', textTransform: 'uppercase' }}>pts</div>
+          </div>
+        </Link>
 
       </div>
 

@@ -16,6 +16,8 @@ import SettingsPage from '../pages/SettingsPage';
 import OnboardingPage from '../pages/OnboardingPage';
 import NotesPage from '../pages/NotesPage';
 import DesktopLayout from './DesktopLayout';
+
+const LeaderboardPage = React.lazy(() => import('../pages/LeaderboardPage'));
 import MobileLayout from './MobileLayout';
 
 const AdminDashboard = React.lazy(() => import('../components/AdminDashboard'));
@@ -201,6 +203,7 @@ export default function AppLayout() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/notes" element={<NotesPage />} />
+          <Route path="/leaderboard" element={<React.Suspense fallback={<div className="loading">Loading...</div>}><LeaderboardPage /></React.Suspense>} />
         </Routes>
       </ActiveLayout>
 
