@@ -3,7 +3,7 @@ import { formatDateLabel } from '../utils/date';
 import Stepper from './Stepper';
 
 export default function DayRow({ dateStr, record, isToday, isMainCard, periods, onSave, onClear }) {
-  const [expanded, setExpanded] = useState(isMainCard); // Auto-expand main card
+  const [expanded, setExpanded] = useState(isMainCard && !record); // Auto-expand main card only if unmarked
   const [held, setHeld] = useState(record ? record.held : 1);
   const [attended, setAttended] = useState(record ? record.attended : 1);
   

@@ -154,6 +154,8 @@ export default function AdminDashboard({ onBack }) {
             health = currentPercent >= minPercent ? 'safe' : 'danger';
           }
           
+          const daysUsed = data.records ? Object.keys(data.records).length : 0;
+
           userList.push({
             id: doc.id,
             ...data,
@@ -161,7 +163,8 @@ export default function AdminDashboard({ onBack }) {
             totalAttended,
             currentPercent,
             health,
-            lastActive
+            lastActive,
+            daysUsed
           });
         });
         
