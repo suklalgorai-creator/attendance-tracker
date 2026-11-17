@@ -1,6 +1,6 @@
 # 📊 Flutter Migration Phase Progress Tracker
 
-> **Current State**: Phase 1 Complete — Awaiting Approval for Phase 2  
+> **Current State**: Phase 2 Complete — Awaiting Approval for Phase 3  
 > **Active Git Branch**: `flutter`  
 > **Source of Truth**: `react_app/`  
 > **Target Production Codebase**: `flutter_app/`  
@@ -15,14 +15,50 @@
 | :--- | :--- | :---: | :---: | :--- |
 | **Phase 0** | Project Discovery, Deep Audit & Inventory | 🟢 **COMPLETED** | **100%** | Audit Report Generated |
 | **Phase 1** | Architecture Foundation, DI, Theme & Router | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, all tests passing |
-| **Phase 2** | Core Data Layer, Entities & Repositories | 🟡 Next Up | 0% | Phase 1 sign-off required |
-| **Phase 3** | Design Tokens & Shared UI Component Library | ⚪ Pending | 0% | Phase 2 sign-off required |
+| **Phase 2** | Core Data Layer, Entities & Repositories | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, 83/83 tests passing |
+| **Phase 3** | Design Tokens & Shared UI Component Library | 🟡 Next Up | 0% | Phase 2 sign-off required |
 | **Phase 4** | Feature-by-Feature Migration | ⚪ Pending | 0% | Phase 3 sign-off required |
 | **Phase 5** | Mathematical Engine & Attendance Precision | ⚪ Pending | 0% | Phase 4 sign-off required |
 | **Phase 6** | Cloud Sync, Notifications & Offline Consistency | ⚪ Pending | 0% | Phase 5 sign-off required |
 | **Phase 7** | Verification, Automated Testing & QA Matrix | ⚪ Pending | 0% | Phase 6 sign-off required |
 | **Phase 8** | Performance Profiling & Security Hardening | ⚪ Pending | 0% | Phase 7 sign-off required |
 | **Phase 9** | Production Hardening, Release Build & Sign-off | ⚪ Pending | 0% | Phase 8 sign-off required |
+
+---
+
+## 🎯 Phase 2 Summary & Sign-off Details
+- **Pure Dart Domain Entities & Enums (`features/<feature>/domain/entities/`)**:
+  - `SubjectEntity`: Pure Dart domain entity with `id`, `name`, `color` (default `#10B981`), `active` (default `true`), `createdAt`, `updatedAt`, `deletedAt`, and `isDeleted` getter.
+  - `AttendanceStatus` enum: `present` ('PRESENT'), `absent` ('ABSENT'), `unmarked` ('UNMARKED'), `cancelled` ('CANCELLED'), `fromString` parser with trimming/case-insensitivity, and `isConducted` getter.
+  - `AttendanceRecordEntity`: Session-level attendance record with `id`, `date` (`YYYY-MM-DD`), `subjectId` (default `__daily__`), `sessionId`, `status`, `createdAt`, `updatedAt`, and `deletedAt`.
+  - `LegacyAttendanceEntity`: Daily aggregate record with `id`, `date`, `held`, `attended`, `createdAt`, `updatedAt`, and `deletedAt`.
+  - `NoteEntity`: Sticky notes domain entity with `id`, `content`, `color` (default `'var(--input-bg)'`), `reminderDate`, and `createdAt`.
+  - `UserSettingsEntity`: User preferences with `name`, `programName`, `courseName`, `startDate`, `minPercent` (default 75.0), `classDays` (default `[1, 2, 3, 4, 5]`), `reminderTime` (default `'18:00'`), and `pushNotificationsEnabled` (default `false`).
+  - **Defect Resolution**: Fixed equality and hash bug in `UserSettingsEntity` by introducing element-wise `_listEquals` and `Object.hashAll(classDays)`.
+  - **Polymorphic Clean Architecture Subtype Equality**: Configured entity equality to allow model subtypes (`other is Entity`) to evaluate value equivalence cleanly without strict `runtimeType` equality rejection.
+- **Data Models & Schema Version 2 Serialization (`features/<feature>/data/models/`)**:
+  - `SubjectModel`, `AttendanceRecordModel`, `LegacyAttendanceModel`, `NoteModel`, `UserSettingsModel` implementing defensive `fromMap`, `toMap`, and `fromEntity` with 100% Schema Version 2 parity against React `dataModel.js`.
+  - Timestamps serialized strictly to ISO-8601 strings and calendar dates to strict `YYYY-MM-DD` strings.
+- **Central Storage & Hive Management (`core/services/database_service.dart`)**:
+  - Full configuration for all 6 Hive boxes: `subjects_v2_box`, `attendance_records_box`, `legacy_attendance_box`, `notes_box`, `settings_box`, and legacy `subjects_box`.
+  - Added lifecycle methods `clearAllBoxes()` and `close()`.
+  - Preserved backward-compatible static methods (`getSubjects`, `saveSubjects`, `addSubject`, `deleteSubject`) for Phase 1 `dashboard_screen.dart`.
+- **Local Data Sources & Reactive Watch Streams (`features/<feature>/data/datasources/`)**:
+  - `SubjectLocalDataSourceImpl`, `AttendanceLocalDataSourceImpl`, `NotesLocalDataSourceImpl`, `SettingsLocalDataSourceImpl` with error wrapping in `CacheException`.
+  - Reactive streams backed by Hive `box.watch(key: ...)`.
+- **Repository Implementations & Soft Deletion Semantics (`features/<feature>/data/repositories/`)**:
+  - `SubjectRepositoryImpl`: CRUD, queries filtering deleted by default (`includeDeleted = false`), soft-deletion updating `deletedAt` and `updatedAt`, `restoreSubject`, `hardDeleteSubject`, and reactive `watchSubjects`.
+  - `AttendanceRepositoryImpl`: Session attendance and legacy attendance CRUD, queries by date (`getRecordsForDate`) and subject (`getRecordsForSubject`), soft-deletion, restoration, hard-deletion, `clearAllAttendanceHistory()`, and reactive stream watchers (`watchAttendanceRecords`, `watchLegacyAttendance`).
+  - `NotesRepositoryImpl`: Implementation wrapping `NotesLocalDataSource` with hard deletion and reactive `watchNotes`.
+  - `SettingsRepositoryImpl`: Implementation wrapping `SettingsLocalDataSource` with `getSettings`, `saveSettings`, `resetSettings`, and reactive `watchSettings`.
+- **Riverpod Dependency Injection Architecture (`core/providers/repository_providers.dart`)**:
+  - Data source providers: `subjectLocalDataSourceProvider`, `attendanceLocalDataSourceProvider`, `notesLocalDataSourceProvider`, `settingsLocalDataSourceProvider`.
+  - Repository providers: `subjectRepositoryProvider`, `attendanceRepositoryProvider`, `notesRepositoryProvider`, `settingsRepositoryProvider`.
+  - Reactive stream providers: `subjectsStreamProvider`, `attendanceRecordsStreamProvider`, `legacyAttendanceStreamProvider`, `notesStreamProvider`, `settingsStreamProvider`.
+- **Automated Verification & Metrics**:
+  - `flutter analyze`: **0 issues found** (0 errors, 0 warnings).
+  - `flutter test`: **83 tests executed and passed** (100% pass rate).
+  - Comprehensive unit test coverage across entities, models, repositories, data sources, and Riverpod DI containers.
 
 ---
 
@@ -72,3 +108,9 @@
    - Configured `go_router` with `StatefulShellRoute.indexedStack` for bottom tabs to preserve tab state and scroll offsets without re-rendering, and root navigator route `/notes` for dedicated top-level pushing.
 5. **ADR-005: Riverpod State Management & Theme Toggling (17-Nov-2026)**
    - Implemented `ThemeModeNotifier` managing `ThemeMode` defaulting to `ThemeMode.dark`, consumed reactively by `AttendanceApp`.
+6. **ADR-006: Schema Version 2 Map-Based Serialization & No-CodeGen Hive Architecture (17-Nov-2026)**
+   - Adopted handwritten `fromMap`/`toMap` serialization matching Schema Version 2 over Hive TypeAdapters, avoiding `build_runner` or `freezed` overhead, preventing type ID collisions, and ensuring 1:1 serial parity with React/Firestore.
+7. **ADR-007: Soft-Deletion Tombstones & LWW Conflict Resolution Ready Timestamps (17-Nov-2026)**
+   - Designed repositories to implement soft deletion (`deletedAt: DateTime.now()`) with automatic `updatedAt` updates, allowing tombstones to propagate seamlessly during cloud synchronization in Phase 6.
+8. **ADR-008: Clean Architecture Subtype Equality & Reactive Stream Watchers (17-Nov-2026)**
+   - Configured entity equality to allow model subtypes (`other is Entity`) to evaluate value equivalence cleanly without strict `runtimeType` equality rejection, and exposed reactive streams across all repositories via Hive `box.watch`.
