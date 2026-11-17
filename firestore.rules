@@ -2,22 +2,56 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Function to check if the user is the admin
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Admin authorization must come from a server-issued custom claim. An
+    // email string in a client document is not an authorization mechanism.
     function isAdmin() {
-      return request.auth != null && request.auth.token.email == 'suklalgorai36@gmail.com';
+      return signedIn() && request.auth.token.admin == true;
+    }
+
+    function userFields() {
+      return [
+        'schemaVersion', 'programName', 'courseName', 'name', 'email', 'displayName', 'startDate',
+        'minPercent', 'classDays', 'timetable', 'subjects', 'attendanceRecords',
+        'legacyAttendance', 'quarantine', 'notes', 'theme', 'reminderTime',
+        'pushNotificationsEnabled', 'leaderboardOptIn', 'fcmToken', 'adminRequestedPush',
+        'lastNotified', 'settingsUpdatedAt', 'updatedAt',
+        // Legacy fields are accepted only so an old document can be migrated.
+        'records', 'bestPercent', 'consistencyPoints'
+      ];
+    }
+
+    function safeUserUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(userFields())
+        && (!request.resource.data.keys().hasAny(['consistencyPoints'])
+          || (resource.data.keys().hasAny(['consistencyPoints'])
+            && request.resource.data.consistencyPoints == resource.data.consistencyPoints))
+        && ((!resource.data.keys().hasAny(['admin']) && !request.resource.data.keys().hasAny(['admin']))
+          || request.resource.data.admin == resource.data.admin)
+        && ((!resource.data.keys().hasAny(['role']) && !request.resource.data.keys().hasAny(['role']))
+          || request.resource.data.role == resource.data.role);
     }
 
     match /users/{userId} {
-      // Users can read/write their own data
-      // Admin can read and write all user data
-      allow read, write: if (request.auth != null && request.auth.uid == userId) || isAdmin();
+      allow read: if signedIn() && (request.auth.uid == userId || isAdmin());
+      allow create: if signedIn() && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(userFields());
+      allow update: if isAdmin() || (signedIn() && request.auth.uid == userId && safeUserUpdate());
+      allow delete: if isAdmin();
     }
 
     match /settings/global {
-      // Any authenticated user can read global settings (like holidays)
-      allow read: if request.auth != null;
-      // Only Admin can modify global settings
+      allow read: if signedIn();
       allow write: if isAdmin();
+    }
+
+    match /leaderboard/{userId} {
+      allow read: if signedIn();
+      // Entries are written only by the trusted server after recalculating data.
+      allow write: if false;
     }
   }
 }

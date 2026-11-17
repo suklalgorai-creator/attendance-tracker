@@ -1,3 +1,5 @@
+# Root and Monorepo Git Ignore
+
 # Logs
 logs
 *.log
@@ -7,25 +9,40 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# JavaScript / React Dependencies & Build Output
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+dist-ssr/
 *.local
 
-# Editor directories and files
+# Flutter / Dart Dependencies & Build Output
+.dart_tool/
+**/.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+**/build/
+
+# Editor & OS files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
+**/.idea/
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.iml
 
-# Env files
+# Environment Variables
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
