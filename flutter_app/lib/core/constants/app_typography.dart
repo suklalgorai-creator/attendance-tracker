@@ -5,6 +5,52 @@ import 'package:google_fonts/google_fonts.dart';
 abstract final class AppTypography {
   static TextStyle get outfitBase => GoogleFonts.outfit();
 
+  static TextStyle get displayMedium => GoogleFonts.outfit(
+        fontSize: 40,
+        fontWeight: FontWeight.w700,
+      );
+
+  static TextStyle get headlineSmall => GoogleFonts.outfit(
+        fontSize: 20,
+        fontWeight: FontWeight.w700,
+      );
+
+  static TextStyle get labelSmall => GoogleFonts.outfit(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 1.2,
+      );
+
+  static TextStyle get labelLarge => GoogleFonts.outfit(
+        fontSize: 15,
+        fontWeight: FontWeight.w700,
+      );
+
+  static TextStyle inputLabel(Color color) => GoogleFonts.outfit(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: color,
+      );
+
+  static TextStyle inputText(Color color) => GoogleFonts.outfit(
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        color: color,
+      );
+
+  static TextStyle inputHint(Color color) => GoogleFonts.outfit(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        color: color,
+      );
+
+  static TextStyle helperText(Color color) => GoogleFonts.outfit(
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
+        color: color,
+        height: 1.5,
+      );
+
   static TextStyle eyebrow(Color color) => GoogleFonts.outfit(
         fontSize: 12,
         fontWeight: FontWeight.w700,
