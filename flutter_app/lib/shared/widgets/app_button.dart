@@ -153,23 +153,26 @@ class AppButton extends StatelessWidget {
                   valueColor: AlwaysStoppedAnimation<Color>(fg),
                 ),
               )
-            : Row(
-                mainAxisSize: isWide ? MainAxisSize.max : MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (icon != null) ...[
-                    icon!,
-                    const SizedBox(width: 8),
-                  ],
-                  Text(
-                    label,
-                    style: AppTypography.labelLarge.copyWith(
-                      color: fg,
-                      fontWeight: FontWeight.w700,
-                      fontSize: fontSize ?? 14.5,
+            : FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
+                  mainAxisSize: isWide ? MainAxisSize.max : MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (icon != null) ...[
+                      icon!,
+                      const SizedBox(width: 8),
+                    ],
+                    Text(
+                      label,
+                      style: AppTypography.labelLarge.copyWith(
+                        color: fg,
+                        fontWeight: FontWeight.w700,
+                        fontSize: fontSize ?? 14.5,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
       ),
     );

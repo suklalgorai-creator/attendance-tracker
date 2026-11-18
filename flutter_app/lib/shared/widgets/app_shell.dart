@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_typography.dart';
+import '../../features/auth/presentation/controllers/auth_providers.dart';
+import 'app_banner.dart';
 import 'app_drawer.dart';
 import 'app_header.dart';
 
 /// App shell wrapping all primary tabs with top AppHeader and Bottom Navigation Bar,
-/// replicating react_app/src/layouts/MobileLayout.jsx.
-class AppShell extends StatefulWidget {
+/// replicating react_app/src/layouts/MobileLayout.jsx and AppLayout.jsx.
+class AppShell extends ConsumerStatefulWidget {
   final StatefulNavigationShell navigationShell;
 
   const AppShell({super.key, required this.navigationShell});
 
   @override
-  State<AppShell> createState() => _AppShellState();
+  ConsumerState<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends State<AppShell> {
+class _AppShellState extends ConsumerState<AppShell> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   void _onTabSelected(int index) {
@@ -35,6 +38,8 @@ class _AppShellState extends State<AppShell> {
         : const Color(0xEBFFFFFF); // rgba(255, 255, 255, 0.92)
     final borderColor = isDark ? AppColors.ruleBrightDark : AppColors.ruleBrightLight;
 
+    final authState = ref.watch(authNotifierProvider);
+
     return Scaffold(
       key: _scaffoldKey,
       drawer: const AppDrawer(),
@@ -44,6 +49,23 @@ class _AppShellState extends State<AppShell> {
             AppHeader(
               onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
             ),
+            // Guest Warning Banner matching react_app/src/layouts/AppLayout.jsx
+            if (authState.isGuest)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.xs,
+                ),
+                child: AppBanner(
+                  customBackgroundColor: AppColors.amber,
+                  customTextColor: Colors.black,
+                  message:
+                      '⚠️ Data not backed up! Tap here to Sign in and save your attendance in the cloud.',
+                  onTap: () {
+                    ref.read(authNotifierProvider.notifier).signOut();
+                  },
+                ),
+              ),
             Expanded(
               child: Center(
                 child: ConstrainedBox(
@@ -66,29 +88,37 @@ class _AppShellState extends State<AppShell> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _NavBarItem(
-                label: 'Home',
-                icon: Icons.home_rounded,
-                isActive: widget.navigationShell.currentIndex == 0,
-                onTap: () => _onTabSelected(0),
+              Expanded(
+                child: _NavBarItem(
+                  label: 'Home',
+                  icon: Icons.home_rounded,
+                  isActive: widget.navigationShell.currentIndex == 0,
+                  onTap: () => _onTabSelected(0),
+                ),
               ),
-              _NavBarItem(
-                label: 'Register',
-                icon: Icons.calendar_today_rounded,
-                isActive: widget.navigationShell.currentIndex == 1,
-                onTap: () => _onTabSelected(1),
+              Expanded(
+                child: _NavBarItem(
+                  label: 'Register',
+                  icon: Icons.calendar_today_rounded,
+                  isActive: widget.navigationShell.currentIndex == 1,
+                  onTap: () => _onTabSelected(1),
+                ),
               ),
-              _NavBarItem(
-                label: 'Leaderboard',
-                icon: Icons.emoji_events_rounded,
-                isActive: widget.navigationShell.currentIndex == 2,
-                onTap: () => _onTabSelected(2),
+              Expanded(
+                child: _NavBarItem(
+                  label: 'Leaderboard',
+                  icon: Icons.emoji_events_rounded,
+                  isActive: widget.navigationShell.currentIndex == 2,
+                  onTap: () => _onTabSelected(2),
+                ),
               ),
-              _NavBarItem(
-                label: 'Settings',
-                icon: Icons.settings_rounded,
-                isActive: widget.navigationShell.currentIndex == 3,
-                onTap: () => _onTabSelected(3),
+              Expanded(
+                child: _NavBarItem(
+                  label: 'Settings',
+                  icon: Icons.settings_rounded,
+                  isActive: widget.navigationShell.currentIndex == 3,
+                  onTap: () => _onTabSelected(3),
+                ),
               ),
             ],
           ),
@@ -121,7 +151,7 @@ class _NavBarItem extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         decoration: BoxDecoration(
           color: isActive ? AppColors.inkGreenSoft : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
@@ -142,6 +172,8 @@ class _NavBarItem extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: AppTypography.navLabel(isActive ? activeColor : inactiveColor),
             ),
           ],

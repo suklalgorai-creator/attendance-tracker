@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/dashboard/presentation/dashboard_page.dart';
+import '../../features/auth/presentation/controllers/auth_providers.dart';
+import '../../features/auth/presentation/controllers/auth_state.dart';
+import '../../features/auth/presentation/pages/auth_page.dart';
+import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/leaderboard/presentation/leaderboard_page.dart';
 import '../../features/notes/presentation/notes_page.dart';
+import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/register/presentation/register_page.dart';
 import '../../features/settings/presentation/settings_page.dart';
 import '../../shared/widgets/app_shell.dart';
@@ -14,12 +18,83 @@ final registerNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'registerBran
 final leaderboardNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'leaderboardBranch');
 final settingsNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'settingsBranch');
 
-/// Declarative GoRouter configuration replicating react_app routing structure.
+/// Listenable notifier reacting to auth and onboarding changes without rebuilding GoRouter.
+class RouterNotifier extends ChangeNotifier {
+  final Ref _ref;
+
+  RouterNotifier(this._ref) {
+    _ref.listen<AuthState>(
+      authNotifierProvider,
+      (_, _) => notifyListeners(),
+    );
+  }
+
+  /// Declarative redirection rules matching React AppLayout.jsx:
+  /// 1. Unauthenticated & not guest -> /auth
+  /// 2. Authenticated or guest & !onboardingCompleted -> /onboarding
+  /// 3. Authenticated or guest & onboardingCompleted & on /auth or /onboarding -> /
+  /// 4. Else allow navigation.
+  String? redirect(BuildContext context, GoRouterState state) {
+    final authState = _ref.read(authNotifierProvider);
+    final loc = state.matchedLocation;
+
+    if (authState.status == AuthStatus.loading || authState.status == AuthStatus.initial) {
+      return null;
+    }
+
+    final isAuthedOrGuest = authState.isAuthenticated || authState.isGuest;
+
+    // Rule 1: Unauthenticated and not guest -> redirect to /auth
+    if (!isAuthedOrGuest) {
+      return loc == '/auth' ? null : '/auth';
+    }
+
+    // Rule 2: Authenticated or guest with incomplete onboarding -> redirect to /onboarding
+    if (!authState.isOnboardingComplete) {
+      return loc == '/onboarding' ? null : '/onboarding';
+    }
+
+    // Rule 3: Setup is complete; leave auth/onboarding gateways to main app
+    if (loc == '/auth' || loc == '/onboarding') {
+      return '/';
+    }
+
+    // Rule 4: Normal navigation within the app shell
+    return null;
+  }
+}
+
+final routerNotifierProvider = Provider<RouterNotifier>((ref) {
+  return RouterNotifier(ref);
+});
+
+/// Declarative GoRouter configuration replicating react_app routing and guard structure.
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final routerNotifier = ref.watch(routerNotifierProvider);
+
   return GoRouter(
     navigatorKey: rootNavigatorKey,
+    refreshListenable: routerNotifier,
+    redirect: routerNotifier.redirect,
     initialLocation: '/',
     routes: [
+      // Top-level Authentication Route
+      GoRoute(
+        path: '/auth',
+        name: 'auth',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const AuthPage(),
+      ),
+
+      // Top-level Onboarding Setup Wizard Route
+      GoRoute(
+        path: '/onboarding',
+        name: 'onboarding',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const OnboardingPage(),
+      ),
+
+      // Application Shell Route (Tabs)
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return AppShell(navigationShell: navigationShell);
@@ -71,6 +146,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+
       // Standalone top-level route (Sticky Notes pushed over shell)
       GoRoute(
         path: '/notes',
