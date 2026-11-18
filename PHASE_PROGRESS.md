@@ -17,12 +17,36 @@
 | **Phase 1** | Architecture Foundation, DI, Theme & Router | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, all tests passing |
 | **Phase 2** | Core Data Layer, Entities & Repositories | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, 83/83 tests passing |
 | **Phase 3** | Design Tokens & Shared UI Component Library | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, 130/130 tests passing |
-| **Phase 4** | Feature-by-Feature Migration | 🟡 Next Up | 0% | Phase 3 sign-off required |
+| **Phase 4** | Feature-by-Feature Migration | 🟡 **IN PROGRESS (38%)** | **38%** | M4.1 (Auth), M4.2 (Dashboard), M4.3 (Register & DayRow) Complete. 314/314 tests pass. |
 | **Phase 5** | Mathematical Engine & Attendance Precision | ⚪ Pending | 0% | Phase 4 sign-off required |
 | **Phase 6** | Cloud Sync, Notifications & Offline Consistency | ⚪ Pending | 0% | Phase 5 sign-off required |
 | **Phase 7** | Verification, Automated Testing & QA Matrix | ⚪ Pending | 0% | Phase 6 sign-off required |
 | **Phase 8** | Performance Profiling & Security Hardening | ⚪ Pending | 0% | Phase 7 sign-off required |
 | **Phase 9** | Production Hardening, Release Build & Sign-off | ⚪ Pending | 0% | Phase 8 sign-off required |
+
+---
+
+## 🎯 Phase 4 Progress (Milestones 4.1, 4.2, 4.3) — Active
+- **Milestone 4.1: Authentication & Onboarding (Complete)**
+  - Google Sign-In & Offline Guest Mode (`auth_page.dart`, `auth_notifier.dart`, `auth_repository_impl.dart`).
+  - First-run setup wizard (`onboarding_page.dart`) configuring program, semester, class days, and minimum attendance target.
+  - Race-condition guard and epoch sequencing in `AuthNotifier`.
+- **Milestone 4.2: Main Dashboard (Complete)**
+  - Exact React IEEE 754 float epsilon math parity (`DashboardAnalyticsService`).
+  - Haptic feedback, quick mark present/absent with undo action snackbar (`DashboardController`).
+  - `OverviewCard`, `QuickActionSubjectCard`, `AdvisorBanner`, `StreakBadge`, `EmptyDashboardView`, `DashboardPage`.
+  - Compact viewport hardening (320px–390px) with `Expanded`/`Flexible` and `TextOverflow.ellipsis`.
+- **Milestone 4.3: Session Register, DayRow & Date Utils (Complete)**
+  - `date_utils.dart`: Complete 11-function suite matching React `date.js` (`formatDateKey`, `parseDateOnly`, `todayStr`, `addDays`, `isClassDay`, `classDayRangeDesc`, `getCurrentWeekRangeStr`, `getCurrentMonthRangeStr`, `formatDateLabel`, `formatDateFull`).
+  - `StepperWidget`: Standardized +/- stepper counter matching React `Stepper.jsx`.
+  - `DayRow`: Replicating `DayRow.jsx` with all 7 status states (Holiday, Upcoming, Not marked, Present, Absent, Partial, Holiday / No class), today tag, 65% future opacity, and action buttons (`Present`, `Absent`, `Holiday / No class`, `Clear`).
+  - `RegisterController`: Riverpod notifier with stream watchers for `LegacyAttendanceRepository` and `SettingsRepository`, managing `Week`, `Month`, `All` views and date range unions.
+  - `RegisterPage`: Glassmorphic Session Register card, view toggles, descending date list.
+  - Fixed 320px narrow-screen overflow with `FittedBox` scale-down wrapping in `DayRow`.
+- **Automated Verification & Metrics**:
+  - `flutter analyze`: **0 issues found** (0 errors, 0 warnings).
+  - `flutter test`: **314 tests executed and passed** (100% pass rate: 130 Phase 3 tests + 47 Auth/Onboarding + 59 Dashboard + 78 Register & DateUtils tests).
+  - Git Commit: `673a46c` pushed to remote `flutter` branch.
 
 ---
 
