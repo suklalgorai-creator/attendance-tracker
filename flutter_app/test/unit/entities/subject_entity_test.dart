@@ -15,10 +15,33 @@ void main() {
 
       expect(subject.id, 'sub-1');
       expect(subject.name, 'Mathematics');
+      expect(subject.code, isNull);
       expect(subject.color, '#10B981');
+      expect(subject.icon, 'school');
+      expect(subject.targetPercentage, isNull);
+      expect(subject.sortOrder, 0);
       expect(subject.active, isTrue);
       expect(subject.isDeleted, isFalse);
       expect(subject.deletedAt, isNull);
+    });
+
+    test('instantiates with custom code, icon, targetPercentage, sortOrder', () {
+      final subject = SubjectEntity(
+        id: 'sub-custom',
+        name: 'Computer Networks',
+        code: 'CS301',
+        color: '#3B82F6',
+        icon: 'computer',
+        targetPercentage: 85.0,
+        sortOrder: 3,
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      expect(subject.code, 'CS301');
+      expect(subject.icon, 'computer');
+      expect(subject.targetPercentage, 85.0);
+      expect(subject.sortOrder, 3);
     });
 
     test('isDeleted returns true when deletedAt is set', () {
@@ -44,15 +67,30 @@ void main() {
 
       final updated = subject.copyWith(
         name: 'Advanced Mathematics',
+        code: 'MATH201',
         color: '#3B82F6',
+        icon: 'calculate',
+        targetPercentage: 80.0,
+        sortOrder: 2,
         active: false,
       );
 
       expect(updated.id, 'sub-1');
       expect(updated.name, 'Advanced Mathematics');
+      expect(updated.code, 'MATH201');
       expect(updated.color, '#3B82F6');
+      expect(updated.icon, 'calculate');
+      expect(updated.targetPercentage, 80.0);
+      expect(updated.sortOrder, 2);
       expect(updated.active, isFalse);
       expect(updated.createdAt, now);
+
+      final cleared = updated.copyWith(
+        clearCode: true,
+        clearTargetPercentage: true,
+      );
+      expect(cleared.code, isNull);
+      expect(cleared.targetPercentage, isNull);
     });
 
     test('copyWith clearDeletedAt clears deletedAt tombstone', () {

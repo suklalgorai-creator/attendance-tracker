@@ -10,7 +10,11 @@ void main() {
       final model = SubjectModel(
         id: 'sub-1',
         name: 'Mathematics',
+        code: 'MATH101',
         color: '#10B981',
+        icon: 'calculate',
+        targetPercentage: 80.0,
+        sortOrder: 1,
         active: true,
         createdAt: now,
         updatedAt: now,
@@ -21,7 +25,11 @@ void main() {
 
       expect(map['id'], 'sub-1');
       expect(map['name'], 'Mathematics');
+      expect(map['code'], 'MATH101');
       expect(map['color'], '#10B981');
+      expect(map['icon'], 'calculate');
+      expect(map['targetPercentage'], 80.0);
+      expect(map['sortOrder'], 1);
       expect(map['active'], isTrue);
       expect(map['createdAt'], now.toIso8601String());
       expect(map['updatedAt'], now.toIso8601String());
@@ -32,7 +40,11 @@ void main() {
       final map = {
         'id': 'sub-2',
         'name': 'Physics',
+        'code': 'PHY101',
         'color': '#3B82F6',
+        'icon': 'science',
+        'targetPercentage': 70.0,
+        'sortOrder': 2,
         'active': false,
         'createdAt': '2026-03-01T10:00:00.000',
         'updatedAt': '2026-03-01T12:00:00.000',
@@ -43,7 +55,11 @@ void main() {
 
       expect(model.id, 'sub-2');
       expect(model.name, 'Physics');
+      expect(model.code, 'PHY101');
       expect(model.color, '#3B82F6');
+      expect(model.icon, 'science');
+      expect(model.targetPercentage, 70.0);
+      expect(model.sortOrder, 2);
       expect(model.active, isFalse);
       expect(model.createdAt, DateTime.parse('2026-03-01T10:00:00.000'));
       expect(model.updatedAt, DateTime.parse('2026-03-01T12:00:00.000'));
@@ -57,7 +73,11 @@ void main() {
 
       expect(model.id, '');
       expect(model.name, '');
+      expect(model.code, isNull);
       expect(model.color, '#10B981');
+      expect(model.icon, 'school');
+      expect(model.targetPercentage, isNull);
+      expect(model.sortOrder, 0);
       expect(model.active, isTrue);
       expect(model.deletedAt, isNull);
       expect(model.createdAt, isA<DateTime>());

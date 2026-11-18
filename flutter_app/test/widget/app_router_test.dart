@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/app/app.dart';
+import 'package:flutter_app/app/router/app_router.dart';
+import 'package:flutter_app/core/providers/repository_providers.dart';
 import 'package:flutter_app/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:flutter_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:flutter_app/features/auth/presentation/controllers/auth_notifier.dart';
@@ -290,6 +292,39 @@ void main() {
 
       // State switches to light mode -> header displays moon emoji to switch to dark
       expect(find.text('🌙'), findsOneWidget);
+    });
+
+    testWidgets('Navigating to /subject/:id renders SubjectAnalyticsScreen (Not Found for missing ID)', (tester) async {
+      final mockRepo = RouterTestAuthRepository(
+        user: const AuthUserEntity(id: 'student_1', displayName: 'Student'),
+        onboarded: true,
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            authRepositoryProvider.overrideWithValue(mockRepo),
+            authNotifierProvider.overrideWith((ref) => AuthNotifier(mockRepo)),
+            subjectsStreamProvider.overrideWith((ref) => Stream.value([])),
+            attendanceRecordsStreamProvider.overrideWith((ref) => Stream.value([])),
+          ],
+          child: const AttendanceApp(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final container = ProviderScope.containerOf(tester.element(find.byType(AttendanceApp)));
+      container.read(appRouterProvider).push('/subject/sub_missing_999');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Subject Not Found'), findsOneWidget);
+      expect(find.byKey(const Key('not_found_back_button')), findsOneWidget);
+
+      // Tapping Return to Dashboard pops back to DashboardPage
+      await tester.tap(find.byKey(const Key('not_found_back_button')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Dashboard'), findsOneWidget);
     });
   });
 }

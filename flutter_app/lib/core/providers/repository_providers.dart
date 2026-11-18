@@ -21,6 +21,10 @@ import '../../features/subjects/data/repositories/subject_repository_impl.dart';
 import '../../features/subjects/domain/entities/subject_entity.dart';
 import '../../features/subjects/domain/repositories/subject_repository.dart';
 
+import '../../features/timetable/data/repositories/timetable_repository_impl.dart';
+import '../../features/timetable/domain/entities/timetable_session_entity.dart';
+import '../../features/timetable/domain/repositories/timetable_repository.dart';
+
 // ==================== Local Data Sources ====================
 
 final subjectLocalDataSourceProvider = Provider<SubjectLocalDataSource>((ref) {
@@ -85,4 +89,14 @@ final notesStreamProvider = StreamProvider<List<NoteEntity>>((ref) {
 
 final settingsStreamProvider = StreamProvider<UserSettingsEntity>((ref) {
   return ref.watch(settingsRepositoryProvider).watchSettings();
+});
+
+final timetableRepositoryProvider = Provider<TimetableRepository>((ref) {
+  return TimetableRepositoryImpl(
+    subjectRepository: ref.watch(subjectRepositoryProvider),
+  );
+});
+
+final timetableStreamProvider = StreamProvider<Map<int, List<TimetableSessionEntity>>>((ref) {
+  return ref.watch(timetableRepositoryProvider).watchTimetable();
 });

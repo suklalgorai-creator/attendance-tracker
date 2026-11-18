@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../subjects/presentation/widgets/subject_dialog.dart';
 import '../../domain/models/dashboard_stats.dart';
 import '../providers/dashboard_controller.dart';
 import '../providers/dashboard_providers.dart';
@@ -12,6 +14,7 @@ import '../widgets/empty_dashboard_view.dart';
 import '../widgets/overview_card.dart';
 import '../widgets/quick_action_subject_card.dart';
 import '../widgets/streak_badge.dart';
+import '../widgets/todays_schedule_card.dart';
 
 /// Main Dashboard Page displaying attendance overview, safe bunk advisor,
 /// streak indicators, and quick action subject cards.
@@ -86,6 +89,9 @@ class DashboardPage extends ConsumerWidget {
 
         const SizedBox(height: 16),
 
+        // Today's Scheduled Sessions Card (Conditional)
+        const TodaysScheduleCard(),
+
         // Overview Hero Card
         OverviewCard(
           stats: stats,
@@ -109,17 +115,30 @@ class DashboardPage extends ConsumerWidget {
                 ),
               ),
             ),
-            if (subjectStatsList.isNotEmpty) ...[
-              const SizedBox(width: 8),
-              Text(
-                '${subjectStatsList.length} ${subjectStatsList.length == 1 ? 'subject' : 'subjects'}',
-                style: GoogleFonts.outfit(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: mutedColor,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (subjectStatsList.isNotEmpty) ...[
+                  Text(
+                    '${subjectStatsList.length} ${subjectStatsList.length == 1 ? 'subject' : 'subjects'}',
+                    style: GoogleFonts.outfit(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: mutedColor,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                IconButton(
+                  key: const Key('add_subject_button'),
+                  icon: const Icon(Icons.add_rounded, size: 22),
+                  color: AppColors.inkGreen,
+                  tooltip: 'Add Subject',
+                  visualDensity: VisualDensity.compact,
+                  onPressed: onAddSubject ?? () => showSubjectDialog(context),
                 ),
-              ),
-            ],
+              ],
+            ),
           ],
         ),
 
@@ -128,13 +147,14 @@ class DashboardPage extends ConsumerWidget {
         // Subject Cards or Empty State Placeholder
         if (subjectStatsList.isEmpty)
           EmptyDashboardView(
-            onAddSubject: onAddSubject,
+            onAddSubject: onAddSubject ?? () => showSubjectDialog(context),
           )
         else
           for (final subStats in subjectStatsList)
             QuickActionSubjectCard(
               key: ValueKey(subStats.subject.id),
               stats: subStats,
+              onTap: () => context.push('/subject/${subStats.subject.id}'),
               onPresent: () {
                 ref
                     .read(dashboardControllerProvider.notifier)

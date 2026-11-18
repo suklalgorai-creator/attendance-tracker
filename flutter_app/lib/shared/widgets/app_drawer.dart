@@ -50,6 +50,14 @@ class AppDrawer extends ConsumerWidget {
                 children: [
                   _SectionHeader(title: 'ADDITIONAL FEATURES', color: mutedColor),
                   _DrawerItem(
+                    emoji: '📅',
+                    label: 'Timetable',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push('/timetable');
+                    },
+                  ),
+                  _DrawerItem(
                     emoji: '🏆',
                     label: 'Leaderboard',
                     onTap: () {

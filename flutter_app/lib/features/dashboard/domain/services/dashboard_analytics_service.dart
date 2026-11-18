@@ -216,12 +216,13 @@ class DashboardAnalyticsService {
 
     final conducted = presentCount + absentCount;
     final percentage = calculateAttendance(presentCount, conducted);
-    final isSafe = percentage == null || percentage >= minPercent;
-    final isImpossible = !isSafe && minPercent >= 100.0;
-    final canMiss = isSafe ? calculateMaximumAbsences(presentCount, conducted, minPercent) : 0;
+    final effectiveThreshold = subject.targetPercentage ?? minPercent;
+    final isSafe = percentage == null || percentage >= effectiveThreshold;
+    final isImpossible = !isSafe && effectiveThreshold >= 100.0;
+    final canMiss = isSafe ? calculateMaximumAbsences(presentCount, conducted, effectiveThreshold) : 0;
     final recovery = isSafe
         ? 0
-        : calculateRequiredRecoveryClasses(presentCount, conducted, minPercent);
+        : calculateRequiredRecoveryClasses(presentCount, conducted, effectiveThreshold);
     final needToAttend = recovery < 0 ? 0 : recovery;
 
     return SubjectAttendanceStats(

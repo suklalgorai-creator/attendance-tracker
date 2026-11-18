@@ -112,6 +112,53 @@ void main() {
       expect(retrieved.length, 2);
     });
 
+    test('getSubjects returns subjects sorted by sortOrder then createdAt', () async {
+      final subA = SubjectEntity(
+        id: 's-a',
+        name: 'Math',
+        sortOrder: 2,
+        createdAt: now.add(const Duration(minutes: 5)),
+        updatedAt: now,
+      );
+      final subB = SubjectEntity(
+        id: 's-b',
+        name: 'Physics',
+        sortOrder: 1,
+        createdAt: now.add(const Duration(minutes: 10)),
+        updatedAt: now,
+      );
+      final subC = SubjectEntity(
+        id: 's-c',
+        name: 'Chemistry',
+        sortOrder: 1,
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      await repository.saveSubject(subA);
+      await repository.saveSubject(subB);
+      await repository.saveSubject(subC);
+
+      final retrieved = await repository.getSubjects();
+      expect(retrieved.map((s) => s.id).toList(), ['s-c', 's-b', 's-a']);
+    });
+
+    test('reorderSubjects updates sortOrder of subjects according to provided ID list', () async {
+      final sub1 = SubjectEntity(id: 's1', name: 'First', sortOrder: 0, createdAt: now, updatedAt: now);
+      final sub2 = SubjectEntity(id: 's2', name: 'Second', sortOrder: 1, createdAt: now, updatedAt: now);
+      final sub3 = SubjectEntity(id: 's3', name: 'Third', sortOrder: 2, createdAt: now, updatedAt: now);
+
+      await repository.saveSubjects([sub1, sub2, sub3]);
+
+      await repository.reorderSubjects(['s3', 's1', 's2']);
+
+      final reordered = await repository.getSubjects();
+      expect(reordered.map((s) => s.id).toList(), ['s3', 's1', 's2']);
+      expect(reordered[0].sortOrder, 0);
+      expect(reordered[1].sortOrder, 1);
+      expect(reordered[2].sortOrder, 2);
+    });
+
     test('deleteSubject performs soft-deletion and updates updatedAt', () async {
       final subject = SubjectEntity(
         id: 'sub-del',

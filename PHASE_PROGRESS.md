@@ -17,7 +17,7 @@
 | **Phase 1** | Architecture Foundation, DI, Theme & Router | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, all tests passing |
 | **Phase 2** | Core Data Layer, Entities & Repositories | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, 83/83 tests passing |
 | **Phase 3** | Design Tokens & Shared UI Component Library | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, 130/130 tests passing |
-| **Phase 4** | Feature-by-Feature Migration | 🟡 **IN PROGRESS (38%)** | **38%** | M4.1 (Auth), M4.2 (Dashboard), M4.3 (Register & DayRow) Complete. 314/314 tests pass. |
+| **Phase 4** | Feature-by-Feature Migration | 🟡 **IN PROGRESS (55%)** | **55%** | M4.1 (Auth), M4.2 (Dashboard), M4.3 (Register & DayRow), Feature 4.3 (Subject Management & Detailed Analytics), M4.4 (Timetable & Automated Schedule) Complete. 387/387 tests pass. |
 | **Phase 5** | Mathematical Engine & Attendance Precision | ⚪ Pending | 0% | Phase 4 sign-off required |
 | **Phase 6** | Cloud Sync, Notifications & Offline Consistency | ⚪ Pending | 0% | Phase 5 sign-off required |
 | **Phase 7** | Verification, Automated Testing & QA Matrix | ⚪ Pending | 0% | Phase 6 sign-off required |
@@ -43,10 +43,27 @@
   - `RegisterController`: Riverpod notifier with stream watchers for `LegacyAttendanceRepository` and `SettingsRepository`, managing `Week`, `Month`, `All` views and date range unions.
   - `RegisterPage`: Glassmorphic Session Register card, view toggles, descending date list.
   - Fixed 320px narrow-screen overflow with `FittedBox` scale-down wrapping in `DayRow`.
+- **Feature 4.3: Subject Management & Detailed Analytics (Complete)**
+  - Domain Entity & Model: `SubjectEntity` and `SubjectModel` extended with `code` (String?), `icon` (String, default `'school'`), `targetPercentage` (double?), `sortOrder` (int, default 0), and Schema V2 defensive serialization.
+  - Repository & Reordering: `SubjectRepository` & `SubjectRepositoryImpl` sorting by `sortOrder` then `createdAt`, plus `reorderSubjects(List<String> orderedIds)`.
+  - Analytics & Threshold Override: `DashboardAnalyticsService.computeSubjectStats` computes `effectiveThreshold = subject.targetPercentage ?? minPercent`, overriding global targets for `isSafe`, `canMiss`, `needToAttend`, and `isImpossible`.
+  - State Management: `SubjectController` extending `StateNotifier<AsyncValue<void>>` with validation for `addSubject`, `updateSubject`, `deleteSubject`, `restoreSubject`, and `reorderSubjects`. Reactive providers `subjectControllerProvider`, `subjectDetailStatsProvider`, and `subjectHistoryProvider`.
+  - Subject Dialog (`SubjectDialog`): Glassmorphic modal supporting Add Mode and Edit Mode, required trimmed name (max 120 chars), optional code (max 20 chars), 11 curated color swatches, 10 academic icon selector chips, custom target percentage toggle (1-100%, step 5%), and confirmation dialog before soft deletion.
+  - Subject Analytics Screen (`SubjectAnalyticsScreen`): Header with subject icon, code badge, color pill, and custom target badge. `AttendanceRing` with effective threshold needle, stats breakdown (`Conducted`, `Present`, `Absent`, `Percentage`), safe bunk/recovery advisor banner, quick action buttons (`+ Present` and `- Absent`), and chronological session history list with empty state placeholder.
+  - Routing & Navigation: Top-level route `/subject/:id` registered in `app_router.dart`, wired to `QuickActionSubjectCard.onTap` in `DashboardPage`, with "+ Add Subject" connected to `SubjectDialog` across `DashboardPage` and `EmptyDashboardView`.
+- **Milestone 4.4: Timetable & Automated Day Schedule (Complete)**
+  - Domain Entity: `TimetableSessionEntity` in `lib/features/timetable/domain/entities/timetable_session_entity.dart` with `id`, `subjectId`, `label`, `dayOfWeek` (0..6), `active`, `createdAt`, `updatedAt`, `deletedAt`, soft-deletion semantics, and factory copy/mutation methods.
+  - Data Model: `TimetableModel` in `lib/features/timetable/data/models/timetable_model.dart` with defensive Schema Version 2 JSON serialization (`fromMap`, `toMap`, `fromEntity`).
+  - Repository Layer: `TimetableRepository` and `TimetableRepositoryImpl` backed by Hive `settings_box` under the `'timetable'` key with fallback and reactive `watchTimetable()` stream.
+  - Riverpod Providers: `timetableRepositoryProvider`, `timetableStreamProvider`, `timetableSessionsForDayProvider(dayOfWeek)`, `todaysTimetableSessionsProvider`.
+  - Presentation Layer:
+    - `TimetableEditor` widget (`lib/features/timetable/presentation/widgets/timetable_editor.dart`): Replicating React `TimetableEditor.jsx` with day column selection matching `classDays`, session chips, add/remove session dialog/dropdown, and 320px narrow-screen overflow protection (`FittedBox` / `Flexible`).
+    - `TodaysScheduleCard` widget (`lib/features/dashboard/presentation/widgets/todays_schedule_card.dart`): Replicating React dashboard's today's schedule card with automatic collapse when today is not a class day, or no sessions scheduled, or all sessions marked; quick action buttons ("Mark all present", "Mark all absent", "Review individually" navigating to `/register`).
+    - `TimetablePage` (`lib/features/timetable/presentation/pages/timetable_page.dart`): Dedicated glassmorphic configuration screen with weekly schedule editor and quick navigation.
+    - Integrated with `AppRouter` (`/timetable`), `AppDrawer`, `DashboardPage`, `SettingsPage`, and `repository_providers.dart`.
 - **Automated Verification & Metrics**:
   - `flutter analyze`: **0 issues found** (0 errors, 0 warnings).
-  - `flutter test`: **314 tests executed and passed** (100% pass rate: 130 Phase 3 tests + 47 Auth/Onboarding + 59 Dashboard + 78 Register & DateUtils tests).
-  - Git Commit: `673a46c` pushed to remote `flutter` branch.
+  - `flutter test`: **387 tests executed and passed** (100% pass rate: 73 new unit and widget tests including 320px responsive tests).
 
 ---
 

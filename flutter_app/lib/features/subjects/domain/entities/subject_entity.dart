@@ -3,7 +3,11 @@
 class SubjectEntity {
   final String id;
   final String name;
+  final String? code;
   final String color;
+  final String icon;
+  final double? targetPercentage;
+  final int sortOrder;
   final bool active;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -12,7 +16,11 @@ class SubjectEntity {
   const SubjectEntity({
     required this.id,
     required this.name,
+    this.code,
     this.color = '#10B981',
+    this.icon = 'school',
+    this.targetPercentage,
+    this.sortOrder = 0,
     this.active = true,
     required this.createdAt,
     required this.updatedAt,
@@ -24,7 +32,13 @@ class SubjectEntity {
   SubjectEntity copyWith({
     String? id,
     String? name,
+    String? code,
+    bool clearCode = false,
     String? color,
+    String? icon,
+    double? targetPercentage,
+    bool clearTargetPercentage = false,
+    int? sortOrder,
     bool? active,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -34,7 +48,12 @@ class SubjectEntity {
     return SubjectEntity(
       id: id ?? this.id,
       name: name ?? this.name,
+      code: clearCode ? null : (code ?? this.code),
       color: color ?? this.color,
+      icon: icon ?? this.icon,
+      targetPercentage:
+          clearTargetPercentage ? null : (targetPercentage ?? this.targetPercentage),
+      sortOrder: sortOrder ?? this.sortOrder,
       active: active ?? this.active,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -48,7 +67,11 @@ class SubjectEntity {
       other is SubjectEntity &&
           id == other.id &&
           name == other.name &&
+          code == other.code &&
           color == other.color &&
+          icon == other.icon &&
+          targetPercentage == other.targetPercentage &&
+          sortOrder == other.sortOrder &&
           active == other.active &&
           createdAt == other.createdAt &&
           updatedAt == other.updatedAt &&
@@ -58,7 +81,11 @@ class SubjectEntity {
   int get hashCode =>
       id.hashCode ^
       name.hashCode ^
+      code.hashCode ^
       color.hashCode ^
+      icon.hashCode ^
+      targetPercentage.hashCode ^
+      sortOrder.hashCode ^
       active.hashCode ^
       createdAt.hashCode ^
       updatedAt.hashCode ^

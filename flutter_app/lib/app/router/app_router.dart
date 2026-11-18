@@ -10,6 +10,8 @@ import '../../features/notes/presentation/notes_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/register/presentation/register_page.dart';
 import '../../features/settings/presentation/settings_page.dart';
+import '../../features/subjects/presentation/pages/subject_analytics_screen.dart';
+import '../../features/timetable/presentation/pages/timetable_page.dart';
 import '../../shared/widgets/app_shell.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -153,6 +155,25 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'notes',
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const NotesPage(),
+      ),
+
+      // Standalone top-level route (Timetable pushed over shell)
+      GoRoute(
+        path: '/timetable',
+        name: 'timetable',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const TimetablePage(),
+      ),
+
+      // Standalone top-level route (Subject Analytics Detail pushed over shell)
+      GoRoute(
+        path: '/subject/:id',
+        name: 'subject-detail',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final subjectId = state.pathParameters['id'] ?? '';
+          return SubjectAnalyticsScreen(subjectId: subjectId);
+        },
       ),
     ],
   );

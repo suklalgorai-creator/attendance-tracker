@@ -9,22 +9,30 @@ class SubjectRepositoryImpl implements SubjectRepository {
   SubjectRepositoryImpl({SubjectLocalDataSource? localDataSource})
       : _localDataSource = localDataSource ?? SubjectLocalDataSourceImpl();
 
+  int _compareSubjects(SubjectEntity a, SubjectEntity b) {
+    final orderComparison = a.sortOrder.compareTo(b.sortOrder);
+    if (orderComparison != 0) return orderComparison;
+    return a.createdAt.compareTo(b.createdAt);
+  }
+
   @override
   Future<List<SubjectEntity>> getSubjects({bool includeDeleted = false}) async {
     final models = await _localDataSource.getSubjects();
+    final sorted = models.toList()..sort(_compareSubjects);
     if (includeDeleted) {
-      return models;
+      return sorted;
     }
-    return models.where((s) => !s.isDeleted).toList();
+    return sorted.where((s) => !s.isDeleted).toList();
   }
 
   @override
   Stream<List<SubjectEntity>> watchSubjects({bool includeDeleted = false}) {
     return _localDataSource.watchSubjects().map((list) {
+      final sorted = list.toList()..sort(_compareSubjects);
       if (includeDeleted) {
-        return list;
+        return sorted;
       }
-      return list.where((s) => !s.isDeleted).toList();
+      return sorted.where((s) => !s.isDeleted).toList();
     });
   }
 
@@ -38,6 +46,23 @@ class SubjectRepositoryImpl implements SubjectRepository {
   Future<void> saveSubjects(List<SubjectEntity> subjects) async {
     final models = subjects.map(SubjectModel.fromEntity).toList();
     await _localDataSource.saveSubjects(models);
+  }
+
+  @override
+  Future<void> reorderSubjects(List<String> orderedIds) async {
+    final models = await _localDataSource.getSubjects();
+    final now = DateTime.now();
+    final updated = models.map((model) {
+      final index = orderedIds.indexOf(model.id);
+      if (index >= 0) {
+        return SubjectModel.fromEntity(model.copyWith(
+          sortOrder: index,
+          updatedAt: now,
+        ));
+      }
+      return model;
+    }).toList();
+    await _localDataSource.saveSubjects(updated);
   }
 
   @override
