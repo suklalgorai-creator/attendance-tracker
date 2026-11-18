@@ -145,5 +145,46 @@ void main() {
       await tester.pump();
       expect(absentTapped, isTrue);
     });
+
+    testWidgets(
+        'Renders cleanly without overflow on compact 320x568 viewport with 1.5x text scaler and large counts',
+        (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1.0;
+      tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+      final extremeStats = SubjectAttendanceStats(
+        subject: subject,
+        conducted: 1500,
+        present: 1250,
+        absent: 250,
+        percentage: 83.3,
+        canMiss: 15,
+        needToAttend: 0,
+        isImpossible: false,
+        isSafe: true,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData.dark(),
+          home: Scaffold(
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: QuickActionSubjectCard(stats: extremeStats),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(QuickActionSubjectCard), findsOneWidget);
+    });
   });
 }

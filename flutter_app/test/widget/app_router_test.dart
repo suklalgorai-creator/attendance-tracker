@@ -215,10 +215,10 @@ void main() {
       // Tap Register Tab
       await tester.tap(find.text('Register'));
       await tester.pumpAndSettle();
-      expect(find.text('Register View'), findsOneWidget);
+      expect(find.text('Session Register'), findsOneWidget);
 
       // Tap Leaderboard Tab
-      await tester.tap(find.text('Leaderboard'));
+      await tester.tap(find.byIcon(Icons.emoji_events_rounded));
       await tester.pumpAndSettle();
       expect(find.text('Leaderboard View'), findsOneWidget);
 

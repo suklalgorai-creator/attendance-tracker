@@ -181,12 +181,16 @@ class QuickActionSubjectCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      '${stats.present} / ${stats.conducted} classes',
-                      style: GoogleFonts.outfit(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: mutedColor,
+                    Flexible(
+                      child: Text(
+                        '${stats.present} / ${stats.conducted} classes',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.outfit(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: mutedColor,
+                        ),
                       ),
                     ),
                   ],
