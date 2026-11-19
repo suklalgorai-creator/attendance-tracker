@@ -222,7 +222,7 @@ void main() {
       // Tap Leaderboard Tab
       await tester.tap(find.byIcon(Icons.emoji_events_rounded));
       await tester.pumpAndSettle();
-      expect(find.text('Leaderboard View'), findsOneWidget);
+      expect(find.text('Attendance Leaderboard'), findsOneWidget);
 
       // Tap Settings Tab
       await tester.tap(find.text('Settings'));

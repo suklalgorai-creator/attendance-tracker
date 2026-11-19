@@ -17,7 +17,7 @@
 | **Phase 1** | Architecture Foundation, DI, Theme & Router | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, all tests passing |
 | **Phase 2** | Core Data Layer, Entities & Repositories | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, 83/83 tests passing |
 | **Phase 3** | Design Tokens & Shared UI Component Library | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, 130/130 tests passing |
-| **Phase 4** | Feature-by-Feature Migration | 🟡 **IN PROGRESS (65%)** | **65%** | M4.1 (Auth), M4.2 (Dashboard), M4.3 (Register & DayRow), Feature 4.3 (Subject Management & Detailed Analytics), M4.4 (Timetable & Automated Schedule), M4.5 (Calendar & Heatmap) Complete. 411/411 tests pass. |
+| **Phase 4** | Feature-by-Feature Migration | 🟡 **IN PROGRESS (75%)** | **75%** | M4.1 (Auth), M4.2 (Dashboard), M4.3 (Register & DayRow), Feature 4.3 (Subject Management & Detailed Analytics), M4.4 (Timetable & Automated Schedule), M4.5 (Calendar & Heatmap), M4.6 (Leaderboard & Gamification) Complete. 427/427 tests pass. |
 | **Phase 5** | Mathematical Engine & Attendance Precision | ⚪ Pending | 0% | Phase 4 sign-off required |
 | **Phase 6** | Cloud Sync, Notifications & Offline Consistency | ⚪ Pending | 0% | Phase 5 sign-off required |
 | **Phase 7** | Verification, Automated Testing & QA Matrix | ⚪ Pending | 0% | Phase 6 sign-off required |
@@ -74,9 +74,23 @@
     - Responsive layout: zero RenderFlex overflow down to 320px narrow screens.
     - `flutter analyze`: **0 issues found** (0 errors, 0 warnings).
     - `flutter test`: **411 tests executed and passed** (100% pass rate: 24 new unit & widget tests).
+- **Milestone 4.6: Leaderboard & Gamification Badges (Complete)**
+  - Domain & Entities:
+    - `LeaderboardEntryEntity` in `lib/features/leaderboard/domain/entities/leaderboard_entry_entity.dart` with rank, user ID, display name, photo URL, attendance percentage, streak count, and badge tier.
+    - `StreakTier` enum in `lib/features/leaderboard/domain/entities/streak_badge_tier.dart` (None <3d, Bronze 3d, Silver 7d, Gold 14d, Platinum 30d) with progress math (`calculateProgress`) and `nextTier`.
+  - Repository & State Management:
+    - `LeaderboardRepository` and `LeaderboardRepositoryImpl` injecting current user stats from `DashboardAnalyticsService`, sorting cohort descending by attendance percentage with alphabetical tie-breakers matching React line 24.
+    - Providers: `leaderboardEntriesProvider`, `myRankProvider`, `currentStreakTierProvider`.
+  - Presentation Layer:
+    - `BadgesShowcaseWidget` (`lib/features/leaderboard/presentation/widgets/badges_showcase_widget.dart`): Replicating React badges card with 44x44 circular tier dots (Bronze, Silver, Gold, Platinum), lock/unlock states, amber progress bar to next tier, and streak flame.
+    - `LeaderboardPage` (`lib/features/leaderboard/presentation/leaderboard_page.dart`): Replaces Phase 1 placeholder. Attendance Leaderboard card with current user rank `#$myRank`, Badges showcase, Class Rankings list with current user highlight (`You` tag, Emerald border), and zero-overflow narrow viewport (320px) support via `LayoutBuilder`.
+  - Verification & Adversarial Audit (Claude Opus 4.6):
+    - Resolved 250px desktop fixed width by switching to adaptive `LayoutBuilder`.
+    - `flutter analyze`: **0 issues found** (0 errors, 0 warnings).
+    - `flutter test`: **427 tests executed and passed** (100% pass rate: 16 new unit & widget tests).
 - **Automated Verification & Metrics**:
   - `flutter analyze`: **0 issues found** (0 errors, 0 warnings).
-  - `flutter test`: **411 tests executed and passed** (100% pass rate).
+  - `flutter test`: **427 tests executed and passed** (100% pass rate).
 
 ---
 
