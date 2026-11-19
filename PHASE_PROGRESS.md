@@ -17,7 +17,7 @@
 | **Phase 1** | Architecture Foundation, DI, Theme & Router | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, all tests passing |
 | **Phase 2** | Core Data Layer, Entities & Repositories | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, 83/83 tests passing |
 | **Phase 3** | Design Tokens & Shared UI Component Library | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, 130/130 tests passing |
-| **Phase 4** | Feature-by-Feature Migration | 🟡 **IN PROGRESS (55%)** | **55%** | M4.1 (Auth), M4.2 (Dashboard), M4.3 (Register & DayRow), Feature 4.3 (Subject Management & Detailed Analytics), M4.4 (Timetable & Automated Schedule) Complete. 387/387 tests pass. |
+| **Phase 4** | Feature-by-Feature Migration | 🟡 **IN PROGRESS (65%)** | **65%** | M4.1 (Auth), M4.2 (Dashboard), M4.3 (Register & DayRow), Feature 4.3 (Subject Management & Detailed Analytics), M4.4 (Timetable & Automated Schedule), M4.5 (Calendar & Heatmap) Complete. 411/411 tests pass. |
 | **Phase 5** | Mathematical Engine & Attendance Precision | ⚪ Pending | 0% | Phase 4 sign-off required |
 | **Phase 6** | Cloud Sync, Notifications & Offline Consistency | ⚪ Pending | 0% | Phase 5 sign-off required |
 | **Phase 7** | Verification, Automated Testing & QA Matrix | ⚪ Pending | 0% | Phase 6 sign-off required |
@@ -61,9 +61,22 @@
     - `TodaysScheduleCard` widget (`lib/features/dashboard/presentation/widgets/todays_schedule_card.dart`): Replicating React dashboard's today's schedule card with automatic collapse when today is not a class day, or no sessions scheduled, or all sessions marked; quick action buttons ("Mark all present", "Mark all absent", "Review individually" navigating to `/register`).
     - `TimetablePage` (`lib/features/timetable/presentation/pages/timetable_page.dart`): Dedicated glassmorphic configuration screen with weekly schedule editor and quick navigation.
     - Integrated with `AppRouter` (`/timetable`), `AppDrawer`, `DashboardPage`, `SettingsPage`, and `repository_providers.dart`.
+- **Milestone 4.5: Calendar View & GitHub-style Contribution Heatmap (Complete)**
+  - Domain Layer: `CalendarDaySummary` & `CalendarMonthSummary` in `lib/features/calendar/domain/models/calendar_day_summary.dart`.
+  - Service Layer: `CalendarAnalyticsService` with 1:1 React parity for `computeDaySummary`, `computeMonthSummary`, `computeDaysInMonth`, `computeHeatmapRecords`, and Sunday-aligned `computeHeatmapStartDate`.
+  - Presentation Layer:
+    - `CalendarViewWidget` (`lib/features/calendar/presentation/widgets/calendar_view.dart`): Interactive monthly navigation (‹ / ›), circular day cells with status colors (Amber present/partial, Rose absent, Blue holiday), 2px paper outline for today, and monthly aggregate footer (`Conducted`, `Present`, `Holidays`).
+    - `HeatmapView` (`lib/features/calendar/presentation/widgets/heatmap_view.dart`): 26-week GitHub-style contribution graph with Y-axis Mon/Wed/Fri labels, horizontally scrollable matrix, dynamic light/dark paper outline for today, and status legend.
+    - `ActivityCard` (`lib/features/calendar/presentation/widgets/activity_card.dart`): Glassmorphic container with Month / Heatmap segmented toggle switcher.
+    - Integrated directly into `DashboardPage` (`lib/features/dashboard/presentation/pages/dashboard_page.dart`) matching React layout.
+  - Verification & Adversarial Audit (Claude Opus 4.6):
+    - Resolved historical React Sunday misalignment offset and dynamic theme outline contrast.
+    - Responsive layout: zero RenderFlex overflow down to 320px narrow screens.
+    - `flutter analyze`: **0 issues found** (0 errors, 0 warnings).
+    - `flutter test`: **411 tests executed and passed** (100% pass rate: 24 new unit & widget tests).
 - **Automated Verification & Metrics**:
   - `flutter analyze`: **0 issues found** (0 errors, 0 warnings).
-  - `flutter test`: **387 tests executed and passed** (100% pass rate: 73 new unit and widget tests including 320px responsive tests).
+  - `flutter test`: **411 tests executed and passed** (100% pass rate).
 
 ---
 

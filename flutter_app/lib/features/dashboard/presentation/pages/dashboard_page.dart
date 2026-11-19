@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../calendar/presentation/widgets/activity_card.dart';
 import '../../../subjects/presentation/widgets/subject_dialog.dart';
 import '../../domain/models/dashboard_stats.dart';
 import '../providers/dashboard_controller.dart';
@@ -96,6 +97,11 @@ class DashboardPage extends ConsumerWidget {
         OverviewCard(
           stats: stats,
         ),
+
+        const SizedBox(height: 16),
+
+        // Activity Card (Calendar View & Contribution Heatmap)
+        const ActivityCard(),
 
         const SizedBox(height: 24),
 
