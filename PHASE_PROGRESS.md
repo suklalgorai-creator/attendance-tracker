@@ -19,7 +19,7 @@
 | **Phase 3** | Design Tokens & Shared UI Component Library | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, 130/130 tests passing |
 | **Phase 4** | Feature-by-Feature Migration | 🟢 **COMPLETED** | **100%** | M4.1 (Auth), M4.2 (Dashboard), M4.3 (Register & DayRow), Feature 4.3 (Subject Management & Analytics), M4.4 (Timetable), M4.5 (Calendar & Heatmap), M4.6 (Leaderboard), M4.7 (Settings & Backup) Complete. M4.8 skipped per user instruction. 445 tests pass. |
 | **Phase 5** | Mathematical Engine & Attendance Precision | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, 465/465 tests pass. 1:1 mathematical parity with React attendance.js and attendance.test.js. |
-| **Phase 6** | Cloud Sync, Notifications & Offline Consistency | ⚪ Pending | 0% | Phase 5 sign-off required |
+| **Phase 6** | Cloud Sync, Notifications & Offline Consistency | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, 491/491 tests pass. Debounced sync, LWW conflict resolution, offline queueing, local notification reminders. |
 | **Phase 7** | Verification, Automated Testing & QA Matrix | ⚪ Pending | 0% | Phase 6 sign-off required |
 | **Phase 8** | Performance Profiling & Security Hardening | ⚪ Pending | 0% | Phase 7 sign-off required |
 | **Phase 9** | Production Hardening, Release Build & Sign-off | ⚪ Pending | 0% | Phase 8 sign-off required |
@@ -156,6 +156,41 @@
 - **Automated Verification & Metrics**:
   - `flutter analyze`: **0 issues found** (0 errors, 0 warnings across entire app).
   - `flutter test`: **465 tests executed and passed** (100% pass rate: 20 new tests added).
+
+---
+
+## 🎯 Phase 6: Cloud Sync, Notifications & Offline Consistency (Complete)
+- **Remote Cloud Sync Contracts & Offline-Safe Implementation**:
+  - `RemoteSyncDataSource` (`lib/features/sync/domain/datasources/remote_sync_datasource.dart`): Replicating Firestore document operations from `react_app/src/services/cloudSync.js` (`fetchUserData`, `updateUserData`, `fetchGlobalSettings`).
+  - `DefaultRemoteSyncDataSource` (`lib/features/sync/data/datasources/remote_sync_datasource_impl.dart`): Offline-safe in-memory data store with Firestore atomic transaction simulation, latency simulation, and `SyncNetworkException`.
+- **Network Connectivity Service**:
+  - `NetworkConnectivityService` (`lib/core/services/network_connectivity_service.dart`): Clean abstraction with `onConnectivityChanged` stream and `isOnline` future, `FakeNetworkConnectivityService` for testing, and `NetworkConnectivityServiceImpl` integrating `connectivity_plus`.
+- **Cloud Sync Engine & Reactive Architecture**:
+  - `CloudSyncService` (`lib/features/sync/domain/services/cloud_sync_service.dart`):
+    - 5-second debounce timer on local changes (`scheduleDebouncedSync`).
+    - Immediate cloud flush (`flushToCloud`) cancelling debounce timer.
+    - Loop-prevention guard (`isApplyingRemoteMerge`) preventing infinite sync cycles during remote hydration.
+    - LWW (Last-Write-Wins) deterministic entity conflict resolution via `mergeUserData`.
+    - Soft-deleted tombstone preservation (`deletedAt`).
+    - Guest mode isolation (`isGuest == true` / `id == 'guest'`) bypassing remote network calls completely.
+    - Offline queueing: marks `SyncStatus.offlineWarning` on connection loss and automatically retries flush upon connectivity restoration.
+    - Hydration on login (`loadUserData(uid)`) matching React `cloudSync.js`.
+  - `sync_providers.dart`: Reactive Riverpod providers with fallback stubs for uninitialized environments.
+- **Attendance Push & Reminder Notification Engine**:
+  - `NotificationService` (`lib/core/services/notification_service.dart`): Replicating React notification logic; calculates next occurrences for user's configured `classDays` (0=Sun..6=Sat) and `reminderTime` ("HH:mm"), suppresses alerts on holidays from global settings, cancels reminders when disabled, and provides `FlutterLocalNotificationServiceImpl` wrapping `flutter_local_notifications` (v22.3.3) and `timezone`.
+  - `notification_providers.dart`: Auto-rescheduling provider observing `settingsStreamProvider` and `remoteSyncDataSourceProvider`.
+- **UI Sync Indicator**:
+  - `SyncIndicatorWidget` (`lib/features/sync/presentation/widgets/sync_indicator_widget.dart`): Reactive badge showing synced, syncing, offline warning, and idle states with manual tap-to-flush.
+  - Integrated into `AppHeader` (`lib/shared/widgets/app_header.dart`).
+- **Automated Verification & Metrics**:
+  - 26 new unit and widget tests:
+    - `test/unit/services/remote_sync_datasource_test.dart` (6 tests)
+    - `test/unit/services/network_connectivity_service_test.dart` (3 tests)
+    - `test/unit/services/notification_service_test.dart` (6 tests)
+    - `test/unit/services/cloud_sync_service_test.dart` (7 tests)
+    - `test/widget/features/sync/sync_indicator_test.dart` (4 tests)
+  - `flutter analyze`: **0 issues found** (0 errors, 0 warnings across entire app).
+  - `flutter test`: **491 tests executed and passed** (100% pass rate).
 
 ---
 

@@ -5,6 +5,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_radius.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_typography.dart';
+import '../../features/sync/presentation/widgets/sync_indicator_widget.dart';
 
 /// App header component replicating AppLayout.jsx header:
 /// - Hamburger menu button (opens Drawer)
@@ -97,10 +98,12 @@ class AppHeader extends ConsumerWidget {
               ],
             ),
           ),
-          // Right: Theme Toggle & Streak Badge
+          // Right: Sync Indicator, Theme Toggle & Streak Badge
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              const SyncIndicatorWidget(),
+              const SizedBox(width: AppSpacing.sm),
               InkWell(
                 onTap: () => ref.read(themeModeProvider.notifier).toggleTheme(),
                 borderRadius: BorderRadius.circular(AppRadius.md),
