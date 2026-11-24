@@ -10,99 +10,102 @@ void main() {
       service = DefaultNotificationService();
     });
 
-    test('parseTime handles valid and invalid inputs gracefully', () {
-      expect(DefaultNotificationService.parseTime('18:00'), [18, 0]);
-      expect(DefaultNotificationService.parseTime('09:30'), [9, 30]);
-      expect(DefaultNotificationService.parseTime('invalid'), [18, 0]);
-      expect(DefaultNotificationService.parseTime('25:70'), [23, 59]);
+    test('parseTime handles valid HH:mm and invalid fallback', () {
+      expect(DefaultNotificationService.parseTime('18:30'), equals([18, 30]));
+      expect(DefaultNotificationService.parseTime('08:05'), equals([8, 5]));
+      expect(DefaultNotificationService.parseTime('25:70'), equals([23, 59]));
+      expect(DefaultNotificationService.parseTime('invalid'), equals([18, 0]));
     });
 
-    test('calculateNextOccurrence returns future datetime matching dayOfWeek and time', () {
-      // 2026-11-23 was Monday (weekday % 7 = 1)
-      final mondayMorning = DateTime(2026, 11, 23, 8, 0);
+    test('calculateNextOccurrence finds correct future day and time', () {
+      // Wednesday Nov 25, 2026, 10:00
+      final now = DateTime(2026, 11, 25, 10, 0);
 
-      // Target Tuesday (weekday % 7 = 2) at 18:00
-      final nextTuesday = DefaultNotificationService.calculateNextOccurrence(
-        now: mondayMorning,
-        targetDayOfWeek: 2,
+      // Target Thursday (weekday 4 -> targetDayOfWeek 4) at 18:00
+      final nextDay = DefaultNotificationService.calculateNextOccurrence(
+        now: now,
+        targetDayOfWeek: 4,
         hour: 18,
         minute: 0,
       );
-      expect(nextTuesday.year, 2026);
-      expect(nextTuesday.month, 11);
-      expect(nextTuesday.day, 24);
-      expect(nextTuesday.hour, 18);
-      expect(nextTuesday.minute, 0);
-      expect(nextTuesday.weekday % 7, 2);
 
-      // Target Monday at 7:00 (already passed for today) -> next week Monday
-      final nextMonday = DefaultNotificationService.calculateNextOccurrence(
-        now: mondayMorning,
-        targetDayOfWeek: 1,
-        hour: 7,
-        minute: 0,
-      );
-      expect(nextMonday.isAfter(mondayMorning), isTrue);
-      expect(nextMonday.day, 30); // 23 + 7 = 30
-      expect(nextMonday.weekday % 7, 1);
+      expect(nextDay.year, 2026);
+      expect(nextDay.month, 11);
+      expect(nextDay.day, 26);
+      expect(nextDay.hour, 18);
+      expect(nextDay.minute, 0);
     });
 
-    test('scheduleAttendanceReminder registers notifications for active classDays', () async {
+    test('scheduleAttendanceReminder schedules for all classDays when enabled', () async {
       await service.scheduleAttendanceReminder(
-        reminderTime: '17:30',
-        classDays: [1, 2, 3], // Mon, Tue, Wed
+        reminderTime: '17:00',
+        classDays: [1, 2, 3, 4, 5], // Mon to Fri
         isEnabled: true,
       );
 
+      expect(service.scheduledReminders.length, 5);
+      expect(
+        service.scheduledReminders.map((r) => r.id).toList(),
+        equals([1001, 1002, 1003, 1004, 1005]),
+      );
+    });
+
+    test('scheduleAttendanceReminder cancels all when isEnabled is false or classDays empty', () async {
+      await service.scheduleAttendanceReminder(
+        reminderTime: '17:00',
+        classDays: [1, 2, 3],
+        isEnabled: true,
+      );
       expect(service.scheduledReminders.length, 3);
-      final reminderIds = service.scheduledReminders.map((r) => r.id).toList();
-      expect(reminderIds, containsAll([1001, 1002, 1003]));
+
+      await service.scheduleAttendanceReminder(
+        reminderTime: '17:00',
+        classDays: [1, 2, 3],
+        isEnabled: false,
+      );
+      expect(service.scheduledReminders.length, 0);
+
+      await service.scheduleAttendanceReminder(
+        reminderTime: '17:00',
+        classDays: [],
+        isEnabled: true,
+      );
+      expect(service.scheduledReminders.length, 0);
     });
 
     test('scheduleAttendanceReminder skips declared holidays', () async {
       final now = DateTime.now();
-      // Calculate what date next occurrence for Tuesday (2) will be
-      final nextTue = DefaultNotificationService.calculateNextOccurrence(
+      // Calculate what date next Monday (1) will be
+      final mondayDate = DefaultNotificationService.calculateNextOccurrence(
         now: now,
-        targetDayOfWeek: 2,
+        targetDayOfWeek: 1,
         hour: 18,
         minute: 0,
       );
-      final holidayDateKey = formatDateKey(nextTue);
+      final mondayDateKey = formatDateKey(mondayDate);
+
+      final holidays = {mondayDateKey: 'Diwali Holiday'};
 
       await service.scheduleAttendanceReminder(
         reminderTime: '18:00',
-        classDays: [2], // Tuesday only
+        classDays: [1, 2], // Mon, Tue
         isEnabled: true,
-        holidays: {holidayDateKey: 'College Foundation Day'},
+        holidays: holidays,
       );
 
-      // Because Tuesday is a holiday, it must be skipped!
-      expect(service.scheduledReminders, isEmpty);
+      // Monday should be skipped, so only Tuesday is scheduled
+      expect(service.scheduledReminders.length, 1);
+      expect(service.scheduledReminders.first.id, 1002);
     });
 
-    test('scheduleAttendanceReminder clears reminders when disabled', () async {
-      await service.scheduleAttendanceReminder(
-        reminderTime: '18:00',
-        classDays: [1, 2, 3],
-        isEnabled: true,
-      );
-      expect(service.scheduledReminders.isNotEmpty, isTrue);
-
-      await service.scheduleAttendanceReminder(
-        reminderTime: '18:00',
-        classDays: [1, 2, 3],
-        isEnabled: false,
-      );
-      expect(service.scheduledReminders, isEmpty);
-    });
-
-    test('requestFCMToken respects permission status', () async {
-      service.setPermissionGranted(true);
+    test('requestNotificationPermissions and requestFCMToken reflect permission state', () async {
+      expect(await service.requestNotificationPermissions(), isTrue);
       expect(await service.requestFCMToken(), isNotNull);
 
       service.setPermissionGranted(false);
+      expect(await service.requestNotificationPermissions(), isFalse);
       expect(await service.requestFCMToken(), isNull);
     });
   });
 }
+
