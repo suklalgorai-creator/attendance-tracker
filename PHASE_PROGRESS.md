@@ -18,7 +18,7 @@
 | **Phase 2** | Core Data Layer, Entities & Repositories | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, 83/83 tests passing |
 | **Phase 3** | Design Tokens & Shared UI Component Library | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, 130/130 tests passing |
 | **Phase 4** | Feature-by-Feature Migration | 🟢 **COMPLETED** | **100%** | M4.1 (Auth), M4.2 (Dashboard), M4.3 (Register & DayRow), Feature 4.3 (Subject Management & Analytics), M4.4 (Timetable), M4.5 (Calendar & Heatmap), M4.6 (Leaderboard), M4.7 (Settings & Backup) Complete. M4.8 skipped per user instruction. 445 tests pass. |
-| **Phase 5** | Mathematical Engine & Attendance Precision | ⚪ Pending | 0% | Phase 4 sign-off required |
+| **Phase 5** | Mathematical Engine & Attendance Precision | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, 465/465 tests pass. 1:1 mathematical parity with React attendance.js and attendance.test.js. |
 | **Phase 6** | Cloud Sync, Notifications & Offline Consistency | ⚪ Pending | 0% | Phase 5 sign-off required |
 | **Phase 7** | Verification, Automated Testing & QA Matrix | ⚪ Pending | 0% | Phase 6 sign-off required |
 | **Phase 8** | Performance Profiling & Security Hardening | ⚪ Pending | 0% | Phase 7 sign-off required |
@@ -118,6 +118,44 @@
 - **Automated Verification & Metrics**:
   - `flutter analyze`: **0 issues found** (0 errors, 0 warnings).
   - `flutter test`: **445 tests executed and passed** (100% pass rate).
+
+---
+
+## 🎯 Phase 5: Mathematical Engine & Attendance Precision (Complete)
+- **Core Calculation Engine (`lib/core/utils/attendance_calculator.dart`)**:
+  - Implemented `AttendanceSummary` with `present`, `absent`, `conducted`, `cancelled`, `unmarked`.
+  - Implemented `OverallAttendanceResult` and `SubjectAttendanceResult` with status (`'none'`, `'safe'`, `'danger'`), `canMiss`, `needToAttend`, `impossible`, `isSafe`, `isDanger`, `isNone`.
+  - Exact IEEE-754 Epsilon guards matching React `attendance.js`:
+    - `calculateAttendance(present, conducted)`: Returns `null` on 0 conducted or invalid constraints.
+    - `calculateMaximumAbsences(present, conducted, threshold)`: Floor with `+1e-10` guard.
+    - `calculateRequiredRecoveryClasses(present, conducted, threshold)`: Ceil with `-1e-10` guard; returns `-1` (Infinity) when `threshold >= 100`.
+    - `calculateProjectedAttendance(present, conducted, {futurePresent, futureAbsent})`.
+    - `isConductedStatus` & `isConductedAttendanceRecord`: Filters soft-deleted records and recognizes Present/Absent.
+    - `summarizeAttendanceRecords`: Filters `deletedAt`, `subjectId`, and `holidays`.
+    - `summarizeLegacyAttendance`: Aggregates legacy `held` and `attended` filtering `deletedAt` and `holidays`.
+    - `calculateOverallAttendance`: Combines current records and legacy attendance.
+    - `calculateSubjectAttendance`: Subject-isolated metrics computation.
+    - `calculatePendingScheduledSessions`: Date-range and timetable session pending counter.
+  - Top-level function aliases for 1:1 syntax compatibility with React imports.
+- **Migration & Sync Parity (`lib/core/utils/data_migration.dart`)**:
+  - Implemented `migrateUserData` matching React `dataModel.js` with quarantine handling for invalid status, malformed date, and unknown subject.
+  - Implemented `mergeUserData` with deterministic timestamp comparison (`timestampOf`) and stable serialization conflict resolution matching React `sync.js`.
+  - Implemented `createBackup` and `parseBackup` with exact error messages and 5 MB limits matching React `backup.js`.
+- **Master Mathematical Parity Test Suite (`test/unit/utils/attendance_mathematical_parity_test.dart`)**:
+  - 14 automated unit tests mirroring all 9 React tests from `react_app/tests/attendance.test.js` verbatim + adversarial boundary tests:
+    - Test 1: Zero conducted classes returns null, 5/10=50%, 0/10=0%.
+    - Test 2: Safe bunks: 10/10@75=3, 75/100@75=0, 76/100@75=1, 746/1000@75=0.
+    - Test 3: Recovery: 60/100@75=60, 70/100@75=20, 74/100@75=4, 75/100@75=0.
+    - Test 4: Unmarked, cancelled, holidays do not reduce official attendance.
+    - Test 5: Invalid records quarantined (3) and valid records survive (1).
+    - Test 6: Multiple classes on one date coexist independently.
+    - Test 7: Daily attendance works without a subject (`__daily__`).
+    - Test 8: Sync keeps newest entity and preserves deletions.
+    - Test 9: Backup round-trip validates envelope, schemaVersion, and throws on invalid input.
+    - Adversarial tests: Combined legacy + session records, subject isolation, conducted status detection, pending sessions calculation, and 100% threshold impossibility.
+- **Automated Verification & Metrics**:
+  - `flutter analyze`: **0 issues found** (0 errors, 0 warnings across entire app).
+  - `flutter test`: **465 tests executed and passed** (100% pass rate: 20 new tests added).
 
 ---
 
