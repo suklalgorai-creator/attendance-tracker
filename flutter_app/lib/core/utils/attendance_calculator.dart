@@ -15,6 +15,71 @@ class AttendanceMetrics {
 }
 
 class AttendanceCalculator {
+  static const double _epsilon = 1e-10;
+
+  /// Returns whether [threshold] is a usable attendance percentage.
+  ///
+  /// This intentionally mirrors React's `isValidThreshold`: zero, negative,
+  /// NaN, and values above 100 are not meaningful targets.
+  static bool isValidThreshold(double threshold) {
+    return threshold.isFinite && threshold > 0 && threshold <= 100;
+  }
+
+  /// Calculates attendance percentage, or `null` when no valid classes exist.
+  static double? calculateAttendance(int present, int conducted) {
+    if (conducted <= 0 || present < 0 || present > conducted) return null;
+    return (present / conducted) * 100.0;
+  }
+
+  /// Calculates the maximum number of future absences that preserve [threshold].
+  /// Invalid or already-dangerous records return zero, matching React.
+  static int calculateMaximumAbsences(
+    int present,
+    int conducted,
+    double threshold,
+  ) {
+    if (!isValidThreshold(threshold)) return 0;
+    final attendance = calculateAttendance(present, conducted);
+    if (attendance == null || attendance < threshold) return 0;
+
+    final maximum =
+        ((present * 100.0) / threshold - conducted + _epsilon).floor();
+    return maximum < 0 ? 0 : maximum;
+  }
+
+  /// Calculates the minimum consecutive present classes needed to reach a
+  /// threshold. `-1` represents React's `Infinity` for a 100% target that is
+  /// currently below target.
+  static int calculateRequiredRecoveryClasses(
+    int present,
+    int conducted,
+    double threshold,
+  ) {
+    if (!isValidThreshold(threshold)) return 0;
+    final attendance = calculateAttendance(present, conducted);
+    if (attendance == null || attendance >= threshold) return 0;
+    if (threshold >= 100) return -1;
+
+    final required = (((threshold * conducted) - (100.0 * present)) /
+            (100.0 - threshold) -
+        _epsilon).ceil();
+    return required < 0 ? 0 : required;
+  }
+
+  /// Projects attendance after adding future present and absent classes.
+  static double? calculateProjectedAttendance(
+    int present,
+    int conducted, {
+    int futurePresent = 0,
+    int futureAbsent = 0,
+  }) {
+    if (futurePresent < 0 || futureAbsent < 0) return null;
+    return calculateAttendance(
+      present + futurePresent,
+      conducted + futurePresent + futureAbsent,
+    );
+  }
+
   static AttendanceMetrics evaluate({
     required int attended,
     required int total,
@@ -30,12 +95,12 @@ class AttendanceCalculator {
       );
     }
 
-    final double currentPct = (attended / total) * 100.0;
-    final double targetRatio = target / 100.0;
+    final double currentPct = calculateAttendance(attended, total) ?? 0.0;
+    final effectiveTarget = isValidThreshold(target) ? target : 75.0;
 
-    if (currentPct >= target) {
+    if (currentPct >= effectiveTarget) {
       // Safe to bunk calculation: attended / (total + x) >= targetRatio
-      final int bunkable = ((attended - (targetRatio * total)) / targetRatio).floor();
+      final int bunkable = calculateMaximumAbsences(attended, total, effectiveTarget);
       return AttendanceMetrics(
         percentage: currentPct,
         isSafe: true,
@@ -47,13 +112,13 @@ class AttendanceCalculator {
       );
     } else {
       // Needed consecutive attendance: (attended + x) / (total + x) >= targetRatio
-      final int needed = (((targetRatio * total) - attended) / (1.0 - targetRatio)).ceil();
+      final int needed = calculateRequiredRecoveryClasses(attended, total, effectiveTarget);
       return AttendanceMetrics(
         percentage: currentPct,
         isSafe: false,
         classesCanBunk: 0,
         classesNeeded: needed,
-        statusMessage: "Danger Zone: Must attend next $needed class${needed > 1 ? 'es' : ''} to reach ${target.toInt()}%",
+        statusMessage: "Danger Zone: Must attend next $needed class${needed > 1 ? 'es' : ''} to reach ${effectiveTarget.toInt()}%",
       );
     }
   }

@@ -145,4 +145,13 @@ class TimetableRepositoryImpl implements TimetableRepository {
       throw CacheException('Failed to clear timetable: $e');
     }
   }
+
+  @override
+  Future<void> saveTimetable(Map<int, List<TimetableSessionEntity>> timetable) async {
+    try {
+      await _box.put('timetable', TimetableModel.timetableToMap(timetable));
+    } catch (e) {
+      throw CacheException('Failed to save timetable: $e');
+    }
+  }
 }

@@ -18,4 +18,7 @@ abstract class TimetableRepository {
 
   /// Clears all timetable sessions across all days.
   Future<void> clearTimetable();
+
+  /// Persists a complete weekly timetable mapping. Used for backup restore.
+  Future<void> saveTimetable(Map<int, List<TimetableSessionEntity>> timetable);
 }

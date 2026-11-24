@@ -1,66 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_typography.dart';
-import '../../../shared/widgets/glass_card.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/providers/repository_providers.dart';
+import '../domain/entities/user_settings_entity.dart';
+import 'widgets/attendance_rules_card.dart';
+import 'widgets/backup_restore_card.dart';
+import 'widgets/danger_zone_card.dart';
+import 'widgets/notifications_card.dart';
+import 'widgets/personalization_card.dart';
+import 'widgets/profile_card.dart';
 
-class SettingsPage extends StatelessWidget {
+/// Complete Settings Page replicating 1:1 React SettingsPage.jsx.
+/// Assembles Profile, Personalization, Attendance Rules, Notifications,
+/// Backup & Restore, and Danger Zone.
+class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
-    final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settingsAsync = ref.watch(settingsStreamProvider);
+    final settings = settingsAsync.valueOrNull ?? const UserSettingsEntity();
 
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.lg,
+      ),
       children: [
-        GlassCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Settings View',
-                style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: paperColor),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Manage targets, reminders, backups, and preferences.',
-                style: GoogleFonts.outfit(color: mutedColor),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        GlassCard(
-          onTap: () => context.push('/timetable'),
-          child: Row(
-            children: [
-              const Text('📅', style: TextStyle(fontSize: 24)),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Timetable & Schedule',
-                      style: AppTypography.cardTitle(paperColor).copyWith(fontSize: 16),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Configure weekly recurring subject timetable',
-                      style: GoogleFonts.outfit(fontSize: 13, color: mutedColor),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(Icons.chevron_right_rounded, color: mutedColor),
-            ],
-          ),
-        ),
+        ProfileCard(settings: settings),
+        const SizedBox(height: AppSpacing.md),
+        PersonalizationCard(settings: settings),
+        const SizedBox(height: AppSpacing.md),
+        AttendanceRulesCard(settings: settings),
+        const SizedBox(height: AppSpacing.md),
+        NotificationsCard(settings: settings),
+        const SizedBox(height: AppSpacing.md),
+        BackupRestoreCard(),
+        const SizedBox(height: AppSpacing.md),
+        const DangerZoneCard(),
       ],
     );
   }

@@ -37,6 +37,12 @@ class FakeTimetableRepo implements TimetableRepository {
 
   @override
   Future<void> clearTimetable() async => data.clear();
+
+  @override
+  Future<void> saveTimetable(Map<int, List<TimetableSessionEntity>> timetable) async {
+    data.clear();
+    data.addAll(timetable);
+  }
 }
 
 void main() {

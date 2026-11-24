@@ -227,7 +227,7 @@ void main() {
       // Tap Settings Tab
       await tester.tap(find.text('Settings'));
       await tester.pumpAndSettle();
-      expect(find.text('Settings View'), findsOneWidget);
+      expect(find.text('Profile'), findsOneWidget);
 
       // Return to Home Tab
       await tester.tap(find.text('Home'));

@@ -112,7 +112,7 @@ void main() {
     GoogleFonts.config.allowRuntimeFetching = false;
   });
 
-  final now = DateTime(2026, 11, 18);
+  final now = DateTime.now();
   final testSubject1 = SubjectEntity(
     id: 'sub_math',
     name: 'Mathematics',

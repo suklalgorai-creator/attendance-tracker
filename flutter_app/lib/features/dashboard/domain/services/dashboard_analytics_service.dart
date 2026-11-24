@@ -1,3 +1,4 @@
+import '../../../../core/utils/attendance_calculator.dart';
 import '../../../attendance/domain/entities/attendance_record_entity.dart';
 import '../../../attendance/domain/entities/attendance_status.dart';
 import '../../../attendance/domain/entities/legacy_attendance_entity.dart';
@@ -13,10 +14,7 @@ class DashboardAnalyticsService {
   /// Calculates raw attendance percentage.
   /// Returns `null` if [conducted] <= 0 or if inputs are invalid.
   double? calculateAttendance(int present, int conducted) {
-    if (conducted <= 0 || present < 0 || present > conducted) {
-      return null;
-    }
-    return (present / conducted) * 100.0;
+    return AttendanceCalculator.calculateAttendance(present, conducted);
   }
 
   /// Calculates the maximum number of classes a student can safely miss while
@@ -25,15 +23,11 @@ class DashboardAnalyticsService {
   /// Uses a `+ 1e-10` floating-point precision guard to prevent flooring artifacts.
   /// Returns `0` if current attendance is below [threshold] or if conducted <= 0.
   int calculateMaximumAbsences(int present, int conducted, double threshold) {
-    if (threshold <= 0 || threshold > 100 || conducted <= 0 || present < 0) {
-      return 0;
-    }
-    final attendance = calculateAttendance(present, conducted);
-    if (attendance == null || attendance < threshold) {
-      return 0;
-    }
-    final bunks = ((present * 100.0) / threshold - conducted + 1e-10).floor();
-    return bunks < 0 ? 0 : bunks;
+    return AttendanceCalculator.calculateMaximumAbsences(
+      present,
+      conducted,
+      threshold,
+    );
   }
 
   /// Calculates the minimum consecutive classes needed to recover attendance to [threshold]%.
@@ -42,19 +36,11 @@ class DashboardAnalyticsService {
   /// Returns `0` if already at or above [threshold]%.
   /// Returns `-1` (impossible) if [threshold] >= 100.0 and attendance < 100%.
   int calculateRequiredRecoveryClasses(int present, int conducted, double threshold) {
-    if (threshold <= 0 || conducted <= 0 || present < 0) {
-      return 0;
-    }
-    final attendance = calculateAttendance(present, conducted);
-    if (attendance == null || attendance >= threshold) {
-      return 0;
-    }
-    if (threshold >= 100.0) {
-      return -1; // Unreachable
-    }
-    final required =
-        (((threshold * conducted) - (100.0 * present)) / (100.0 - threshold) - 1e-10).ceil();
-    return required < 0 ? 0 : required;
+    return AttendanceCalculator.calculateRequiredRecoveryClasses(
+      present,
+      conducted,
+      threshold,
+    );
   }
 
   /// Converts a Dart [DateTime.weekday] (Monday=1, ..., Sunday=7)

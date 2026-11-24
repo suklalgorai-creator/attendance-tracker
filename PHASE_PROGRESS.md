@@ -17,7 +17,7 @@
 | **Phase 1** | Architecture Foundation, DI, Theme & Router | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, all tests passing |
 | **Phase 2** | Core Data Layer, Entities & Repositories | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, 83/83 tests passing |
 | **Phase 3** | Design Tokens & Shared UI Component Library | 🟢 **COMPLETED** | **100%** | 0 errors/warnings, 130/130 tests passing |
-| **Phase 4** | Feature-by-Feature Migration | 🟡 **IN PROGRESS (75%)** | **75%** | M4.1 (Auth), M4.2 (Dashboard), M4.3 (Register & DayRow), Feature 4.3 (Subject Management & Detailed Analytics), M4.4 (Timetable & Automated Schedule), M4.5 (Calendar & Heatmap), M4.6 (Leaderboard & Gamification) Complete. 427/427 tests pass. |
+| **Phase 4** | Feature-by-Feature Migration | 🟢 **COMPLETED** | **100%** | M4.1 (Auth), M4.2 (Dashboard), M4.3 (Register & DayRow), Feature 4.3 (Subject Management & Analytics), M4.4 (Timetable), M4.5 (Calendar & Heatmap), M4.6 (Leaderboard), M4.7 (Settings & Backup) Complete. M4.8 skipped per user instruction. 445 tests pass. |
 | **Phase 5** | Mathematical Engine & Attendance Precision | ⚪ Pending | 0% | Phase 4 sign-off required |
 | **Phase 6** | Cloud Sync, Notifications & Offline Consistency | ⚪ Pending | 0% | Phase 5 sign-off required |
 | **Phase 7** | Verification, Automated Testing & QA Matrix | ⚪ Pending | 0% | Phase 6 sign-off required |
@@ -88,9 +88,36 @@
     - Resolved 250px desktop fixed width by switching to adaptive `LayoutBuilder`.
     - `flutter analyze`: **0 issues found** (0 errors, 0 warnings).
     - `flutter test`: **427 tests executed and passed** (100% pass rate: 16 new unit & widget tests).
+- **Milestone 4.7: Settings, Backup & Restore, Danger Zone (Complete)**
+  - Domain & Models:
+    - Backup domain models (`BackupSummary`, `BackupParseResult`, `BackupRestoreResult`) in `lib/features/settings/domain/models/backup_models.dart`.
+  - Service Layer:
+    - `BackupService` in `lib/features/settings/domain/services/backup_service.dart` replicating 1:1 React `backup.js`.
+    - Schema V2 JSON backup engine with envelope `college-attendance-tracker-backup` and 5 MB safety limit check.
+    - Exact React parity error messages for empty file, oversized file, malformed JSON, format identifier, and newer versions.
+    - Automatic migration of V1 daily records (`records: { "YYYY-MM-DD": { held, attended } }`) and string timetable sessions into Schema V2 entities.
+    - Pre-restore safety snapshot in Hive before any destructive restore operation.
+    - Safe Danger Zone reset (`resetAllAttendanceAndNotes`) clearing attendance history and notes while strictly preserving subjects, timetable, and settings.
+  - State Management & Controller:
+    - `SettingsController` with title-casing (`toTitleCase`) on focus loss matching React `toTitleCase`.
+    - Settings update methods (`updateName`, `updateProgramName`, `updateCourseName`, `updateStartDate`, `updateMinPercent`, `updateClassDays`, `updateReminderTime`, `togglePushNotifications`).
+    - Cross-platform backup export via `share_plus` and file import via `file_picker`.
+  - Presentation Layer:
+    - `SettingsPage` assembling 6 glassmorphic cards: `ProfileCard`, `PersonalizationCard`, `AttendanceRulesCard`, `NotificationsCard`, `BackupRestoreCard`, and `DangerZoneCard`.
+    - `ProfileCard`: User avatar, email/name display, guest storage warning, auth actions.
+    - `PersonalizationCard`: Light/Dark theme toggle, degree program & semester autocomplete suggestions.
+    - `AttendanceRulesCard`: Start date picker with theme styling, clamped threshold input, `DayPickerWidget` with 320px narrow overflow protection.
+    - `NotificationsCard`: Reminder time input and push notifications toggle.
+    - `BackupRestoreCard`: Export and Choose Backup buttons, pending restore summary preview banner.
+    - `DangerZoneCard`: Clear attendance history with confirmation modal and SnackBar.
+  - Automated Verification & Tests:
+    - 18 new unit & widget tests: 10/10 in `backup_service_test.dart` + 8/8 in `settings_page_test.dart`.
+    - Full 320px compact viewport overflow hardening (zero RenderFlex overflows).
+- **Milestone 4.8: Sticky Notes (Skipped)**
+  - Skipped per user instruction to proceed directly to Phase 5.
 - **Automated Verification & Metrics**:
   - `flutter analyze`: **0 issues found** (0 errors, 0 warnings).
-  - `flutter test`: **427 tests executed and passed** (100% pass rate).
+  - `flutter test`: **445 tests executed and passed** (100% pass rate).
 
 ---
 
