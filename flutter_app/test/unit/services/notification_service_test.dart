@@ -1,6 +1,53 @@
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_app/core/services/notification_service.dart';
 import 'package:flutter_app/core/utils/date_utils.dart';
+import 'package:flutter_app/features/attendance/data/datasources/attendance_local_datasource.dart';
+import 'package:flutter_app/features/attendance/data/models/attendance_record_model.dart';
+import 'package:flutter_app/features/attendance/data/models/legacy_attendance_model.dart';
+
+class _MemoryAttendanceLocalDataSource implements AttendanceLocalDataSource {
+  final Map<String, LegacyAttendanceModel> legacy = {};
+
+  @override
+  Future<LegacyAttendanceModel?> getLegacyRecordById(String id) async =>
+      legacy[id];
+
+  @override
+  Future<void> saveLegacyAttendance(LegacyAttendanceModel record) async {
+    legacy[record.id] = record;
+  }
+
+  @override
+  Future<List<AttendanceRecordModel>> getAttendanceRecords() async => [];
+  @override
+  Stream<List<AttendanceRecordModel>> watchAttendanceRecords() =>
+      const Stream.empty();
+  @override
+  Future<AttendanceRecordModel?> getRecordById(String id) async => null;
+  @override
+  Future<void> saveAttendanceRecord(AttendanceRecordModel record) async {}
+  @override
+  Future<void> saveAttendanceRecords(
+    List<AttendanceRecordModel> records,
+  ) async {}
+  @override
+  Future<void> deleteAttendanceRecord(String id) async {}
+  @override
+  Future<List<LegacyAttendanceModel>> getLegacyAttendance() async =>
+      legacy.values.toList();
+  @override
+  Stream<List<LegacyAttendanceModel>> watchLegacyAttendance() =>
+      const Stream.empty();
+  @override
+  Future<void> saveLegacyAttendances(
+    List<LegacyAttendanceModel> records,
+  ) async {}
+  @override
+  Future<void> deleteLegacyAttendance(String id) async {}
+  @override
+  Future<void> clearAllAttendanceHistory() async => legacy.clear();
+}
 
 void main() {
   group('NotificationService Unit Tests', () {
@@ -145,5 +192,43 @@ void main() {
       );
       expect(service.scheduledReminders, isEmpty);
     });
+
+    test(
+      'handleAttendanceNotificationAction saves Present and Absent from action buttons',
+      () async {
+        final localDs = _MemoryAttendanceLocalDataSource();
+
+        final handledPresent = await handleAttendanceNotificationAction(
+          const NotificationResponse(
+            notificationResponseType:
+                NotificationResponseType.selectedNotificationAction,
+            actionId: attendanceActionPresent,
+            payload: 'attendance_reminder:2026-11-25',
+          ),
+          localDataSource: localDs,
+        );
+
+        expect(handledPresent, isTrue);
+        final savedPresent = localDs.legacy['daily-2026-11-25'];
+        expect(savedPresent, isNotNull);
+        expect(savedPresent!.held, 1);
+        expect(savedPresent.attended, 1);
+
+        final handledAbsent = await handleAttendanceNotificationAction(
+          const NotificationResponse(
+            notificationResponseType:
+                NotificationResponseType.selectedNotificationAction,
+            actionId: attendanceActionAbsent,
+            payload: 'attendance_reminder:2026-11-25',
+          ),
+          localDataSource: localDs,
+        );
+
+        expect(handledAbsent, isTrue);
+        final savedAbsent = localDs.legacy['daily-2026-11-25'];
+        expect(savedAbsent!.held, 1);
+        expect(savedAbsent.attended, 0);
+      },
+    );
   });
 }
