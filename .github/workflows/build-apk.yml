@@ -53,13 +53,19 @@ jobs:
       - name: 🚀 Build Android Release APK
         working-directory: flutter_app
         run: |
+          set -o pipefail
           flutter build apk --release \
             --dart-define=FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }} \
             --dart-define=FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }} \
             --dart-define=FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }} \
             --dart-define=FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }} \
             --dart-define=FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }} \
-            --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }}
+            --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }} 2>&1 | tee /tmp/apk_build.log || {
+              grep -E 'FAILURE:|What went wrong:|Execution failed|Error:|Exception:|> ' /tmp/apk_build.log | head -n 20 | while IFS= read -r line; do
+                echo "::error::${line}"
+              done
+              exit 1
+            }
 
       - name: 📦 Upload Release APK Artifact
         uses: actions/upload-artifact@v4
