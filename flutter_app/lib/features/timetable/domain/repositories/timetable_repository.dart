@@ -1,6 +1,11 @@
 import '../entities/timetable_session_entity.dart';
 
-/// Repository interface for Timetable persistence and streaming.
+/// Domain repository contract for weekly timetable CRUD and streaming.
+///
+/// Ownership: Timetable Feature (Domain Contract)
+// ==========================================
+// TIMETABLE REPOSITORY - Domain Interface
+// ==========================================
 abstract class TimetableRepository {
   /// Fetches the weekly timetable mapped by day of the week (0 = Sun .. 6 = Sat).
   /// If [includeDeleted] is false, only active non-deleted sessions are returned.

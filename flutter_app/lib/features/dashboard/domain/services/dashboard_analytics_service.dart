@@ -8,6 +8,11 @@ import '../models/subject_attendance_stats.dart';
 
 /// Pure Dart domain service providing attendance analytics, mathematical formulas,
 /// safe bunk calculations, recovery projections, and streak tracking.
+///
+/// Ownership: Dashboard Feature (Domain Service)
+// ==========================================
+// DASHBOARD ANALYTICS - Attendance & Streak Engine
+// ==========================================
 class DashboardAnalyticsService {
   const DashboardAnalyticsService();
 

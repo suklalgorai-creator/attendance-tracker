@@ -10,6 +10,11 @@ import '../../../auth/presentation/controllers/auth_providers.dart';
 import '../../domain/entities/user_settings_entity.dart';
 
 /// Profile card displaying user avatar, name, account status, and auth actions.
+///
+/// Ownership: Settings Feature (UI Card)
+// ==========================================
+// SETTINGS CARD - User Account & Auth Status
+// ==========================================
 class ProfileCard extends ConsumerWidget {
   final UserSettingsEntity settings;
 

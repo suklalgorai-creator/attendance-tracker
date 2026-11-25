@@ -7,6 +7,14 @@ import '../../../sync/presentation/providers/sync_providers.dart';
 import '../../domain/models/calendar_day_summary.dart';
 import '../../domain/services/calendar_analytics_service.dart';
 
+/// Riverpod providers driving focused calendar month, view toggle, day summaries,
+/// and 26-week heatmap records.
+///
+/// Ownership: Calendar Feature (Providers)
+// ==========================================
+// CALENDAR PROVIDERS - Focused Month, Mode & Summaries
+// ==========================================
+
 /// Supported display views for the Activity Card.
 enum CalendarViewMode { calendar, heatmap }
 

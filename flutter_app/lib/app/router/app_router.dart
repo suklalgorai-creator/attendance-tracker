@@ -6,16 +6,23 @@ import '../../features/auth/presentation/controllers/auth_state.dart';
 import '../../features/auth/presentation/pages/auth_page.dart';
 import '../../features/dailyflow/presentation/pages/daily_flow_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
-import '../../features/leaderboard/presentation/leaderboard_page.dart';
-import '../../features/notes/presentation/notes_page.dart';
+import '../../features/leaderboard/presentation/pages/leaderboard_page.dart';
+import '../../features/notes/presentation/pages/notes_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
-import '../../features/register/presentation/register_page.dart';
-import '../../features/settings/presentation/settings_page.dart';
+import '../../features/register/presentation/pages/register_page.dart';
+import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import '../../features/subjects/presentation/pages/subject_analytics_screen.dart';
 import '../../features/timetable/presentation/pages/timetable_page.dart';
 import '../../shared/widgets/app_shell.dart';
 
+/// Declarative GoRouter configuration with StatefulShell bottom-tab branches
+/// and reactive auth / onboarding redirect guards.
+///
+/// Ownership: App Navigation
+// ==========================================
+// ROUTER - Navigator Keys & Auth Refresh Bridge
+// ==========================================
 final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final homeNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'homeBranch');
 final registerNavigatorKey = GlobalKey<NavigatorState>(

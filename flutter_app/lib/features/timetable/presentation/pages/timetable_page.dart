@@ -9,7 +9,12 @@ import '../../../../core/providers/repository_providers.dart';
 import '../../../../shared/widgets/glass_card.dart';
 import '../widgets/timetable_editor.dart';
 
-/// Full-screen Timetable configuration page matching React styling and architecture.
+/// Full-screen Timetable configuration page hosting [TimetableEditor].
+///
+/// Ownership: Timetable Feature (UI Page)
+// ==========================================
+// TIMETABLE - Weekly Schedule Configuration Page
+// ==========================================
 class TimetablePage extends ConsumerWidget {
   const TimetablePage({super.key});
 

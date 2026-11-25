@@ -11,6 +11,11 @@ import '../providers/settings_controller.dart';
 
 /// Card managing JSON backup export, file picking, restore validation preview,
 /// and commit actions.
+///
+/// Ownership: Settings Feature (UI Card)
+// ==========================================
+// SETTINGS CARD - Backup Export & Restore Preview
+// ==========================================
 class BackupRestoreCard extends ConsumerWidget {
   const BackupRestoreCard({super.key});
 

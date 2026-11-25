@@ -1,4 +1,9 @@
-/// Central design tokens for border radiuses
+/// Central design tokens for corner border radii across cards and controls.
+///
+/// Ownership: Core Design System
+// ==========================================
+// CORE TOKENS - Border Radii
+// ==========================================
 abstract final class AppRadius {
   static const double xs = 4.0;
   static const double sm = 8.0;

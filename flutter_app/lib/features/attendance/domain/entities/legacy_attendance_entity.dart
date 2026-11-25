@@ -1,5 +1,9 @@
-/// Domain entity representing legacy daily aggregate attendance.
-/// Replicates React `legacyAttendance` array schema (`held` and `attended` integers).
+/// Domain entity representing legacy daily aggregate attendance (`held` / `attended`).
+///
+/// Ownership: Attendance Feature (Domain Entity)
+// ==========================================
+// ATTENDANCE ENTITY - Legacy Daily Total Record
+// ==========================================
 class LegacyAttendanceEntity {
   final String id;
   final String date; // YYYY-MM-DD

@@ -13,7 +13,7 @@ import 'package:flutter_app/features/settings/domain/models/backup_models.dart';
 import 'package:flutter_app/features/settings/domain/repositories/settings_repository.dart';
 import 'package:flutter_app/features/settings/domain/services/backup_service.dart';
 import 'package:flutter_app/features/settings/presentation/providers/settings_controller.dart';
-import 'package:flutter_app/features/settings/presentation/settings_page.dart';
+import 'package:flutter_app/features/settings/presentation/pages/settings_page.dart';
 import 'package:flutter_app/features/settings/presentation/widgets/attendance_rules_card.dart';
 import 'package:flutter_app/features/settings/presentation/widgets/backup_restore_card.dart';
 import 'package:flutter_app/features/settings/presentation/widgets/danger_zone_card.dart';

@@ -5,6 +5,11 @@ import '../../../../shared/widgets/app_button.dart';
 import '../../domain/models/dashboard_stats.dart';
 
 /// Smart advisor banner displaying safe bunk advice, recovery requirements, or session alerts.
+///
+/// Ownership: Dashboard Feature (UI Widget)
+// ==========================================
+// DASHBOARD WIDGET - Attendance Advisor Banner
+// ==========================================
 class AdvisorBanner extends StatelessWidget {
   final DashboardStats stats;
   final VoidCallback? onReviewUnmarked;

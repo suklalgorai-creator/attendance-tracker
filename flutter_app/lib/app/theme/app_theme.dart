@@ -5,6 +5,11 @@ import '../../core/constants/app_radius.dart';
 
 /// Central application theme configuration providing Dark and Light ThemeData
 /// using Google Fonts Outfit and exact design tokens.
+///
+/// Ownership: App Theme
+// ==========================================
+// THEME - Light & Dark Material 3 Themes
+// ==========================================
 abstract final class AppTheme {
   /// Dark Theme (Default)
   static ThemeData get darkTheme {

@@ -10,7 +10,7 @@ import 'package:flutter_app/core/providers/repository_providers.dart';
 import 'package:flutter_app/core/services/notification_service.dart';
 import 'package:flutter_app/features/notes/domain/entities/note_entity.dart';
 import 'package:flutter_app/features/notes/domain/repositories/notes_repository.dart';
-import 'package:flutter_app/features/notes/presentation/notes_page.dart';
+import 'package:flutter_app/features/notes/presentation/pages/notes_page.dart';
 import 'package:flutter_app/shared/widgets/app_drawer.dart';
 import 'package:flutter_app/shared/widgets/app_header.dart';
 import 'package:flutter_app/shared/widgets/streak_popup_dialog.dart';

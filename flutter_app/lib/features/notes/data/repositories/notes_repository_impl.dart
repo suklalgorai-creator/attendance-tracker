@@ -3,6 +3,12 @@ import '../../domain/repositories/notes_repository.dart';
 import '../datasources/notes_local_datasource.dart';
 import '../models/note_model.dart';
 
+/// Repository delegating sticky note CRUD and reactive streams to [NotesLocalDataSource].
+///
+/// Ownership: Notes Feature (Data Layer)
+// ==========================================
+// NOTES REPOSITORY - Implementation
+// ==========================================
 class NotesRepositoryImpl implements NotesRepository {
   final NotesLocalDataSource _localDataSource;
 

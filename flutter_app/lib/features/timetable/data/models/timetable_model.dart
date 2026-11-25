@@ -1,6 +1,11 @@
 import '../../domain/entities/timetable_session_entity.dart';
 
-/// Serialization model extending [TimetableSessionEntity] with Map conversions.
+/// Serialization model extending [TimetableSessionEntity] with Hive Map conversions.
+///
+/// Ownership: Timetable Feature (Data Model)
+// ==========================================
+// TIMETABLE MODEL - Session Map Serialization
+// ==========================================
 class TimetableModel extends TimetableSessionEntity {
   const TimetableModel({
     required super.id,

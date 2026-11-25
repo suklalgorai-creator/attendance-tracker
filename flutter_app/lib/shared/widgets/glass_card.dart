@@ -3,6 +3,13 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_radius.dart';
 
+/// Frosted glass container and 4-sided prism border painter matching React `.card`.
+///
+/// Ownership: Shared Design System Widgets
+// ==========================================
+// SHARED WIDGETS - Glassmorphism Card & Prism Border
+// ==========================================
+
 /// Reusable painter for the 4-sided prism border matching React components.css lines 33-37:
 /// Top emerald 40%, right blue 40%, bottom rose 40%, left amber 40%.
 class PrismBorderPainter extends CustomPainter {

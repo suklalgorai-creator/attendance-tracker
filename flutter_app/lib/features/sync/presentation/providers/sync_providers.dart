@@ -23,6 +23,14 @@ import '../../domain/datasources/remote_sync_datasource.dart';
 import '../../domain/models/sync_state.dart';
 import '../../domain/services/cloud_sync_service.dart';
 
+/// Riverpod providers wiring remote Firestore sync, connectivity monitoring,
+/// global holiday settings, and debounced cloud synchronization.
+///
+/// Ownership: Cloud Sync Feature (Providers)
+// ==========================================
+// SYNC PROVIDERS - Remote DataSource, Service & Global Holidays
+// ==========================================
+
 /// Provider for [RemoteSyncDataSource], using Cloud Firestore when Firebase
 /// is initialized and falling back to [DefaultRemoteSyncDataSource] in tests/offline builds.
 final remoteSyncDataSourceProvider = Provider<RemoteSyncDataSource>((ref) {

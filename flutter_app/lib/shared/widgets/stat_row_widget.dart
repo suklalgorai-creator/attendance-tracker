@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 
+/// Key-value statistic row matching React `.stat-row` with semantic status tinting.
+///
+/// Ownership: Shared Design System Widgets
+// ==========================================
+// SHARED WIDGETS - Stat Label & Value Row
+// ==========================================
 enum StatValueColor { auto, safe, danger, paper, amber, muted }
 
 typedef StatValueVariant = StatValueColor;

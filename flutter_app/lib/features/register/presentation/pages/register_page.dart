@@ -13,14 +13,13 @@ import '../providers/register_providers.dart';
 import '../widgets/day_row.dart';
 import '../../../sync/presentation/providers/sync_providers.dart';
 
-/// Main Register screen replicating `react_app/src/pages/RegisterPage.jsx`.
+/// Attendance Register screen replicating `react_app/src/pages/RegisterPage.jsx`,
+/// listing class dates sorted descending with quick-action [DayRow] cards.
 ///
-/// Features:
-/// - Session Register card with glassmorphism styling ([GlassCard]).
-/// - Quick actions: Leaderboard navigation button and [ViewTogglesWidget] (Week, Month, All).
-/// - Responsive header layout preventing overflow down to 320px width.
-/// - Descending date-sorted list of [DayRow] items.
-/// - Empty state: "No class dates are available for this range."
+/// Ownership: Register Feature (UI Page)
+// ==========================================
+// REGISTER - Daily Attendance Ledger Page
+// ==========================================
 class RegisterPage extends ConsumerWidget {
   const RegisterPage({super.key});
 

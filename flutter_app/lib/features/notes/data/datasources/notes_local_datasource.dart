@@ -3,6 +3,12 @@ import '../../../../core/errors/exceptions.dart';
 import '../../../../core/services/database_service.dart';
 import '../models/note_model.dart';
 
+/// Hive local persistence contract and implementation for sticky notes.
+///
+/// Ownership: Notes Feature (Data Layer)
+// ==========================================
+// NOTES DATA SOURCE - Hive Sticky Notes Storage
+// ==========================================
 abstract class NotesLocalDataSource {
   Future<List<NoteModel>> getNotes();
   Stream<List<NoteModel>> watchNotes();

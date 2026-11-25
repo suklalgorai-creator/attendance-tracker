@@ -16,7 +16,12 @@ import '../../../attendance/domain/entities/attendance_status.dart';
 import '../../../timetable/domain/entities/timetable_session_entity.dart';
 
 /// Card displayed on the Dashboard prompting the user to mark today's scheduled sessions.
-/// Disappears when no sessions are scheduled for today or all have been marked.
+/// Collapses automatically when no sessions are scheduled or all are marked.
+///
+/// Ownership: Dashboard Feature (UI Widget)
+// ==========================================
+// DASHBOARD WIDGET - Today's Scheduled Sessions Card
+// ==========================================
 class TodaysScheduleCard extends ConsumerWidget {
   final DateTime? now;
   final VoidCallback? onReviewIndividually;

@@ -3,6 +3,13 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_radius.dart';
 import '../../core/constants/app_typography.dart';
 
+/// Shared button primitives matching `.btn-present`, `.btn-absent`, `.btn-ghost`,
+/// and `.btn-clear` styling across attendance actions, dialogs, and onboarding.
+///
+/// Ownership: Shared Design System Widgets
+// ==========================================
+// SHARED WIDGETS - Primary & Action Buttons
+// ==========================================
 enum AppButtonVariant { present, absent, ghost, clear }
 
 /// Standardized Button matching React CSS `.btn-present`, `.btn-absent`, `.btn-ghost`, `.btn-clear`

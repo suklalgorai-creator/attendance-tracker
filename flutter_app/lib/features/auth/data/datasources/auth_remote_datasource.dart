@@ -5,6 +5,13 @@ import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../models/auth_user_model.dart';
 
+/// Remote authentication providers (Firebase Auth + Google Sign-In) and typed errors.
+///
+/// Ownership: Authentication Feature (Data Layer)
+// ==========================================
+// AUTH DATA SOURCE - Google Sign-In & Firebase Auth
+// ==========================================
+
 /// Thrown when the user cancels the interactive Google Sign-In flow.
 class AuthCancelledException implements Exception {
   final String message;

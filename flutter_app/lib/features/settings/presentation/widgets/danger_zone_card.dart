@@ -8,7 +8,12 @@ import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/glass_card.dart';
 import '../providers/settings_controller.dart';
 
-/// Danger zone card offering safe data reset with confirmation modal.
+/// Danger zone card offering safe data reset with pre-wipe confirmation modal.
+///
+/// Ownership: Settings Feature (UI Card)
+// ==========================================
+// SETTINGS CARD - Destructive Data Reset
+// ==========================================
 class DangerZoneCard extends ConsumerWidget {
   const DangerZoneCard({super.key});
 

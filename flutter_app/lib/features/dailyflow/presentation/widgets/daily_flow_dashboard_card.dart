@@ -11,6 +11,11 @@ import '../providers/daily_flow_providers.dart';
 
 /// Compact Dashboard card surfacing today's DailyFlow execution state,
 /// quick start/complete actions, and navigation into DailyFlow.
+///
+/// Ownership: DailyFlow Feature (Dashboard Card)
+// ==========================================
+// DAILYFLOW DASHBOARD CARD - Summary & Quick Actions
+// ==========================================
 class DailyFlowDashboardCard extends ConsumerWidget {
   const DailyFlowDashboardCard({super.key});
 

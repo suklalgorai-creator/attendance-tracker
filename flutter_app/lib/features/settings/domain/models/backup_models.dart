@@ -1,3 +1,12 @@
+/// Domain result models summarizing parsed backup counts and validation outcomes.
+///
+/// Ownership: Settings & Backup Feature (Domain Models)
+library;
+
+// ==========================================
+// BACKUP MODELS - Summary, Parse & Restore Results
+// ==========================================
+
 /// Summary of entities extracted during backup parsing.
 class BackupSummary {
   final int subjectsCount;

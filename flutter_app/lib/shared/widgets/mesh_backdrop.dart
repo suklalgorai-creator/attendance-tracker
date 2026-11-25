@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 
-/// Shared ambient mesh gradient backdrop matching `react_app/src/styles/global.css`
-/// for both Dark Mode (`#050505` + 15% emerald/rose/blue orbs) and
-/// Light Mode (`#F8FAFC` + 40%/30%/40% emerald/rose/blue orbs).
+/// Ambient blurred orb mesh background paired with glassmorphic cards in dark and light mode.
+///
+/// Ownership: Shared Visual Backdrop
+// ==========================================
+// SHARED WIDGETS - Ambient Mesh Backdrop
+// ==========================================
 class MeshBackdrop extends StatelessWidget {
   const MeshBackdrop({super.key});
 

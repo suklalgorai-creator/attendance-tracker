@@ -3,6 +3,12 @@ import '../../../../core/errors/exceptions.dart';
 import '../../../../core/services/database_service.dart';
 import '../models/subject_model.dart';
 
+/// Hive local persistence contract and implementation for curriculum subjects.
+///
+/// Ownership: Subjects Feature (Data Layer)
+// ==========================================
+// SUBJECTS DATA SOURCE - Hive Subject Storage
+// ==========================================
 abstract class SubjectLocalDataSource {
   Future<List<SubjectModel>> getSubjects();
   Stream<List<SubjectModel>> watchSubjects();

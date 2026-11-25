@@ -8,6 +8,14 @@ import '../../domain/entities/leaderboard_entry_entity.dart';
 import '../../domain/entities/streak_badge_tier.dart';
 import '../../domain/repositories/leaderboard_repository.dart';
 
+/// Riverpod providers computing live cohort rankings, user rank position,
+/// and active [StreakTier].
+///
+/// Ownership: Leaderboard Feature (Providers)
+// ==========================================
+// LEADERBOARD PROVIDERS - Rankings, User Rank & Tier
+// ==========================================
+
 /// Provider for [LeaderboardRepository].
 final leaderboardRepositoryProvider = Provider<LeaderboardRepository>((ref) {
   return const LeaderboardRepositoryImpl();

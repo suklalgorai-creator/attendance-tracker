@@ -8,6 +8,13 @@ import '../../../settings/domain/repositories/settings_repository.dart';
 import 'register_controller.dart';
 import 'register_state.dart';
 
+/// Riverpod provider wiring [RegisterController] to live Hive/repository streams
+/// with safe no-op fallbacks for isolated testing.
+///
+/// Ownership: Register Feature (Providers)
+// ==========================================
+// REGISTER PROVIDERS - Controller & Safe Fallbacks
+// ==========================================
 class _NoopAttendanceRepository implements AttendanceRepository {
   @override
   Future<List<AttendanceRecordEntity>> getAttendanceRecords({

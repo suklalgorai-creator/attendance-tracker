@@ -3,6 +3,12 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_radius.dart';
 
+/// Segmented register horizon switcher supporting Week, Month, and All modes.
+///
+/// Ownership: Shared Navigation Controls
+// ==========================================
+// SHARED WIDGETS - Register View Mode Toggles
+// ==========================================
 enum RegisterViewMode {
   week('Week'),
   month('Month'),

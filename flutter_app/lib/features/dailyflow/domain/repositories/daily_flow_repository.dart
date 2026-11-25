@@ -1,6 +1,11 @@
 import '../entities/daily_task_entity.dart';
 
 /// Repository contract for DailyFlow task persistence and reactive streams.
+///
+/// Ownership: DailyFlow Feature (Domain Contract)
+// ==========================================
+// DAILYFLOW REPOSITORY - Domain Interface
+// ==========================================
 abstract class DailyFlowRepository {
   Future<List<DailyTaskEntity>> getTasks();
   Stream<List<DailyTaskEntity>> watchTasks();

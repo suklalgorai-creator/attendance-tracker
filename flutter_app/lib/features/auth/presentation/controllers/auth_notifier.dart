@@ -3,7 +3,12 @@ import '../../data/datasources/auth_remote_datasource.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'auth_state.dart';
 
-/// Riverpod StateNotifier managing the authentication and onboarding state machine.
+/// Riverpod state notifier driving login, guest mode, sign-out, and onboarding transitions.
+///
+/// Ownership: Authentication Feature (State Management)
+// ==========================================
+// AUTH CONTROLLER - Authentication State Machine
+// ==========================================
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _authRepository;
   final Future<void> Function(String uid)? _onAuthenticated;

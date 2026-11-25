@@ -1,6 +1,11 @@
 import '../entities/subject_entity.dart';
 
-/// Abstract contract for Subject data operations in Domain layer.
+/// Abstract contract for Subject CRUD, reordering, and soft-delete operations.
+///
+/// Ownership: Subjects Feature (Domain Contract)
+// ==========================================
+// SUBJECTS REPOSITORY - Domain Interface
+// ==========================================
 abstract class SubjectRepository {
   Future<List<SubjectEntity>> getSubjects({bool includeDeleted = false});
   Stream<List<SubjectEntity>> watchSubjects({bool includeDeleted = false});

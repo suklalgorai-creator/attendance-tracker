@@ -14,7 +14,13 @@ const _firebaseStorageBucket = String.fromEnvironment(
   'FIREBASE_STORAGE_BUCKET',
 );
 
-/// Prepares bindings, storage, Firebase, and platform configurations before runApp.
+/// Startup initialization sequence preparing Flutter bindings, optional Firebase
+/// options from `--dart-define`, and Hive local boxes before `runApp`.
+///
+/// Ownership: App Initialization
+// ==========================================
+// APP BOOTSTRAP - Firebase & Hive Startup
+// ==========================================
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {

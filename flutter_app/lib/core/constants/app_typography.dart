@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Central design tokens for typography using Google Fonts Outfit
+/// Central design tokens for typography using Google Fonts Outfit.
+///
+/// Ownership: Core Design System
+// ==========================================
+// CORE TOKENS - Outfit Typography Scale
+// ==========================================
 abstract final class AppTypography {
   static TextStyle get outfitBase => GoogleFonts.outfit();
 

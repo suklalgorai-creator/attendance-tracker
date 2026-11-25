@@ -1,7 +1,12 @@
 import '../../domain/entities/attendance_record_entity.dart';
 import '../../domain/entities/attendance_status.dart';
 
-/// Data model for AttendanceRecord serialization, extending AttendanceRecordEntity.
+/// Serialization model mapping [AttendanceRecordEntity] to/from Hive Maps.
+///
+/// Ownership: Attendance Feature (Data Model)
+// ==========================================
+// ATTENDANCE MODEL - V2 Session Record
+// ==========================================
 class AttendanceRecordModel extends AttendanceRecordEntity {
   const AttendanceRecordModel({
     required super.id,

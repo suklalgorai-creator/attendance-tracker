@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/utils/date_utils.dart';
-import '../../../../shared/widgets/app_button.dart';
 import '../../../attendance/domain/entities/legacy_attendance_entity.dart';
+import 'day_action_panel.dart';
 
 /// Single day attendance item replicating `react_app/src/components/DayRow.jsx`.
 ///
 /// Displays date label, TODAY tag, and status indicator. When a day is already
-/// marked (`legacyRecord != null`), the 4 quick-action buttons are collapsed by
-/// default and can be toggled open by tapping the row header or edit icon.
+/// marked (`legacyRecord != null`), quick-action buttons stay collapsed until tapped.
+///
+/// Ownership: Register Feature
+// ==========================================
+// REGISTER - Daily Attendance Row
+// ==========================================
 class DayRow extends StatefulWidget {
   final String dateStr;
   final LegacyAttendanceEntity? legacyRecord;
@@ -57,41 +62,12 @@ class _DayRowState extends State<DayRow> {
     final editable = !future && !widget.isHoliday;
     final showEditor = editable && (widget.legacyRecord == null || _isEditing);
 
-    final String status;
-    final Color statusColor;
-
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
     final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
     final ruleColor = isDark ? AppColors.ruleDark : AppColors.ruleLight;
-    final ruleBright = isDark
-        ? AppColors.ruleBrightDark
-        : AppColors.ruleBrightLight;
-    final inputBg = isDark ? AppColors.inputBgDark : AppColors.inputBgLight;
 
-    if (widget.isHoliday) {
-      status = 'Holiday';
-      statusColor = AppColors.amber;
-    } else if (future) {
-      status = 'Upcoming';
-      statusColor = mutedColor;
-    } else if (widget.legacyRecord == null) {
-      status = 'Not marked';
-      statusColor = mutedColor;
-    } else if (widget.legacyRecord!.held == 0) {
-      status = 'Holiday / No class';
-      statusColor = AppColors.amber;
-    } else if (widget.legacyRecord!.attended == widget.legacyRecord!.held) {
-      status = 'Present';
-      statusColor = AppColors.inkGreen;
-    } else if (widget.legacyRecord!.attended == 0) {
-      status = 'Absent';
-      statusColor = AppColors.penRed;
-    } else {
-      status =
-          'Partial \u00B7 ${widget.legacyRecord!.attended}/${widget.legacyRecord!.held}';
-      statusColor = AppColors.amber;
-    }
+    final (status, statusColor) = _resolveStatus(mutedColor);
 
     final rowContent = Container(
       margin: const EdgeInsets.only(bottom: 6.0),
@@ -102,7 +78,7 @@ class _DayRowState extends State<DayRow> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header section (tap to expand/collapse editor when already marked)
+          // Expandable Row Header
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: editable && widget.legacyRecord != null
@@ -116,7 +92,6 @@ class _DayRowState extends State<DayRow> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Date label & Today badge
                   Flexible(
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
@@ -159,8 +134,6 @@ class _DayRowState extends State<DayRow> {
                     ),
                   ),
                   const SizedBox(width: 8.0),
-
-                  // Status text + edit toggle icon when already marked
                   Flexible(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -196,116 +169,19 @@ class _DayRowState extends State<DayRow> {
             ),
           ),
 
-          // Custom editor section (visible when unmarked or editing)
+          // Quick Attendance Editor Panel
           if (showEditor)
-            Container(
-              margin: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0),
-              padding: const EdgeInsets.all(12.0),
-              decoration: BoxDecoration(
-                color: inputBg,
-                borderRadius: BorderRadius.circular(14.0),
-                border: Border.all(color: ruleBright, width: 1.0),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'DAILY ATTENDANCE',
-                    style: GoogleFonts.outfit(
-                      fontSize: 11.0,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.2,
-                      color: mutedColor,
-                    ),
-                  ),
-                  const SizedBox(height: 10.0),
-
-                  // Responsive 2-row button layout
-                  Row(
-                    children: [
-                      Expanded(
-                        child: AppButton.present(
-                          label: 'Present',
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 10.0,
-                            horizontal: 8.0,
-                          ),
-                          fontSize: 13.0,
-                          onPressed: () {
-                            setState(() => _isEditing = false);
-                            widget.onSaveDaily(
-                              date: widget.dateStr,
-                              held: 1,
-                              attended: 1,
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8.0),
-                      Expanded(
-                        child: AppButton.absent(
-                          label: 'Absent',
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 10.0,
-                            horizontal: 8.0,
-                          ),
-                          fontSize: 13.0,
-                          onPressed: () {
-                            setState(() => _isEditing = false);
-                            widget.onSaveDaily(
-                              date: widget.dateStr,
-                              held: 1,
-                              attended: 0,
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8.0),
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: widget.legacyRecord != null ? 3 : 1,
-                        child: AppButton.ghost(
-                          label: 'Holiday / No class',
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 10.0,
-                            horizontal: 8.0,
-                          ),
-                          fontSize: 13.0,
-                          onPressed: () {
-                            setState(() => _isEditing = false);
-                            widget.onSaveDaily(
-                              date: widget.dateStr,
-                              held: 0,
-                              attended: 0,
-                            );
-                          },
-                        ),
-                      ),
-                      if (widget.legacyRecord != null) ...[
-                        const SizedBox(width: 8.0),
-                        Expanded(
-                          flex: 2,
-                          child: AppButton.clear(
-                            label: 'Clear',
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 10.0,
-                              horizontal: 8.0,
-                            ),
-                            fontSize: 13.0,
-                            onPressed: () {
-                              setState(() => _isEditing = false);
-                              widget.onDeleteDaily(widget.legacyRecord!.id);
-                            },
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
+            DayAttendanceActionPanel(
+              dateStr: widget.dateStr,
+              legacyRecord: widget.legacyRecord,
+              onSaveDaily: ({required date, required held, required attended}) {
+                setState(() => _isEditing = false);
+                widget.onSaveDaily(date: date, held: held, attended: attended);
+              },
+              onDeleteDaily: (id) {
+                setState(() => _isEditing = false);
+                widget.onDeleteDaily(id);
+              },
             ),
         ],
       ),
@@ -314,7 +190,20 @@ class _DayRowState extends State<DayRow> {
     if (future) {
       return Opacity(opacity: 0.65, child: rowContent);
     }
-
     return rowContent;
+  }
+
+  (String, Color) _resolveStatus(Color mutedColor) {
+    final today = AppDateUtils.todayStr();
+    final future = widget.dateStr.compareTo(today) > 0;
+    final rec = widget.legacyRecord;
+
+    if (widget.isHoliday) return ('Holiday', AppColors.amber);
+    if (future) return ('Upcoming', mutedColor);
+    if (rec == null) return ('Not marked', mutedColor);
+    if (rec.held == 0) return ('Holiday / No class', AppColors.amber);
+    if (rec.attended == rec.held) return ('Present', AppColors.inkGreen);
+    if (rec.attended == 0) return ('Absent', AppColors.penRed);
+    return ('Partial \u00B7 ${rec.attended}/${rec.held}', AppColors.amber);
   }
 }

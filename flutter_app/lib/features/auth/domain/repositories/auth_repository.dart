@@ -1,6 +1,11 @@
 import '../entities/auth_user_entity.dart';
 
-/// Abstract contract for Authentication & Session management in Domain layer.
+/// Domain contract for Google authentication, guest sessions, and onboarding status.
+///
+/// Ownership: Authentication Feature (Domain Contract)
+// ==========================================
+// AUTH REPOSITORY - Domain Interface
+// ==========================================
 abstract class AuthRepository {
   /// Stream broadcasting authentication state changes.
   Stream<AuthUserEntity?> watchAuthState();

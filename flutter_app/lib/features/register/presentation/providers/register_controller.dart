@@ -9,6 +9,13 @@ import '../../../settings/domain/entities/user_settings_entity.dart';
 import '../../../settings/domain/repositories/settings_repository.dart';
 import 'register_state.dart';
 
+/// StateNotifier managing Register date-window generation, legacy daily writes,
+/// and reactive recomputation from attendance & settings streams.
+///
+/// Ownership: Register Feature (State Management)
+// ==========================================
+// REGISTER CONTROLLER - Date Ledger & Quick Actions
+// ==========================================
 class RegisterController extends StateNotifier<RegisterState> {
   final AttendanceRepository _attendanceRepository;
   final SettingsRepository? _settingsRepository;

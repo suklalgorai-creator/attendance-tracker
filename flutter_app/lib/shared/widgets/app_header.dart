@@ -8,12 +8,13 @@ import '../../core/constants/app_typography.dart';
 import '../../features/sync/presentation/widgets/sync_indicator_widget.dart';
 import 'streak_popup_dialog.dart';
 
-/// App header component replicating AppLayout.jsx header:
-/// - Hamburger menu button (opens Drawer)
-/// - Uppercase amber eyebrow (program name / fallback 'ATTENDANCE REGISTER')
-/// - Gradient title (course name / fallback 'My Attendance')
-/// - Theme toggle button (☀️ / 🌙)
-/// - Flame streak pill badge (🔥 X, displayed when streak > 0)
+/// Top application header bar matching `AppLayout.jsx` (drawer trigger, program/course
+/// branding, cloud sync status, theme switcher, and animated streak indicator).
+///
+/// Ownership: Shared Navigation Shell
+// ==========================================
+// SHARED HEADER - Program, Sync, Theme & Streak Bar
+// ==========================================
 class AppHeader extends ConsumerWidget {
   final VoidCallback? onMenuPressed;
   final String? programName;

@@ -6,9 +6,12 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../providers/calendar_providers.dart';
 
-/// GitHub-style Attendance Contribution Heatmap showing attendance intensity across 26 weeks.
+/// GitHub-style Attendance Contribution Heatmap across 26 weeks (`Heatmap.jsx`).
 ///
-/// Exact 1:1 visual and behavioral parity with `react_app/src/components/Heatmap.jsx`.
+/// Ownership: Calendar Feature (UI Widget)
+// ==========================================
+// CALENDAR WIDGET - 26-Week Contribution Heatmap
+// ==========================================
 class HeatmapView extends ConsumerWidget {
   const HeatmapView({super.key});
 

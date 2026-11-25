@@ -1,6 +1,11 @@
 import '../../domain/entities/subject_entity.dart';
 
-/// Data model for Subject serialization, extending SubjectEntity.
+/// Hive serialization model extending [SubjectEntity].
+///
+/// Ownership: Subjects Feature (Data Model)
+// ==========================================
+// SUBJECTS MODEL - Map Serialization
+// ==========================================
 class SubjectModel extends SubjectEntity {
   const SubjectModel({
     required super.id,

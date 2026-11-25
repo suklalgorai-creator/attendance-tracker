@@ -1,5 +1,9 @@
-/// Domain entity representing a Subject in the curriculum.
-/// Strictly pure Dart (zero Flutter or Firebase SDK dependencies).
+/// Pure Dart domain entity representing a curriculum subject and optional target threshold.
+///
+/// Ownership: Subjects Feature (Domain Entity)
+// ==========================================
+// SUBJECTS ENTITY - Subject Definition
+// ==========================================
 class SubjectEntity {
   final String id;
   final String name;

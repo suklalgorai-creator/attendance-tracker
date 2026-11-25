@@ -1,6 +1,11 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
-/// Central database service managing Hive local storage boxes for Schema Version 2.
+/// Central database service initializing Schema V2 Hive local storage boxes.
+///
+/// Ownership: Core Persistence
+// ==========================================
+// DATABASE SERVICE - Hive Box Initialization
+// ==========================================
 class DatabaseService {
   static const String subjectsBoxName = 'subjects_box'; // legacy compatibility
   static const String subjectsV2BoxName = 'subjects_v2_box';

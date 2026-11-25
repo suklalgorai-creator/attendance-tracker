@@ -6,6 +6,11 @@ import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/glass_card.dart';
 
 /// Clean placeholder view displayed when no subjects have been enrolled yet.
+///
+/// Ownership: Dashboard Feature (UI Widget)
+// ==========================================
+// DASHBOARD WIDGET - Empty State Placeholder
+// ==========================================
 class EmptyDashboardView extends StatelessWidget {
   final VoidCallback? onAddSubject;
 

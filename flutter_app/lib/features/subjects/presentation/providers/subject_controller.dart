@@ -2,7 +2,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/subject_entity.dart';
 import '../../domain/repositories/subject_repository.dart';
 
-/// StateNotifier for Subject CRUD and reordering operations.
+/// StateNotifier coordinating subject creation, updates, reordering, and soft deletion.
+///
+/// Ownership: Subjects Feature (State Management)
+// ==========================================
+// SUBJECTS CONTROLLER - CRUD & Reordering Mutations
+// ==========================================
 class SubjectController extends StateNotifier<AsyncValue<void>> {
   final SubjectRepository _repository;
   String? _lastDeletedSubjectId;

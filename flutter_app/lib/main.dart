@@ -4,6 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app/app.dart';
 import 'app/bootstrap.dart';
 
+/// Application entrypoint bootstrapping core services and launching [AttendanceApp].
+///
+/// Ownership: App Root
+// ==========================================
+// APP ROOT - Entry Point
+// ==========================================
 void main() async {
   try {
     if (kDebugMode) debugPrint('[MAIN] Starting bootstrap...');

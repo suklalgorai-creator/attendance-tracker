@@ -9,6 +9,11 @@ import '../../domain/services/daily_flow_execution_engine.dart';
 
 /// Controller orchestrating DailyFlow task CRUD, real execution lifecycle
 /// transitions, recurring task generation, and local reminder scheduling.
+///
+/// Ownership: DailyFlow Feature (State Management)
+// ==========================================
+// DAILYFLOW CONTROLLER - Task Mutations & Reminder Sync
+// ==========================================
 class DailyFlowController extends StateNotifier<AsyncValue<void>> {
   final DailyFlowRepository _repository;
   final DailyFlowExecutionEngine _engine;

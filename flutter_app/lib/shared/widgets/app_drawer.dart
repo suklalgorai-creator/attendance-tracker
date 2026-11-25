@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
+
 import '../../app/theme/theme_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_radius.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_typography.dart';
 import '../../features/settings/presentation/providers/settings_controller.dart';
+import 'shell/shell_actions.dart';
 
-/// Navigation drawer matching react_app/src/components/DrawerMenu.jsx:
-/// - ADDITIONAL FEATURES: Leaderboard, Sticky Notes, Export Data (CSV)
-/// - APP & SETTINGS: Theme Toggle, What's New, Share App
-/// - SUPPORT: Support Developer, Send Feedback
+/// Navigation drawer matching `react_app/src/components/DrawerMenu.jsx`.
+///
+/// Ownership: Shared Navigation Drawer
+// ==========================================
+// SHARED DRAWER - Mobile Menu & Secondary Links
+// Surfaces Timetable, Leaderboard, Sticky Notes, CSV Export, theme toggle, and support.
+// ==========================================
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
 
@@ -98,34 +101,15 @@ class AppDrawer extends ConsumerWidget {
                     label: isDark
                         ? 'Switch to Light Mode'
                         : 'Switch to Dark Mode',
-                    onTap: () {
-                      ref.read(themeModeProvider.notifier).toggleTheme();
-                    },
+                    onTap: () =>
+                        ref.read(themeModeProvider.notifier).toggleTheme(),
                   ),
                   _DrawerItem(
                     emoji: '✨',
                     label: "What's New",
                     onTap: () {
                       Navigator.of(context).pop();
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text("What's New in v2.0"),
-                          content: const Text(
-                            "⚡ DailyFlow Planning, Focus Timer & Reminders\n"
-                            "🔐 Google Sign-In & Cloud Firestore Sync\n"
-                            "📅 Integrated Attendance Register (Holiday-aware)\n"
-                            "🎨 React-Parity Glassmorphism & Mesh Themes\n"
-                            "📝 Markdown Sticky Notes & CSV Export",
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(ctx).pop(),
-                              child: const Text('OK'),
-                            ),
-                          ],
-                        ),
-                      );
+                      showWhatsNewDialog(context);
                     },
                   ),
                   _DrawerItem(
@@ -133,13 +117,7 @@ class AppDrawer extends ConsumerWidget {
                     label: 'Share App',
                     onTap: () {
                       Navigator.of(context).pop();
-                      SharePlus.instance.share(
-                        ShareParams(
-                          text:
-                              'I am tracking my college attendance easily with this app!',
-                          subject: 'College Attendance Tracker',
-                        ),
-                      );
+                      shareAttendanceApp();
                     },
                   ),
                   const Divider(),
@@ -149,57 +127,15 @@ class AppDrawer extends ConsumerWidget {
                     label: 'Support Developer',
                     onTap: () {
                       Navigator.of(context).pop();
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text('Support Developer'),
-                          content: const Text(
-                            'Thank you for using College Attendance Tracker!',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(ctx).pop(),
-                              child: const Text('Close'),
-                            ),
-                          ],
-                        ),
-                      );
+                      showSupportDeveloperDialog(context);
                     },
                   ),
                   _DrawerItem(
                     emoji: '✉️',
                     label: 'Send Feedback',
-                    onTap: () async {
-                      final messenger = ScaffoldMessenger.maybeOf(context);
+                    onTap: () {
                       Navigator.of(context).pop();
-                      final uri = Uri(
-                        scheme: 'mailto',
-                        path: 'codecraftdigital.in@gmail.com',
-                        queryParameters: {'subject': 'Attendance App Feedback'},
-                      );
-                      try {
-                        final launched = await launchUrl(
-                          uri,
-                          mode: LaunchMode.externalApplication,
-                        );
-                        if (!launched) {
-                          messenger?.showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Send feedback to codecraftdigital.in@gmail.com',
-                              ),
-                            ),
-                          );
-                        }
-                      } catch (_) {
-                        messenger?.showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Send feedback to codecraftdigital.in@gmail.com',
-                            ),
-                          ),
-                        );
-                      }
+                      sendAppFeedback(context);
                     },
                   ),
                 ],

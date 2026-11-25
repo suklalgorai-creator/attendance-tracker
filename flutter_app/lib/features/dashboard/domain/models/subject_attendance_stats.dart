@@ -1,6 +1,11 @@
 import '../../../subjects/domain/entities/subject_entity.dart';
 
 /// Domain model representing attendance statistics for an individual subject.
+///
+/// Ownership: Dashboard Feature (Domain Model)
+// ==========================================
+// DASHBOARD MODEL - Subject Attendance Stats
+// ==========================================
 class SubjectAttendanceStats {
   final SubjectEntity subject;
   final int conducted;

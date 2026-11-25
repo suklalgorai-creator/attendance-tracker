@@ -8,10 +8,13 @@ import '../providers/calendar_providers.dart';
 import 'calendar_view.dart';
 import 'heatmap_view.dart';
 
-/// Activity Card widget displaying either the monthly Calendar View or
-/// GitHub-style Contribution Heatmap.
+/// Activity Card container switching between monthly Calendar View and
+/// 26-week Contribution Heatmap (`react_app/src/pages/DashboardPage.jsx`).
 ///
-/// Replicates `<div className="card activity-card">` in `react_app/src/pages/DashboardPage.jsx`.
+/// Ownership: Calendar Feature (UI Widget)
+// ==========================================
+// CALENDAR WIDGET - Activity Card Container
+// ==========================================
 class ActivityCard extends ConsumerWidget {
   const ActivityCard({super.key});
 

@@ -5,7 +5,12 @@ import '../../../attendance/domain/entities/attendance_record_entity.dart';
 import '../../../attendance/domain/entities/attendance_status.dart';
 import '../../../attendance/domain/repositories/attendance_repository.dart';
 
-/// StateNotifier handling attendance actions (mark present/absent) and undo functionality.
+/// StateNotifier handling quick attendance actions (mark present/absent) and undo.
+///
+/// Ownership: Dashboard Feature (State Management)
+// ==========================================
+// DASHBOARD CONTROLLER - Quick Attendance Actions & Undo
+// ==========================================
 class DashboardController extends StateNotifier<AsyncValue<void>> {
   final AttendanceRepository _attendanceRepository;
   AttendanceRecordEntity? _lastLoggedRecord;

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../shared/widgets/undo_snack_bar.dart';
 import '../../../calendar/presentation/widgets/activity_card.dart';
 import '../../../dailyflow/presentation/widgets/daily_flow_dashboard_card.dart';
 import '../../../subjects/presentation/widgets/subject_dialog.dart';
@@ -17,6 +18,11 @@ import '../widgets/todays_schedule_card.dart';
 
 /// Main Dashboard Page displaying today's DailyFlow summary, attendance overview,
 /// and quick action subject cards.
+///
+/// Ownership: Dashboard Feature (UI Page)
+// ==========================================
+// DASHBOARD - Main Overview Screen
+// ==========================================
 class DashboardPage extends ConsumerWidget {
   final VoidCallback? onAddSubject;
 
@@ -115,7 +121,7 @@ class DashboardPage extends ConsumerWidget {
                 ref
                     .read(dashboardControllerProvider.notifier)
                     .markPresent(subStats.subject.id);
-                _showUndoSnackBar(
+                showAttendanceUndoSnackBar(
                   context,
                   ref,
                   'Marked ${subStats.subject.name} as Present',
@@ -125,7 +131,7 @@ class DashboardPage extends ConsumerWidget {
                 ref
                     .read(dashboardControllerProvider.notifier)
                     .markAbsent(subStats.subject.id);
-                _showUndoSnackBar(
+                showAttendanceUndoSnackBar(
                   context,
                   ref,
                   'Marked ${subStats.subject.name} as Absent',
@@ -133,22 +139,6 @@ class DashboardPage extends ConsumerWidget {
               },
             ),
       ],
-    );
-  }
-
-  void _showUndoSnackBar(BuildContext context, WidgetRef ref, String message) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () {
-            ref.read(dashboardControllerProvider.notifier).undoLastAction();
-          },
-        ),
-        duration: const Duration(seconds: 4),
-      ),
     );
   }
 }

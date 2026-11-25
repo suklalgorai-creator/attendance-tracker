@@ -10,7 +10,12 @@ import '../../../../shared/widgets/mesh_backdrop.dart';
 import '../controllers/auth_providers.dart';
 import '../widgets/google_logo_icon.dart';
 
-/// Authentication screen replicating react_app/src/components/Auth.jsx.
+/// Sign-in screen offering Google Sign-In and offline guest entry (`react_app/src/components/Auth.jsx`).
+///
+/// Ownership: Authentication Feature (UI Page)
+// ==========================================
+// AUTH - Sign-In & Guest Access Screen
+// ==========================================
 class AuthPage extends ConsumerWidget {
   const AuthPage({super.key});
 

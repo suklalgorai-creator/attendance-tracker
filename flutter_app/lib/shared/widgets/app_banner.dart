@@ -3,6 +3,13 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_radius.dart';
 
+/// Shared feedback banner matching `.banner-safe`, `.banner-danger`, `.banner-none`,
+/// and `.reminder-banner` styling across Dashboard, Analytics, and Shell.
+///
+/// Ownership: Shared Design System Widgets
+// ==========================================
+// SHARED WIDGETS - Status & Reminder Banner
+// ==========================================
 enum AppBannerType { safe, danger, neutral, reminder }
 
 typedef AppBannerVariant = AppBannerType;

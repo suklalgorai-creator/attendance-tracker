@@ -5,7 +5,13 @@ import '../services/notification_service.dart';
 import '../utils/date_utils.dart';
 import 'repository_providers.dart';
 
-/// Provider for [NotificationService] using the real local notifications implementation.
+/// Riverpod providers wiring [NotificationService] and reactive schedulers for
+/// attendance reminders, DailyFlow task reminders, and daily routine briefings.
+///
+/// Ownership: Core Notifications
+// ==========================================
+// NOTIFICATIONS PROVIDER - Service & Auto-Schedulers
+// ==========================================
 final notificationServiceProvider = Provider<NotificationService>((ref) {
   return FlutterLocalNotificationServiceImpl();
 });

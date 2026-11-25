@@ -1,3 +1,9 @@
+/// Synchronization lifecycle status and result models emitted by [CloudSyncService].
+///
+/// Ownership: Cloud Sync Feature (Domain Model)
+// ==========================================
+// SYNC MODELS - Status, State & Operation Results
+// ==========================================
 enum SyncStatus { idle, syncing, synced, offlineWarning, error }
 
 class SyncState {

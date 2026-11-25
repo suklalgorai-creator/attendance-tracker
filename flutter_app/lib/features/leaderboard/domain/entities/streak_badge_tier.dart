@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
-/// Tier classification for streak-based attendance gamification.
+/// Tier classification for streak-based attendance gamification milestones.
+///
+/// Ownership: Leaderboard Feature (Domain Entity)
+// ==========================================
+// LEADERBOARD ENTITY - Streak Badge Tiers
+// ==========================================
 enum StreakTier {
   none(name: 'Starter', minDays: 0, color: Color(0xFFA1A1AA), emoji: '🌱'),
   bronze(name: 'Bronze', minDays: 3, color: Color(0xFFCD7F32), emoji: '🥉'),

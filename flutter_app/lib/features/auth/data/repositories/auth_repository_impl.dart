@@ -4,7 +4,12 @@ import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_datasource.dart';
 import '../datasources/auth_remote_datasource.dart';
 
-/// Implementation of [AuthRepository] coordinating local Hive storage and remote auth.
+/// Repository coordinating Google Sign-In, offline guest sessions, and onboarding flags.
+///
+/// Ownership: Authentication Feature (Data Layer)
+// ==========================================
+// AUTH REPOSITORY - Session & Onboarding Persistence
+// ==========================================
 class AuthRepositoryImpl implements AuthRepository {
   final AuthLocalDataSource _localDataSource;
   final AuthRemoteDataSource _remoteDataSource;

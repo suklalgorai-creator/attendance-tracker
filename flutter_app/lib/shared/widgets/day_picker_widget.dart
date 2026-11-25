@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 
-/// DayPicker widget replicating `DayPicker.jsx`
-/// Day chips for S M T W T F S where 0 = Sun ... 6 = Sat.
+/// Interactive S-M-T-W-T-F-S weekday toggle chip strip used during onboarding
+/// and schedule rules configuration (`0` = Sun .. `6` = Sat).
+///
+/// Ownership: Shared Form Widgets
+// ==========================================
+// SHARED WIDGETS - Weekly Class Day Picker
+// ==========================================
 class DayPickerWidget extends StatelessWidget {
   static const List<String> defaultDayLabels = [
     'S',

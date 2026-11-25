@@ -1,3 +1,12 @@
+/// Domain entities and enums defining DailyFlow tasks, subtasks, recurrence, and statuses.
+///
+/// Ownership: DailyFlow Feature (Domain Entity)
+library;
+
+// ==========================================
+// DAILYFLOW ENTITIES - Task, Subtask, Status & Recurrence
+// ==========================================
+
 /// Execution lifecycle states for a DailyFlow task.
 enum DailyTaskStatus {
   planned,

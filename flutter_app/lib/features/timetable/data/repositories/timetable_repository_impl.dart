@@ -6,8 +6,13 @@ import '../../domain/entities/timetable_session_entity.dart';
 import '../../domain/repositories/timetable_repository.dart';
 import '../models/timetable_model.dart';
 
-/// Hive-backed implementation of [TimetableRepository], storing the weekly timetable
-/// in `settings_box['timetable']` for Schema Version 2 parity.
+/// Hive-backed implementation of [TimetableRepository], storing weekly schedules
+/// inside `settings_box['timetable']` for Schema Version 2 parity.
+///
+/// Ownership: Timetable Feature (Data Layer)
+// ==========================================
+// TIMETABLE REPOSITORY - Weekly Schedule Persistence
+// ==========================================
 class TimetableRepositoryImpl implements TimetableRepository {
   final Box? _boxOverride;
   final SubjectRepository? _subjectRepository;

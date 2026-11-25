@@ -1,4 +1,9 @@
-/// Domain entity representing a single scheduled session in the weekly timetable.
+/// Domain entity representing a single recurring class slot in the weekly timetable.
+///
+/// Ownership: Timetable Feature (Domain Entity)
+// ==========================================
+// TIMETABLE ENTITY - Scheduled Class Session
+// ==========================================
 class TimetableSessionEntity {
   final String id;
   final String subjectId;

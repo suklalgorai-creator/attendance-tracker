@@ -1,6 +1,11 @@
 import '../../domain/entities/user_settings_entity.dart';
 
-/// Data model for UserSettings serialization, extending UserSettingsEntity.
+/// Hive Map serialization model extending [UserSettingsEntity].
+///
+/// Ownership: Settings Feature (Data Model)
+// ==========================================
+// SETTINGS MODEL - User Preferences Serialization
+// ==========================================
 class UserSettingsModel extends UserSettingsEntity {
   const UserSettingsModel({
     super.name,

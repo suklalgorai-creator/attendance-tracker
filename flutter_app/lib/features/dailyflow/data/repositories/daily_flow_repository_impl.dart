@@ -3,6 +3,12 @@ import '../../domain/repositories/daily_flow_repository.dart';
 import '../datasources/daily_flow_local_datasource.dart';
 import '../models/daily_task_model.dart';
 
+/// Repository implementation delegating DailyFlow task persistence to [DailyFlowLocalDataSource].
+///
+/// Ownership: DailyFlow Feature (Data Layer)
+// ==========================================
+// DAILYFLOW REPOSITORY - Implementation
+// ==========================================
 class DailyFlowRepositoryImpl implements DailyFlowRepository {
   final DailyFlowLocalDataSource localDataSource;
 

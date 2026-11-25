@@ -8,6 +8,13 @@ import '../../domain/repositories/auth_repository.dart';
 import 'auth_notifier.dart';
 import 'auth_state.dart';
 
+/// Riverpod providers wiring auth data sources, repository, and [AuthNotifier].
+///
+/// Ownership: Authentication Feature (Providers)
+// ==========================================
+// AUTH PROVIDERS - Data Sources, Repo & Notifier
+// ==========================================
+
 /// Provider for local Hive-backed authentication data source.
 final authLocalDataSourceProvider = Provider<AuthLocalDataSource>((ref) {
   return AuthLocalDataSourceImpl();

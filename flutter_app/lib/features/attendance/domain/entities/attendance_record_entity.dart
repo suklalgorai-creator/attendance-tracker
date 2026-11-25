@@ -1,7 +1,11 @@
 import 'attendance_status.dart';
 
-/// Domain entity representing a session-level attendance record.
-/// Replicates React `attendanceRecords` array schema.
+/// Domain entity representing a session-level attendance record (`attendanceRecords`).
+///
+/// Ownership: Attendance Feature (Domain Entity)
+// ==========================================
+// ATTENDANCE ENTITY - Session Attendance Record
+// ==========================================
 class AttendanceRecordEntity {
   final String id;
   final String date; // YYYY-MM-DD

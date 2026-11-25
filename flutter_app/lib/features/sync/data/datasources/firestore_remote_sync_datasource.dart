@@ -3,8 +3,12 @@ import '../../../../core/utils/data_migration.dart';
 import '../../domain/datasources/remote_sync_datasource.dart';
 import 'remote_sync_datasource_impl.dart';
 
-/// Production [RemoteSyncDataSource] backed by Cloud Firestore,
-/// matching `react_app/src/services/cloudSync.js` (`users/{uid}` and `settings/global`).
+/// Production [RemoteSyncDataSource] backed by Cloud Firestore (`users/{uid}` & `settings/global`).
+///
+/// Ownership: Cloud Sync Feature (Data Layer)
+// ==========================================
+// SYNC DATA SOURCE - Cloud Firestore Implementation
+// ==========================================
 class FirestoreRemoteSyncDataSource implements RemoteSyncDataSource {
   final FirebaseFirestore? _firestoreOverride;
 

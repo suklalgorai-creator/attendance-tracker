@@ -6,8 +6,8 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../domain/models/calendar_day_summary.dart';
 import '../providers/calendar_providers.dart';
+import 'calendar_day_cell.dart';
 
-/// Month names matching React `CalendarView.jsx`.
 const List<String> _kMonthNames = [
   'January',
   'February',
@@ -23,12 +23,16 @@ const List<String> _kMonthNames = [
   'December',
 ];
 
-/// Day header names matching React `CalendarView.jsx`.
 const List<String> _kDayNames = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
 /// Monthly interactive Calendar View displaying attendance dots and summary stats.
 ///
 /// Exact 1:1 visual and behavioral parity with `react_app/src/components/CalendarView.jsx`.
+///
+/// Ownership: Calendar Feature
+// ==========================================
+// CALENDAR - Monthly Calendar Widget
+// ==========================================
 class CalendarViewWidget extends ConsumerWidget {
   const CalendarViewWidget({super.key});
 
@@ -48,8 +52,6 @@ class CalendarViewWidget extends ConsumerWidget {
     final year = focusedDate.year;
     final month = focusedDate.month;
     final today = todayStr();
-
-    // Day of week of the 1st day of the month (0 = Sun .. 6 = Sat)
     final firstDayWeekday = DateTime(year, month, 1).weekday % 7;
 
     final daySummaries = daysAsync.valueOrNull ?? const [];
@@ -60,7 +62,7 @@ class CalendarViewWidget extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Calendar Navigation Header
+        // Month Navigation Header
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -77,9 +79,8 @@ class CalendarViewWidget extends ConsumerWidget {
               color: paperColor,
               tooltip: 'Previous month',
               visualDensity: VisualDensity.compact,
-              onPressed: () {
-                ref.read(calendarDateProvider.notifier).prevMonth();
-              },
+              onPressed: () =>
+                  ref.read(calendarDateProvider.notifier).prevMonth(),
             ),
             Expanded(
               child: Center(
@@ -110,16 +111,14 @@ class CalendarViewWidget extends ConsumerWidget {
               color: paperColor,
               tooltip: 'Next month',
               visualDensity: VisualDensity.compact,
-              onPressed: () {
-                ref.read(calendarDateProvider.notifier).nextMonth();
-              },
+              onPressed: () =>
+                  ref.read(calendarDateProvider.notifier).nextMonth(),
             ),
           ],
         ),
-
         const SizedBox(height: 8),
 
-        // Day Headers: Su, Mo, Tu, We, Th, Fr, Sa
+        // Weekday Labels (Su .. Sa)
         Row(
           children: _kDayNames.map((day) {
             return Expanded(
@@ -137,10 +136,9 @@ class CalendarViewWidget extends ConsumerWidget {
             );
           }).toList(),
         ),
-
         const SizedBox(height: 8),
 
-        // Calendar Days Grid
+        // Month Day Grid
         if (daysAsync.isLoading)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 24.0),
@@ -153,51 +151,46 @@ class CalendarViewWidget extends ConsumerWidget {
             ),
           )
         else
-          _buildMonthGrid(
-            context: context,
+          _CalendarMonthGrid(
             firstDayWeekday: firstDayWeekday,
             daySummaries: daySummaries,
             today: today,
             paperColor: paperColor,
             mutedColor: mutedColor,
           ),
-
         const SizedBox(height: 16),
 
-        // Dashed Divider separating grid from summary
+        // Dashed Divider & Monthly Totals
         CustomPaint(
           size: const Size(double.infinity, 1),
-          painter: _DashedRulePainter(color: ruleBrightColor),
+          painter: CalendarDashedRulePainter(color: ruleBrightColor),
         ),
-
         const SizedBox(height: 16),
-
-        // Monthly Summary Footer
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Expanded(
-              child: _buildStatColumn(
-                'Conducted',
-                monthSummary.held,
-                paperColor,
-                mutedColor,
+              child: CalendarStatColumn(
+                label: 'Conducted',
+                value: monthSummary.held,
+                valueColor: paperColor,
+                mutedColor: mutedColor,
               ),
             ),
             Expanded(
-              child: _buildStatColumn(
-                'Present',
-                monthSummary.attended,
-                AppColors.amber,
-                mutedColor,
+              child: CalendarStatColumn(
+                label: 'Present',
+                value: monthSummary.attended,
+                valueColor: AppColors.amber,
+                mutedColor: mutedColor,
               ),
             ),
             Expanded(
-              child: _buildStatColumn(
-                'Holidays',
-                monthSummary.holidays,
-                const Color(0xFF3B82F6),
-                mutedColor,
+              child: CalendarStatColumn(
+                label: 'Holidays',
+                value: monthSummary.holidays,
+                valueColor: const Color(0xFF3B82F6),
+                mutedColor: mutedColor,
               ),
             ),
           ],
@@ -205,30 +198,35 @@ class CalendarViewWidget extends ConsumerWidget {
       ],
     );
   }
+}
 
-  Widget _buildMonthGrid({
-    required BuildContext context,
-    required int firstDayWeekday,
-    required List<CalendarDaySummary> daySummaries,
-    required String today,
-    required Color paperColor,
-    required Color mutedColor,
-  }) {
-    // Total cells = leading padding cells + total days in month
+class _CalendarMonthGrid extends StatelessWidget {
+  final int firstDayWeekday;
+  final List<CalendarDaySummary> daySummaries;
+  final String today;
+  final Color paperColor;
+  final Color mutedColor;
+
+  const _CalendarMonthGrid({
+    required this.firstDayWeekday,
+    required this.daySummaries,
+    required this.today,
+    required this.paperColor,
+    required this.mutedColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final totalCells = firstDayWeekday + daySummaries.length;
     final totalRows = (totalCells / 7).ceil();
-
     final List<Widget> rowWidgets = [];
 
     for (int r = 0; r < totalRows; r++) {
       final List<Widget> dayCellWidgets = [];
-
       for (int c = 0; c < 7; c++) {
         final cellIndex = r * 7 + c;
-
         if (cellIndex < firstDayWeekday ||
             cellIndex >= firstDayWeekday + daySummaries.length) {
-          // Empty padding cell
           dayCellWidgets.add(
             const Expanded(
               child: AspectRatio(aspectRatio: 1.0, child: SizedBox.shrink()),
@@ -237,18 +235,16 @@ class CalendarViewWidget extends ConsumerWidget {
         } else {
           final daySummary = daySummaries[cellIndex - firstDayWeekday];
           final dayNumber = cellIndex - firstDayWeekday + 1;
-          final isToday = daySummary.date == today;
-
           dayCellWidgets.add(
             Expanded(
               child: AspectRatio(
                 aspectRatio: 1.0,
                 child: Padding(
                   padding: const EdgeInsets.all(2.0),
-                  child: _buildDayCell(
+                  child: CalendarDayCell(
                     dayNumber: dayNumber,
                     summary: daySummary,
-                    isToday: isToday,
+                    isToday: daySummary.date == today,
                     paperColor: paperColor,
                     mutedColor: mutedColor,
                   ),
@@ -258,7 +254,6 @@ class CalendarViewWidget extends ConsumerWidget {
           );
         }
       }
-
       rowWidgets.add(
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 2.0),
@@ -269,139 +264,4 @@ class CalendarViewWidget extends ConsumerWidget {
 
     return Column(mainAxisSize: MainAxisSize.min, children: rowWidgets);
   }
-
-  Widget _buildDayCell({
-    required int dayNumber,
-    required CalendarDaySummary summary,
-    required bool isToday,
-    required Color paperColor,
-    required Color mutedColor,
-  }) {
-    // Styling matching React `components.css` lines 358-370
-    Color cellBgColor;
-    Color textColor;
-
-    switch (summary.type) {
-      case CalendarDayType.empty:
-        cellBgColor = Colors.transparent;
-        textColor = mutedColor.withValues(alpha: 0.5);
-        break;
-      case CalendarDayType.present:
-        cellBgColor = AppColors.amber;
-        textColor = Colors.white;
-        break;
-      case CalendarDayType.absent:
-        cellBgColor = AppColors.penRed;
-        textColor = Colors.white;
-        break;
-      case CalendarDayType.partial:
-        cellBgColor = AppColors.amber;
-        textColor = Colors.white;
-        break;
-      case CalendarDayType.holiday:
-        cellBgColor = const Color(0xFF3B82F6);
-        textColor = Colors.white;
-        break;
-    }
-
-    String tooltipMsg;
-    switch (summary.type) {
-      case CalendarDayType.empty:
-        tooltipMsg = '${summary.date}: No attendance recorded';
-        break;
-      case CalendarDayType.holiday:
-        tooltipMsg = '${summary.date}: Holiday';
-        break;
-      case CalendarDayType.present:
-      case CalendarDayType.absent:
-      case CalendarDayType.partial:
-        tooltipMsg =
-            '${summary.date}: ${summary.attended}/${summary.held} attended';
-        break;
-    }
-
-    return Tooltip(
-      message: tooltipMsg,
-      child: Container(
-        decoration: BoxDecoration(
-          color: cellBgColor,
-          shape: BoxShape.circle,
-          border: isToday ? Border.all(color: paperColor, width: 2.0) : null,
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          '$dayNumber',
-          style: GoogleFonts.outfit(
-            fontSize: 13,
-            fontWeight: isToday ? FontWeight.w900 : FontWeight.w600,
-            color: isToday && summary.type == CalendarDayType.empty
-                ? paperColor
-                : textColor,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatColumn(
-    String label,
-    int value,
-    Color paperColor,
-    Color mutedColor,
-  ) {
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            label.toUpperCase(),
-            style: GoogleFonts.outfit(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.0,
-              color: mutedColor,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '$value',
-            style: GoogleFonts.outfit(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: paperColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Custom painter for dashed rule divider matching `var(--rule-bright)`
-class _DashedRulePainter extends CustomPainter {
-  final Color color;
-
-  const _DashedRulePainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1.0
-      ..style = PaintingStyle.stroke;
-
-    const dashWidth = 4.0;
-    const dashSpace = 4.0;
-    double startX = 0.0;
-
-    while (startX < size.width) {
-      canvas.drawLine(Offset(startX, 0), Offset(startX + dashWidth, 0), paint);
-      startX += dashWidth + dashSpace;
-    }
-  }
-
-  @override
-  bool shouldRepaint(_DashedRulePainter oldDelegate) =>
-      oldDelegate.color != color;
 }

@@ -1,4 +1,9 @@
-/// Core exception classes thrown by data sources
+/// Typed domain/infrastructure exceptions raised by local caches and remote sync.
+///
+/// Ownership: Core Errors
+// ==========================================
+// CORE ERRORS - Cache, Validation & Server Exceptions
+// ==========================================
 class CacheException implements Exception {
   final String message;
   const CacheException([this.message = 'Local cache operation failed']);

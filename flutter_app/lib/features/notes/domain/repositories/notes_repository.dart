@@ -1,6 +1,11 @@
 import '../entities/note_entity.dart';
 
-/// Abstract contract for Sticky Notes operations in Domain layer.
+/// Domain repository contract for sticky note storage and reactive streaming.
+///
+/// Ownership: Notes Feature (Domain Contract)
+// ==========================================
+// NOTES REPOSITORY - Domain Interface
+// ==========================================
 abstract class NotesRepository {
   Future<List<NoteEntity>> getNotes();
   Stream<List<NoteEntity>> watchNotes();

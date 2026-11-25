@@ -8,9 +8,12 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/mesh_backdrop.dart';
 
-/// Animated splash screen shown once on cold start.
-/// Displays the app logo with a zoom-in + fade animation over the mesh-style
-/// gradient background, then navigates to the main app.
+/// Cold-start animated splash screen revealing app branding before routing onward.
+///
+/// Ownership: Splash Feature
+// ==========================================
+// SPLASH - Animated Launch Screen
+// ==========================================
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
 

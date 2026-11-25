@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-import '../../app/theme/theme_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
-import '../../core/constants/app_typography.dart';
 import '../../core/providers/notification_providers.dart';
 import '../../core/providers/repository_providers.dart';
 import '../../features/auth/presentation/controllers/auth_providers.dart';
 import '../../features/dashboard/presentation/providers/dashboard_providers.dart';
-import '../../features/settings/presentation/providers/settings_controller.dart';
 import 'app_banner.dart';
 import 'app_drawer.dart';
 import 'app_header.dart';
 import 'mesh_backdrop.dart';
+import 'shell/shell_bottom_nav.dart';
+import 'shell/shell_desktop_sidebar.dart';
 
-/// Responsive application shell matching the React mobile and desktop layouts.
+/// Responsive application shell coordinating header, guest backup warning banner,
+/// desktop collapsible sidebar (>= 1024px), mobile bottom nav, and scheduler bridge.
+///
+/// Ownership: Shared Application Shell
+// ==========================================
+// SHARED SHELL - Responsive Navigation Layout
+// ==========================================
 class AppShell extends ConsumerStatefulWidget {
   final StatefulNavigationShell navigationShell;
 
@@ -41,13 +44,6 @@ class _AppShellState extends ConsumerState<AppShell> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final navBgColor = isDark
-        ? const Color(0xEB18181B)
-        : const Color(0xEBFFFFFF);
-    final borderColor = isDark
-        ? AppColors.ruleBrightDark
-        : AppColors.ruleBrightLight;
     final authState = ref.watch(authNotifierProvider);
     final settings = ref.watch(settingsStreamProvider).valueOrNull;
     final streak = ref.watch(streakCountProvider).valueOrNull ?? 0;
@@ -61,8 +57,9 @@ class _AppShellState extends ConsumerState<AppShell> {
           final content = _ShellContent(
             navigationShell: widget.navigationShell,
             isDesktop: isDesktop,
-            authState: authState,
-            settings: settings,
+            isGuest: authState.isGuest,
+            programName: settings?.programName,
+            courseName: settings?.courseName,
             streak: streak,
             onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
             onGuestBannerTap: () {
@@ -74,7 +71,7 @@ class _AppShellState extends ConsumerState<AppShell> {
 
           return Row(
             children: [
-              _DesktopSidebar(
+              ShellDesktopSidebar(
                 collapsed: _sidebarCollapsed,
                 currentIndex: widget.navigationShell.currentIndex,
                 onCollapseToggle: () =>
@@ -89,59 +86,9 @@ class _AppShellState extends ConsumerState<AppShell> {
       bottomNavigationBar: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth >= 1024) return const SizedBox.shrink();
-          return Container(
-            decoration: BoxDecoration(
-              color: navBgColor,
-              border: Border(top: BorderSide(color: borderColor)),
-            ),
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-            child: SafeArea(
-              top: false,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _NavBarItem(
-                      label: 'Home',
-                      icon: Icons.home_rounded,
-                      isActive: widget.navigationShell.currentIndex == 0,
-                      onTap: () => _onTabSelected(0),
-                    ),
-                  ),
-                  Expanded(
-                    child: _NavBarItem(
-                      label: 'Register',
-                      icon: Icons.calendar_today_rounded,
-                      isActive: widget.navigationShell.currentIndex == 1,
-                      onTap: () => _onTabSelected(1),
-                    ),
-                  ),
-                  Expanded(
-                    child: _NavBarItem(
-                      label: 'DailyFlow',
-                      icon: Icons.bolt_rounded,
-                      isActive: widget.navigationShell.currentIndex == 2,
-                      onTap: () => _onTabSelected(2),
-                    ),
-                  ),
-                  Expanded(
-                    child: _NavBarItem(
-                      label: 'Leaderboard',
-                      icon: Icons.emoji_events_rounded,
-                      isActive: widget.navigationShell.currentIndex == 3,
-                      onTap: () => _onTabSelected(3),
-                    ),
-                  ),
-                  Expanded(
-                    child: _NavBarItem(
-                      label: 'Profile',
-                      icon: Icons.person_rounded,
-                      isActive: widget.navigationShell.currentIndex == 4,
-                      onTap: () => _onTabSelected(4),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          return ShellBottomNav(
+            currentIndex: widget.navigationShell.currentIndex,
+            onTabSelected: _onTabSelected,
           );
         },
       ),
@@ -149,11 +96,15 @@ class _AppShellState extends ConsumerState<AppShell> {
   }
 }
 
+// ==========================================
+// SHARED SHELL - Content Frame & Guest Banner
+// ==========================================
 class _ShellContent extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
   final bool isDesktop;
-  final dynamic authState;
-  final dynamic settings;
+  final bool isGuest;
+  final String? programName;
+  final String? courseName;
   final int streak;
   final VoidCallback onMenuPressed;
   final VoidCallback onGuestBannerTap;
@@ -161,8 +112,9 @@ class _ShellContent extends StatelessWidget {
   const _ShellContent({
     required this.navigationShell,
     required this.isDesktop,
-    required this.authState,
-    required this.settings,
+    required this.isGuest,
+    required this.programName,
+    required this.courseName,
     required this.streak,
     required this.onMenuPressed,
     required this.onGuestBannerTap,
@@ -180,11 +132,11 @@ class _ShellContent extends StatelessWidget {
               AppHeader(
                 showMenuButton: !isDesktop,
                 onMenuPressed: onMenuPressed,
-                programName: settings?.programName,
-                courseName: settings?.courseName,
+                programName: programName,
+                courseName: courseName,
                 streak: streak,
               ),
-              if (authState.isGuest)
+              if (isGuest)
                 Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: isDesktop ? AppSpacing.xxxl : AppSpacing.md,
@@ -221,356 +173,10 @@ class _ShellContent extends StatelessWidget {
   }
 }
 
-class _DesktopSidebar extends ConsumerWidget {
-  final bool collapsed;
-  final int currentIndex;
-  final VoidCallback onCollapseToggle;
-  final ValueChanged<int> onTabSelected;
-
-  const _DesktopSidebar({
-    required this.collapsed,
-    required this.currentIndex,
-    required this.onCollapseToggle,
-    required this.onTabSelected,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final paper = isDark ? AppColors.paperDark : AppColors.paperLight;
-    final muted = isDark ? AppColors.mutedDark : AppColors.mutedLight;
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      width: collapsed ? 88 : 260,
-      padding: EdgeInsets.symmetric(
-        horizontal: collapsed ? 16 : 24,
-        vertical: 32,
-      ),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-        border: Border(
-          right: BorderSide(
-            color: isDark
-                ? AppColors.ruleBrightDark
-                : AppColors.ruleBrightLight,
-          ),
-        ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: collapsed
-                ? MainAxisAlignment.center
-                : MainAxisAlignment.spaceBetween,
-            children: [
-              if (!collapsed)
-                Row(
-                  children: [
-                    const Text('🎓', style: TextStyle(fontSize: 24)),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Attendance',
-                      style: AppTypography.cardTitle(
-                        paper,
-                      ).copyWith(fontSize: 20),
-                    ),
-                  ],
-                ),
-              IconButton(
-                tooltip: collapsed ? 'Expand sidebar' : 'Collapse sidebar',
-                onPressed: onCollapseToggle,
-                icon: Icon(Icons.menu_rounded, color: muted),
-              ),
-            ],
-          ),
-          const SizedBox(height: 32),
-          _SidebarItem(
-            label: 'Dashboard',
-            icon: Icons.home_outlined,
-            active: currentIndex == 0,
-            collapsed: collapsed,
-            onTap: () => onTabSelected(0),
-          ),
-          _SidebarItem(
-            label: 'Register',
-            icon: Icons.calendar_today_outlined,
-            active: currentIndex == 1,
-            collapsed: collapsed,
-            onTap: () => onTabSelected(1),
-          ),
-          _SidebarItem(
-            label: 'DailyFlow',
-            icon: Icons.bolt_rounded,
-            active: currentIndex == 2,
-            collapsed: collapsed,
-            onTap: () => onTabSelected(2),
-          ),
-          _SidebarItem(
-            label: 'Leaderboard',
-            icon: Icons.emoji_events_outlined,
-            active: currentIndex == 3,
-            collapsed: collapsed,
-            onTap: () => onTabSelected(3),
-          ),
-          _SidebarItem(
-            label: 'Profile',
-            icon: Icons.person_outline_rounded,
-            active: currentIndex == 4,
-            collapsed: collapsed,
-            onTap: () => onTabSelected(4),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  _SidebarItem(
-                    label: 'Timetable',
-                    icon: Icons.calendar_view_week_rounded,
-                    active: false,
-                    collapsed: collapsed,
-                    onTap: () => context.push('/timetable'),
-                  ),
-                  _SidebarItem(
-                    label: 'Sticky Notes',
-                    icon: Icons.note_alt_outlined,
-                    active: false,
-                    collapsed: collapsed,
-                    onTap: () => context.push('/notes'),
-                  ),
-                  _SidebarItem(
-                    label: 'Export Data',
-                    icon: Icons.download_outlined,
-                    active: false,
-                    collapsed: collapsed,
-                    onTap: () => ref
-                        .read(settingsControllerProvider.notifier)
-                        .exportCsv(),
-                  ),
-                  const Divider(height: 20),
-                  _SidebarItem(
-                    label: isDark ? 'Light Mode' : 'Dark Mode',
-                    icon: isDark
-                        ? Icons.light_mode_outlined
-                        : Icons.dark_mode_outlined,
-                    active: false,
-                    collapsed: collapsed,
-                    onTap: () =>
-                        ref.read(themeModeProvider.notifier).toggleTheme(),
-                  ),
-                  _SidebarItem(
-                    label: 'Support Developer',
-                    icon: Icons.coffee_outlined,
-                    active: false,
-                    collapsed: collapsed,
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text('Support the Developer'),
-                          content: const Text(
-                            'Thank you for using this app! If this app helps you, please support us by sharing it with your friends.',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(ctx).pop(),
-                              child: const Text('Close'),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                  _SidebarItem(
-                    label: "What's New",
-                    icon: Icons.auto_awesome_outlined,
-                    active: false,
-                    collapsed: collapsed,
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text("What's New in v2.0"),
-                          content: const Text(
-                            "⚡ DailyFlow Planning, Focus Timer & Reminders\n"
-                            "🔐 Google Sign-In & Cloud Firestore Sync\n"
-                            "📅 Integrated Attendance Register (Holiday-aware)\n"
-                            "🎨 React-Parity Glassmorphism & Mesh Themes\n"
-                            "📝 Markdown Sticky Notes & CSV Export",
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(ctx).pop(),
-                              child: const Text('OK'),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                  _SidebarItem(
-                    label: 'Send Feedback',
-                    icon: Icons.mail_outline_rounded,
-                    active: false,
-                    collapsed: collapsed,
-                    onTap: () async {
-                      final uri = Uri(
-                        scheme: 'mailto',
-                        path: 'codecraftdigital.in@gmail.com',
-                        queryParameters: {'subject': 'Attendance App Feedback'},
-                      );
-                      try {
-                        await launchUrl(
-                          uri,
-                          mode: LaunchMode.externalApplication,
-                        );
-                      } catch (_) {}
-                    },
-                  ),
-                  _SidebarItem(
-                    label: 'Share App',
-                    icon: Icons.share_outlined,
-                    active: false,
-                    collapsed: collapsed,
-                    onTap: () {
-                      SharePlus.instance.share(
-                        ShareParams(
-                          text:
-                              'I am tracking my college attendance easily with this app!',
-                          subject: 'College Attendance Tracker',
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SidebarItem extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final bool active;
-  final bool collapsed;
-  final VoidCallback onTap;
-
-  const _SidebarItem({
-    required this.label,
-    required this.icon,
-    required this.active,
-    required this.collapsed,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color = active
-        ? AppColors.inkGreen
-        : (isDark ? AppColors.mutedDark : AppColors.mutedLight);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(
-            horizontal: collapsed ? 14 : 20,
-            vertical: 14,
-          ),
-          decoration: BoxDecoration(
-            color: active ? AppColors.inkGreenSoft : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            mainAxisAlignment: collapsed
-                ? MainAxisAlignment.center
-                : MainAxisAlignment.start,
-            children: [
-              Icon(icon, color: color, size: 22),
-              if (!collapsed) ...[
-                const SizedBox(width: 16),
-                Text(
-                  label,
-                  style: AppTypography.bodyLarge(
-                    color,
-                  ).copyWith(fontWeight: FontWeight.w600),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _NavBarItem extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  const _NavBarItem({
-    required this.label,
-    required this.icon,
-    required this.isActive,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final inactiveColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        decoration: BoxDecoration(
-          color: isActive ? AppColors.inkGreenSoft : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedScale(
-              scale: isActive ? 1.15 : 1.0,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeOutCubic,
-              child: Icon(
-                icon,
-                size: 22,
-                color: isActive ? AppColors.inkGreen : inactiveColor,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTypography.navLabel(
-                isActive ? AppColors.inkGreen : inactiveColor,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Isolated leaf widget keeping OS notification schedulers subscribed without
-/// forcing parent [AppShell] rebuilds when schedule dependencies emit.
+// ==========================================
+// SHARED SHELL - Notification Scheduler Bridge
+// Isolated leaf widget preventing scheduler updates from rebuilding AppShell.
+// ==========================================
 class _NotificationSchedulersBridge extends ConsumerWidget {
   const _NotificationSchedulersBridge();
 

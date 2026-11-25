@@ -6,6 +6,14 @@ import '../../../dashboard/presentation/providers/dashboard_providers.dart';
 import '../../../sync/presentation/providers/sync_providers.dart';
 import 'subject_controller.dart';
 
+/// Riverpod providers wiring [SubjectController], per-subject analytics,
+/// and chronological attendance history streams.
+///
+/// Ownership: Subjects Feature (Providers)
+// ==========================================
+// SUBJECTS PROVIDERS - Controller, Detail Stats & History
+// ==========================================
+
 /// Provider exposing [SubjectController].
 final subjectControllerProvider =
     StateNotifierProvider<SubjectController, AsyncValue<void>>((ref) {

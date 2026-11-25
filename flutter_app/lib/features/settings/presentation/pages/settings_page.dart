@@ -7,14 +7,21 @@ import '../../../../core/constants/app_typography.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../shared/widgets/glass_card.dart';
 import '../../../../shared/widgets/mesh_backdrop.dart';
-import '../domain/entities/user_settings_entity.dart';
-import 'widgets/attendance_rules_card.dart';
-import 'widgets/backup_restore_card.dart';
-import 'widgets/danger_zone_card.dart';
-import 'widgets/notifications_card.dart';
-import 'widgets/personalization_card.dart';
-import 'widgets/profile_card.dart';
+import '../../domain/entities/user_settings_entity.dart';
+import '../widgets/attendance_rules_card.dart';
+import '../widgets/backup_restore_card.dart';
+import '../widgets/danger_zone_card.dart';
+import '../widgets/notifications_card.dart';
+import '../widgets/personalization_card.dart';
+import '../widgets/profile_card.dart';
 
+/// Profile & Settings screen presenting [ProfileCard] at top followed by grouped
+/// section tiles opening dedicated settings subpages.
+///
+/// Ownership: Settings Feature
+// ==========================================
+// SETTINGS - Profile Sections Definition
+// ==========================================
 enum _ProfileSection {
   personalization(
     title: 'Personalization',
@@ -56,8 +63,9 @@ enum _ProfileSection {
   final bool isDestructive;
 }
 
-/// Profile & Settings screen with ProfileCard at the top and collapsible
-/// section tiles that open dedicated detail pages.
+// ==========================================
+// SETTINGS - Main Profile & Settings Page
+// ==========================================
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
@@ -127,6 +135,9 @@ class SettingsPage extends ConsumerWidget {
   }
 }
 
+// ==========================================
+// SETTINGS - Navigation Tiles & Detail Route
+// ==========================================
 class _ProfileSectionTile extends StatelessWidget {
   const _ProfileSectionTile({
     required this.section,

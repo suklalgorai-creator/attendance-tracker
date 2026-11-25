@@ -1,6 +1,11 @@
 import '../../domain/entities/daily_task_entity.dart';
 
-/// Data model for [DailySubtaskEntity] Map serialization.
+/// Hive Map serialization models for DailyFlow tasks and nested subtasks.
+///
+/// Ownership: DailyFlow Feature (Data Model)
+// ==========================================
+// DAILYFLOW MODELS - Task & Subtask Serialization
+// ==========================================
 class DailySubtaskModel extends DailySubtaskEntity {
   const DailySubtaskModel({
     required super.id,

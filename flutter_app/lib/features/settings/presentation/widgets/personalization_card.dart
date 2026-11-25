@@ -13,6 +13,11 @@ import '../../domain/entities/user_settings_entity.dart';
 import '../providers/settings_controller.dart';
 
 /// Card managing theme mode, user name, degree program, and semester.
+///
+/// Ownership: Settings Feature (UI Card)
+// ==========================================
+// SETTINGS CARD - Personalization & Theme Mode
+// ==========================================
 class PersonalizationCard extends ConsumerStatefulWidget {
   final UserSettingsEntity settings;
 

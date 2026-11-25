@@ -4,6 +4,13 @@ import '../../../../core/services/database_service.dart';
 import '../models/attendance_record_model.dart';
 import '../models/legacy_attendance_model.dart';
 
+/// Hive-backed local storage contract and implementation for V2 session
+/// attendance records and V1 legacy daily totals.
+///
+/// Ownership: Attendance Feature (Data Layer)
+// ==========================================
+// ATTENDANCE DATA SOURCE - Hive Records & Legacy Totals
+// ==========================================
 abstract class AttendanceLocalDataSource {
   Future<List<AttendanceRecordModel>> getAttendanceRecords();
   Stream<List<AttendanceRecordModel>> watchAttendanceRecords();

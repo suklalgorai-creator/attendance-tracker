@@ -3,8 +3,13 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_radius.dart';
 import '../../core/constants/app_typography.dart';
 
-/// Text field matching React `.field` and `.field input` styles
-/// Features amber focus halo, red error halo, and Outfit typography.
+/// Styled input field matching React `.field` / `.field input` styling with amber
+/// focus halo, red error halo, and Outfit typography.
+///
+/// Ownership: Shared Form Widgets
+// ==========================================
+// SHARED WIDGETS - Styled Form TextField
+// ==========================================
 class AppTextField extends StatefulWidget {
   final TextEditingController? controller;
   final String? initialValue;

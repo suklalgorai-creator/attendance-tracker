@@ -3,6 +3,11 @@ import '../../domain/repositories/leaderboard_repository.dart';
 
 /// Concrete implementation of [LeaderboardRepository] supporting live cohort ranking
 /// and offline-first fallback.
+///
+/// Ownership: Leaderboard Feature (Data Layer)
+// ==========================================
+// LEADERBOARD REPOSITORY - Cohort Ranking Implementation
+// ==========================================
 class LeaderboardRepositoryImpl implements LeaderboardRepository {
   const LeaderboardRepositoryImpl();
 

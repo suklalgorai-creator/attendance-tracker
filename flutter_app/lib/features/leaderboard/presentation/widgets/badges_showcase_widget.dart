@@ -5,8 +5,12 @@ import '../../../../core/constants/app_colors.dart';
 import '../../domain/entities/streak_badge_tier.dart';
 
 /// Gamification badges showcase displaying Bronze, Silver, Gold, and Platinum streak tiers.
-///
 /// Exact 1:1 visual parity with `react_app/src/styles/components.css` lines 129-134.
+///
+/// Ownership: Leaderboard Feature (UI Widget)
+// ==========================================
+// LEADERBOARD WIDGET - Streak Badges Showcase
+// ==========================================
 class BadgesShowcaseWidget extends StatelessWidget {
   final int currentStreak;
 

@@ -1,14 +1,13 @@
-import 'dart:convert';
 import 'dart:typed_data';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/providers/notification_providers.dart';
 import '../../../../core/providers/repository_providers.dart';
+import '../../../../core/utils/string_utils.dart' as string_utils;
 import '../../domain/entities/user_settings_entity.dart';
 import '../../domain/models/backup_models.dart';
 import '../../domain/services/backup_service.dart';
+import '../../domain/services/settings_backup_io.dart';
 
 /// State of the settings management controller.
 class SettingsState {
@@ -68,19 +67,7 @@ class SettingsController extends StateNotifier<SettingsState> {
     : super(const SettingsState());
 
   /// Title-cases a string on focus loss matching React `toTitleCase`.
-  static String toTitleCase(String value) {
-    final trimmed = value.trim();
-    if (trimmed.isEmpty) return '';
-    return trimmed
-        .split(RegExp(r'\s+'))
-        .where((word) => word.isNotEmpty)
-        .map(
-          (word) =>
-              word[0].toUpperCase() +
-              (word.length > 1 ? word.substring(1) : ''),
-        )
-        .join(' ');
-  }
+  static String toTitleCase(String value) => string_utils.toTitleCase(value);
 
   /// Updates settings partially while preserving unspecified properties.
   Future<void> updateSettings(
@@ -166,20 +153,11 @@ class SettingsController extends StateNotifier<SettingsState> {
     try {
       final jsonStr = await _backupService.createBackupJsonString();
       final todayStr = DateTime.now().toIso8601String().substring(0, 10);
-      final filename = 'attendance-backup-$todayStr.json';
-
-      await SharePlus.instance.share(
-        ShareParams(
-          text: jsonStr,
-          subject: 'College Attendance Tracker Backup',
-          files: [
-            XFile.fromData(
-              utf8.encode(jsonStr),
-              mimeType: 'application/json',
-              name: filename,
-            ),
-          ],
-        ),
+      await SettingsBackupIo.shareTextFile(
+        content: jsonStr,
+        subject: 'College Attendance Tracker Backup',
+        filename: 'attendance-backup-$todayStr.json',
+        mimeType: 'application/json',
       );
       state = state.copyWith(isLoading: false);
     } catch (e) {
@@ -194,30 +172,12 @@ class SettingsController extends StateNotifier<SettingsState> {
   Future<void> exportCsv() async {
     state = state.copyWith(isLoading: true, clearBackupError: true);
     try {
-      final attendance = await _ref
-          .read(attendanceRepositoryProvider)
-          .getAttendanceRecords();
-      final legacy = await _ref
-          .read(attendanceRepositoryProvider)
-          .getLegacyAttendance();
-      final rows = <List<String>>[
-        for (final record in attendance.where((item) => !item.isDeleted))
-          [
-            record.date,
-            record.subjectId,
-            record.sessionId,
-            record.status.value,
-          ],
-        for (final record in legacy.where((item) => !item.isDeleted))
-          [
-            record.date,
-            'legacy',
-            record.id,
-            '${record.attended}/${record.held}',
-          ],
-      ]..sort((a, b) => a.first.compareTo(b.first));
-
-      if (rows.isEmpty) {
+      final repo = _ref.read(attendanceRepositoryProvider);
+      final csvContent = SettingsBackupIo.buildAttendanceCsv(
+        attendance: await repo.getAttendanceRecords(),
+        legacy: await repo.getLegacyAttendance(),
+      );
+      if (csvContent == null) {
         state = state.copyWith(
           isLoading: false,
           backupError: 'No attendance data available to export.',
@@ -225,24 +185,12 @@ class SettingsController extends StateNotifier<SettingsState> {
         return;
       }
 
-      String quote(String value) => '"${value.replaceAll('"', '""')}"';
-      final csv = StringBuffer('Date,Subject ID,Session ID,Status\n');
-      for (final row in rows) {
-        csv.writeln(row.map(quote).join(','));
-      }
       final date = DateTime.now().toIso8601String().substring(0, 10);
-      await SharePlus.instance.share(
-        ShareParams(
-          text: csv.toString(),
-          subject: 'Attendance export',
-          files: [
-            XFile.fromData(
-              utf8.encode(csv.toString()),
-              mimeType: 'text/csv',
-              name: 'attendance_export_$date.csv',
-            ),
-          ],
-        ),
+      await SettingsBackupIo.shareTextFile(
+        content: csvContent,
+        subject: 'Attendance export',
+        filename: 'attendance_export_$date.csv',
+        mimeType: 'text/csv',
       );
       state = state.copyWith(isLoading: false);
     } catch (e) {
@@ -262,24 +210,19 @@ class SettingsController extends StateNotifier<SettingsState> {
     );
 
     try {
-      final file = await FilePicker.pickFile(
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-      );
-
-      if (file == null) {
-        state = state.copyWith(isLoading: false);
-        return;
-      }
-
-      final Uint8List bytes;
+      final Uint8List? bytes;
       try {
-        bytes = await file.readAsBytes();
+        bytes = await SettingsBackupIo.pickJsonBackupBytes();
       } catch (_) {
         state = state.copyWith(
           isLoading: false,
           backupError: 'Backup file is empty or exceeds the 5 MB safety limit.',
         );
+        return;
+      }
+
+      if (bytes == null) {
+        state = state.copyWith(isLoading: false);
         return;
       }
 

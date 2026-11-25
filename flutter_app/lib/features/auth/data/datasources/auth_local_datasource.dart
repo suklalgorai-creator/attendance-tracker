@@ -3,7 +3,13 @@ import '../../../../core/errors/exceptions.dart';
 import '../../../../core/services/database_service.dart';
 import '../models/auth_user_model.dart';
 
-/// Contract for persisting authentication state and guest sessions in local Hive storage.
+/// Hive-backed local cache contract and implementation for user profile,
+/// guest-mode flag, and onboarding completion status.
+///
+/// Ownership: Authentication Feature (Data Layer)
+// ==========================================
+// AUTH DATA SOURCE - Local Session & Onboarding Cache
+// ==========================================
 abstract class AuthLocalDataSource {
   Future<AuthUserModel?> getSavedUser();
   Future<void> saveUser(AuthUserModel user);

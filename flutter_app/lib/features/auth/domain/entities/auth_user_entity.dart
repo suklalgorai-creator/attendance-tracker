@@ -1,5 +1,9 @@
-/// Domain entity representing an authenticated or guest user.
-/// Replicates Firebase user and guest session semantics in the clean architecture domain layer.
+/// Domain entity representing an authenticated Google user or offline guest session.
+///
+/// Ownership: Authentication Feature (Domain Entity)
+// ==========================================
+// AUTH ENTITY - Authenticated / Guest User
+// ==========================================
 class AuthUserEntity {
   final String id;
   final String? email;

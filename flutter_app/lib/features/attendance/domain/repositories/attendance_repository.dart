@@ -1,7 +1,12 @@
 import '../entities/attendance_record_entity.dart';
 import '../entities/legacy_attendance_entity.dart';
 
-/// Abstract contract for Attendance data operations in Domain layer.
+/// Domain repository contract for V2 session records and V1 daily aggregates.
+///
+/// Ownership: Attendance Feature (Domain Contract)
+// ==========================================
+// ATTENDANCE REPOSITORY - Domain Interface
+// ==========================================
 abstract class AttendanceRepository {
   Future<List<AttendanceRecordEntity>> getAttendanceRecords({
     bool includeDeleted = false,

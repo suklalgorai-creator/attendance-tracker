@@ -1,8 +1,12 @@
 import 'package:flutter/foundation.dart';
 
 /// Domain entity representing an individual student's leaderboard entry.
-///
 /// Matches React `LeaderboardPage.jsx` data shape.
+///
+/// Ownership: Leaderboard Feature (Domain Entity)
+// ==========================================
+// LEADERBOARD ENTITY - Ranked Student Row
+// ==========================================
 @immutable
 class LeaderboardEntryEntity {
   final String id;

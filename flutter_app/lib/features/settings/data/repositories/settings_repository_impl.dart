@@ -3,6 +3,12 @@ import '../../domain/repositories/settings_repository.dart';
 import '../datasources/settings_local_datasource.dart';
 import '../models/user_settings_model.dart';
 
+/// Repository delegating user settings reads, writes, and streams to [SettingsLocalDataSource].
+///
+/// Ownership: Settings Feature (Data Layer)
+// ==========================================
+// SETTINGS REPOSITORY - Implementation
+// ==========================================
 class SettingsRepositoryImpl implements SettingsRepository {
   final SettingsLocalDataSource _localDataSource;
 

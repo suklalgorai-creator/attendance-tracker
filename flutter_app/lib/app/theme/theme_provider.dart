@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// State notifier managing the application's active theme mode.
-/// Defaults to [ThemeMode.dark] matching the React reference application.
+/// Riverpod state notifier managing Light / Dark theme preference.
+///
+/// Ownership: App Theme
+// ==========================================
+// THEME PROVIDER - Dark/Light Mode State
+// Defaults to dark mode matching the React reference implementation.
+// ==========================================
 class ThemeModeNotifier extends StateNotifier<ThemeMode> {
   ThemeModeNotifier([super.state = ThemeMode.dark]);
 

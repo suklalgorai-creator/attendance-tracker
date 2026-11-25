@@ -4,7 +4,12 @@ import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 import 'theme/theme_provider.dart';
 
-/// Root application widget configuring themes and declarative routing.
+/// Root [MaterialApp.router] shell binding active [ThemeMode] and [GoRouter].
+///
+/// Ownership: App Shell Configuration
+// ==========================================
+// APP - Root MaterialApp.router
+// ==========================================
 class AttendanceApp extends ConsumerWidget {
   const AttendanceApp({super.key});
 

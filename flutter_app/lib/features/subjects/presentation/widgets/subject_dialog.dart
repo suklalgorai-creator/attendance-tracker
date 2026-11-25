@@ -9,50 +9,19 @@ import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../domain/entities/subject_entity.dart';
 import '../providers/subject_providers.dart';
+import 'subject_appearance_pickers.dart';
+import 'subject_style_tokens.dart';
 
-/// Available curated subject colors matching design tokens.
-const List<String> kSubjectColors = [
-  '#10B981', // Emerald
-  '#F43F5E', // Rose
-  '#F59E0B', // Amber
-  '#3B82F6', // Blue
-  '#8B5CF6', // Purple
-  '#6366F1', // Indigo
-  '#14B8A6', // Teal
-  '#06B6D4', // Cyan
-  '#F97316', // Orange
-  '#EC4899', // Pink
-  '#64748B', // Slate
-];
+export '../../../../core/utils/color_utils.dart' show parseHexColor;
+export 'subject_style_tokens.dart';
 
-/// Curated academic icons with their string keys.
-const Map<String, IconData> kAcademicIcons = {
-  'school': Icons.school_rounded,
-  'book': Icons.menu_book_rounded,
-  'computer': Icons.computer_rounded,
-  'calculate': Icons.calculate_rounded,
-  'science': Icons.science_rounded,
-  'history_edu': Icons.history_edu_rounded,
-  'palette': Icons.palette_rounded,
-  'fitness_center': Icons.fitness_center_rounded,
-  'language': Icons.language_rounded,
-  'insights': Icons.insights_rounded,
-};
-
-/// Color parser utility for hex strings.
-Color parseHexColor(String hex, {Color fallback = AppColors.inkGreen}) {
-  try {
-    final clean = hex.replaceAll('#', '').trim();
-    if (clean.length == 6) {
-      return Color(int.parse('FF$clean', radix: 16));
-    } else if (clean.length == 8) {
-      return Color(int.parse(clean, radix: 16));
-    }
-  } catch (_) {}
-  return fallback;
-}
-
-/// Modal dialog for adding or editing a subject.
+/// Modal dialog for adding, editing, or deleting a subject with color accent,
+/// academic icon, and optional custom target percentage threshold.
+///
+/// Ownership: Subjects Feature
+// ==========================================
+// SUBJECTS - Subject Editor Dialog
+// ==========================================
 class SubjectDialog extends ConsumerStatefulWidget {
   final SubjectEntity? subject;
   final VoidCallback? onSaved;
@@ -102,12 +71,14 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
     super.dispose();
   }
 
+  // ==========================================
+  // SUBJECT DIALOG - Save & Delete Workflows
+  // ==========================================
+
   Future<void> _handleSave() async {
     final rawName = _nameController.text.trim();
     if (rawName.isEmpty) {
-      setState(() {
-        _nameError = 'Subject name is required';
-      });
+      setState(() => _nameError = 'Subject name is required');
       return;
     }
 
@@ -221,9 +192,7 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
     );
 
     if (confirmed == true && mounted) {
-      setState(() {
-        _isLoading = true;
-      });
+      setState(() => _isLoading = true);
 
       await ref
           .read(subjectControllerProvider.notifier)
@@ -234,6 +203,10 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
       }
     }
   }
+
+  // ==========================================
+  // SUBJECT DIALOG - Form Layout
+  // ==========================================
 
   @override
   Widget build(BuildContext context) {
@@ -279,7 +252,7 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header Row
+                      // Dialog Title & Close Button
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -303,7 +276,7 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Subject Name Field
+                      // Subject Name & Optional Code Fields
                       AppTextField(
                         key: const Key('subject_name_field'),
                         controller: _nameController,
@@ -317,8 +290,6 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
                         },
                       ),
                       const SizedBox(height: 14),
-
-                      // Subject Code Field
                       AppTextField(
                         key: const Key('subject_code_field'),
                         controller: _codeController,
@@ -327,227 +298,36 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
                       ),
                       const SizedBox(height: 18),
 
-                      // Color Picker Section
-                      Text(
-                        'COLOR ACCENT',
-                        style: GoogleFonts.outfit(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.0,
-                          color: mutedColor,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: kSubjectColors.map((hex) {
-                          final color = parseHexColor(hex);
-                          final isSelected =
-                              _selectedColor.toUpperCase() == hex.toUpperCase();
-
-                          return GestureDetector(
-                            key: Key('color_swatch_$hex'),
-                            onTap: () {
-                              setState(() {
-                                _selectedColor = hex;
-                              });
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: color,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: isSelected
-                                      ? Colors.white
-                                      : Colors.transparent,
-                                  width: 2.5,
-                                ),
-                                boxShadow: [
-                                  if (isSelected)
-                                    BoxShadow(
-                                      color: color.withValues(alpha: 0.6),
-                                      blurRadius: 8,
-                                      spreadRadius: 1,
-                                    ),
-                                ],
-                              ),
-                              child: isSelected
-                                  ? const Icon(
-                                      Icons.check_rounded,
-                                      size: 18,
-                                      color: Colors.white,
-                                    )
-                                  : null,
-                            ),
-                          );
-                        }).toList(),
+                      // Color Swatches
+                      SubjectColorPicker(
+                        selectedColor: _selectedColor,
+                        onColorSelected: (hex) =>
+                            setState(() => _selectedColor = hex),
                       ),
                       const SizedBox(height: 18),
 
-                      // Academic Icon Selector Section
-                      Text(
-                        'ICON',
-                        style: GoogleFonts.outfit(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.0,
-                          color: mutedColor,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: kAcademicIcons.entries.map((entry) {
-                          final isSelected = _selectedIcon == entry.key;
-                          final activeColor = parseHexColor(_selectedColor);
-
-                          return GestureDetector(
-                            key: Key('icon_chip_${entry.key}'),
-                            onTap: () {
-                              setState(() {
-                                _selectedIcon = entry.key;
-                              });
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? activeColor.withValues(alpha: 0.2)
-                                    : (isDark
-                                          ? AppColors.inputBgDark
-                                          : AppColors.inputBgLight),
-                                borderRadius: BorderRadius.circular(
-                                  AppRadius.sm,
-                                ),
-                                border: Border.all(
-                                  color: isSelected
-                                      ? activeColor
-                                      : (isDark
-                                            ? AppColors.glassBorderDark
-                                            : AppColors.glassBorderLight),
-                                  width: isSelected ? 2.0 : 1.0,
-                                ),
-                              ),
-                              child: Icon(
-                                entry.value,
-                                size: 20,
-                                color: isSelected ? activeColor : mutedColor,
-                              ),
-                            ),
-                          );
-                        }).toList(),
+                      // Academic Icon Selector
+                      SubjectIconPicker(
+                        selectedIcon: _selectedIcon,
+                        selectedColor: _selectedColor,
+                        onIconSelected: (key) =>
+                            setState(() => _selectedIcon = key),
                       ),
                       const SizedBox(height: 18),
 
-                      // Target Percentage Section
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'CUSTOM TARGET',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 1.0,
-                                    color: mutedColor,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  _hasCustomTarget
-                                      ? 'Override global target (${_targetPercentage.toInt()}%)'
-                                      : 'Use global threshold (default)',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 12,
-                                    color: mutedColor.withValues(alpha: 0.8),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Switch(
-                            key: const Key('custom_target_toggle'),
-                            value: _hasCustomTarget,
-                            activeThumbColor: AppColors.inkGreen,
-                            onChanged: (val) {
-                              setState(() {
-                                _hasCustomTarget = val;
-                              });
-                            },
-                          ),
-                        ],
+                      // Custom Attendance Target Override
+                      SubjectTargetSection(
+                        hasCustomTarget: _hasCustomTarget,
+                        targetPercentage: _targetPercentage,
+                        selectedColor: _selectedColor,
+                        onToggleChanged: (val) =>
+                            setState(() => _hasCustomTarget = val),
+                        onTargetChanged: (val) =>
+                            setState(() => _targetPercentage = val),
                       ),
-
-                      if (_hasCustomTarget) ...[
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: SliderTheme(
-                                data: SliderTheme.of(context).copyWith(
-                                  activeTrackColor: parseHexColor(
-                                    _selectedColor,
-                                  ),
-                                  thumbColor: parseHexColor(_selectedColor),
-                                  inactiveTrackColor: isDark
-                                      ? AppColors.ruleDark
-                                      : AppColors.ruleLight,
-                                ),
-                                child: Slider(
-                                  key: const Key('target_slider'),
-                                  value: _targetPercentage,
-                                  min: 5.0,
-                                  max: 100.0,
-                                  divisions: 19,
-                                  label: '${_targetPercentage.toInt()}%',
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _targetPercentage = val;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: parseHexColor(
-                                  _selectedColor,
-                                ).withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(
-                                  AppRadius.sm,
-                                ),
-                              ),
-                              child: Text(
-                                '${_targetPercentage.toInt()}%',
-                                style: GoogleFonts.outfit(
-                                  fontWeight: FontWeight.w800,
-                                  color: parseHexColor(_selectedColor),
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-
                       const SizedBox(height: 24),
 
-                      // Action Buttons Row
+                      // Footer Action Buttons
                       Row(
                         children: [
                           if (widget.isEdit) ...[
@@ -589,7 +369,7 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
   }
 }
 
-/// Helper function to open SubjectDialog.
+/// Opens [SubjectDialog] with a centered scale + fade transition.
 Future<T?> showSubjectDialog<T>(
   BuildContext context, {
   SubjectEntity? subject,

@@ -6,6 +6,13 @@ import '../../domain/models/dashboard_stats.dart';
 import '../../domain/models/subject_attendance_stats.dart';
 import '../../domain/services/dashboard_analytics_service.dart';
 
+/// Riverpod providers computing dashboard summary metrics, per-subject stats,
+/// and active attendance streaks.
+///
+/// Ownership: Dashboard Feature (Providers)
+// ==========================================
+// DASHBOARD PROVIDERS - Stats, Subject Breakdown & Streak
+// ==========================================
 Set<String> _extractHolidays(AsyncValue<Map<String, dynamic>> globalAsync) {
   final raw = globalAsync.valueOrNull?['holidays'];
   if (raw is Map) {

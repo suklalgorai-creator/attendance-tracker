@@ -2,6 +2,12 @@ import 'dart:async';
 import '../../../../core/utils/data_migration.dart';
 import '../../domain/datasources/remote_sync_datasource.dart';
 
+/// In-memory [RemoteSyncDataSource] fallback for offline tests and headless runs.
+///
+/// Ownership: Cloud Sync Feature (Data Layer)
+// ==========================================
+// SYNC DATA SOURCE - Offline/Test Implementation
+// ==========================================
 class SyncNetworkException implements Exception {
   final String message;
   const SyncNetworkException(this.message);

@@ -1,6 +1,11 @@
 import '../../domain/entities/legacy_attendance_entity.dart';
 
-/// Data model for LegacyAttendance serialization, extending LegacyAttendanceEntity.
+/// Serialization model mapping [LegacyAttendanceEntity] to/from Hive Maps.
+///
+/// Ownership: Attendance Feature (Data Model)
+// ==========================================
+// ATTENDANCE MODEL - V1 Legacy Daily Record
+// ==========================================
 class LegacyAttendanceModel extends LegacyAttendanceEntity {
   const LegacyAttendanceModel({
     required super.id,

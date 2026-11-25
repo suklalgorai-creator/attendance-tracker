@@ -4,14 +4,24 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/providers/repository_providers.dart';
+import '../../../../core/utils/string_utils.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/day_picker_widget.dart';
 import '../../../../shared/widgets/mesh_backdrop.dart';
 import '../../../auth/presentation/controllers/auth_providers.dart';
 import '../../../settings/domain/entities/user_settings_entity.dart';
+import '../widgets/onboarding_suggestion_chips.dart';
 
-/// Onboarding wizard page replicating react_app/src/pages/OnboardingPage.jsx.
+/// First-run onboarding wizard configuring degree, semester, start date,
+/// target attendance percentage, and weekly class days.
+///
+/// Replicates `react_app/src/pages/OnboardingPage.jsx`.
+///
+/// Ownership: Onboarding Feature
+// ==========================================
+// ONBOARDING - Setup Wizard Page
+// ==========================================
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
 
@@ -77,15 +87,6 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     _minPercentController.dispose();
     _startDateController.dispose();
     super.dispose();
-  }
-
-  String _toTitleCase(String input) {
-    if (input.trim().isEmpty) return '';
-    return input
-        .split(' ')
-        .where((word) => word.isNotEmpty)
-        .map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase())
-        .join(' ');
   }
 
   Future<void> _pickStartDate() async {
@@ -229,42 +230,14 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                         label: 'Degree / Program name (optional)',
                         hint: 'e.g. B.Tech CSE',
                         onSubmitted: (val) {
-                          _programController.text = _toTitleCase(val);
+                          _programController.text = toTitleCase(val);
                         },
                       ),
                       const SizedBox(height: 8),
-                      // Suggestion Chips for Program
-                      SizedBox(
-                        height: 34,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: defaultPrograms.length,
-                          separatorBuilder: (_, _) => const SizedBox(width: 8),
-                          itemBuilder: (context, index) {
-                            final program = defaultPrograms[index];
-                            return ActionChip(
-                              label: Text(program),
-                              labelStyle: AppTypography.bodySmall(
-                                isDark
-                                    ? AppColors.mutedDark
-                                    : AppColors.mutedLight,
-                              ),
-                              backgroundColor: isDark
-                                  ? AppColors.surfaceHoverDark
-                                  : AppColors.surfaceLight,
-                              side: BorderSide(
-                                color: isDark
-                                    ? AppColors.glassBorderDark
-                                    : AppColors.glassBorderLight,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _programController.text = program;
-                                });
-                              },
-                            );
-                          },
-                        ),
+                      OnboardingSuggestionChips(
+                        suggestions: defaultPrograms,
+                        onSelected: (program) =>
+                            setState(() => _programController.text = program),
                       ),
                       const SizedBox(height: 20),
 
@@ -274,42 +247,14 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                         label: 'Semester name (optional)',
                         hint: 'e.g. Semester 3',
                         onSubmitted: (val) {
-                          _courseController.text = _toTitleCase(val);
+                          _courseController.text = toTitleCase(val);
                         },
                       ),
                       const SizedBox(height: 8),
-                      // Suggestion Chips for Semester
-                      SizedBox(
-                        height: 34,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: defaultSemesters.length,
-                          separatorBuilder: (_, _) => const SizedBox(width: 8),
-                          itemBuilder: (context, index) {
-                            final semester = defaultSemesters[index];
-                            return ActionChip(
-                              label: Text(semester),
-                              labelStyle: AppTypography.bodySmall(
-                                isDark
-                                    ? AppColors.mutedDark
-                                    : AppColors.mutedLight,
-                              ),
-                              backgroundColor: isDark
-                                  ? AppColors.surfaceHoverDark
-                                  : AppColors.surfaceLight,
-                              side: BorderSide(
-                                color: isDark
-                                    ? AppColors.glassBorderDark
-                                    : AppColors.glassBorderLight,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _courseController.text = semester;
-                                });
-                              },
-                            );
-                          },
-                        ),
+                      OnboardingSuggestionChips(
+                        suggestions: defaultSemesters,
+                        onSelected: (semester) =>
+                            setState(() => _courseController.text = semester),
                       ),
                       const SizedBox(height: 20),
 

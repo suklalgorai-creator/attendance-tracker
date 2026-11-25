@@ -1,6 +1,11 @@
 import '../../domain/entities/auth_user_entity.dart';
 
-/// Data model representing an authenticated or guest user with JSON serialization.
+/// Serialization model mapping [AuthUserEntity] to/from local Hive storage maps.
+///
+/// Ownership: Authentication Feature (Data Model)
+// ==========================================
+// AUTH MODEL - User Serialization
+// ==========================================
 class AuthUserModel extends AuthUserEntity {
   const AuthUserModel({
     required super.id,

@@ -1,5 +1,12 @@
 import 'package:flutter/foundation.dart';
 
+/// Immutable domain models classifying calendar day status and monthly rollups.
+///
+/// Ownership: Calendar Feature (Domain Model)
+// ==========================================
+// CALENDAR MODELS - Day Summary & Monthly Totals
+// ==========================================
+
 /// Represents the attendance status type of a single calendar day.
 enum CalendarDayType {
   /// No attendance was recorded for this day.

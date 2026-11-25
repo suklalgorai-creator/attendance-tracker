@@ -5,9 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:flutter_app/core/providers/repository_providers.dart';
 import 'package:flutter_app/features/dashboard/presentation/pages/dashboard_page.dart';
-import 'package:flutter_app/features/leaderboard/presentation/leaderboard_page.dart';
+import 'package:flutter_app/features/leaderboard/presentation/pages/leaderboard_page.dart';
 import 'package:flutter_app/features/register/presentation/pages/register_page.dart';
-import 'package:flutter_app/features/settings/presentation/settings_page.dart';
+import 'package:flutter_app/features/settings/presentation/pages/settings_page.dart';
 import 'package:flutter_app/features/settings/domain/entities/user_settings_entity.dart';
 import 'package:flutter_app/features/settings/domain/repositories/settings_repository.dart';
 import 'package:flutter_app/features/subjects/domain/entities/subject_entity.dart';

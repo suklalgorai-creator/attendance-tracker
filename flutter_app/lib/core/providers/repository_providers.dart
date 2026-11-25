@@ -30,7 +30,10 @@ import '../../features/dailyflow/data/repositories/daily_flow_repository_impl.da
 import '../../features/dailyflow/domain/entities/daily_task_entity.dart';
 import '../../features/dailyflow/domain/repositories/daily_flow_repository.dart';
 
-// ==================== Local Data Sources ====================
+// ==========================================
+// CORE PROVIDERS - Data Sources, Repositories & Live Streams
+// Wires Hive local data sources, repository implementations, and reactive streams.
+// ==========================================
 
 final subjectLocalDataSourceProvider = Provider<SubjectLocalDataSource>((ref) {
   return SubjectLocalDataSourceImpl();

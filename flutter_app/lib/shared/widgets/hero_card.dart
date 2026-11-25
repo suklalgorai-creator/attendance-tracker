@@ -5,6 +5,13 @@ import '../../core/constants/app_radius.dart';
 import 'attendance_ring.dart';
 import 'stat_row_widget.dart';
 
+/// Overall attendance hero card combining [AttendanceRing] with conducted, present,
+/// and safety status rows (`react_app/src/pages/DashboardPage.jsx`).
+///
+/// Ownership: Shared Attendance Visualizations
+// ==========================================
+// SHARED WIDGETS - Attendance Hero Summary Card
+// ==========================================
 enum HeroAttendanceStatus {
   safe,
   danger,

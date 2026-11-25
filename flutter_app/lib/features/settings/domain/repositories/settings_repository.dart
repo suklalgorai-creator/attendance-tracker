@@ -1,6 +1,11 @@
 import '../entities/user_settings_entity.dart';
 
-/// Abstract contract for User Settings & Profile operations in Domain layer.
+/// Domain repository contract for reading, watching, and resetting user settings.
+///
+/// Ownership: Settings Feature (Domain Contract)
+// ==========================================
+// SETTINGS REPOSITORY - Domain Interface
+// ==========================================
 abstract class SettingsRepository {
   Future<UserSettingsEntity> getSettings();
   Stream<UserSettingsEntity> watchSettings();

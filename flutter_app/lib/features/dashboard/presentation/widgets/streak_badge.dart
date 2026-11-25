@@ -7,6 +7,11 @@ import '../../../../shared/widgets/streak_popup_dialog.dart';
 
 /// Pill badge displaying attendance streak with flame emoji and amber accent.
 /// Tapping opens the [StreakPopupDialog].
+///
+/// Ownership: Dashboard Feature (UI Widget)
+// ==========================================
+// DASHBOARD WIDGET - Attendance Streak Pill
+// ==========================================
 class StreakBadge extends StatelessWidget {
   final int streak;
   final bool showWhenZero;

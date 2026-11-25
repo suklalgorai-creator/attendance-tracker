@@ -3,6 +3,12 @@ import '../../../../core/errors/exceptions.dart';
 import '../../../../core/services/database_service.dart';
 import '../models/daily_task_model.dart';
 
+/// Hive local persistence contract and implementation for DailyFlow tasks.
+///
+/// Ownership: DailyFlow Feature (Data Layer)
+// ==========================================
+// DAILYFLOW DATA SOURCE - Hive Task Storage
+// ==========================================
 abstract class DailyFlowLocalDataSource {
   Future<List<DailyTaskModel>> getTasks();
   Stream<List<DailyTaskModel>> watchTasks();

@@ -5,8 +5,12 @@ import '../../../../core/constants/app_radius.dart';
 import '../../domain/models/sync_state.dart';
 import '../providers/sync_providers.dart';
 
-/// Interactive cloud synchronization badge / icon.
-/// Displays syncing, synced, offline, and error states with manual flush trigger on tap.
+/// Header status pill visualizing cloud sync progress and triggering manual flush on tap.
+///
+/// Ownership: Cloud Sync Feature (UI Widget)
+// ==========================================
+// SYNC WIDGET - Header Cloud Sync Indicator
+// ==========================================
 class SyncIndicatorWidget extends ConsumerWidget {
   final SyncState? overrideState;
 

@@ -12,6 +12,11 @@ import '../providers/settings_controller.dart';
 
 /// Card managing attendance target rules: start date, minimum attendance %,
 /// class days of week, and timetable shortcut.
+///
+/// Ownership: Settings Feature (UI Card)
+// ==========================================
+// SETTINGS CARD - Attendance Rules & Class Days
+// ==========================================
 class AttendanceRulesCard extends ConsumerStatefulWidget {
   final UserSettingsEntity settings;
 

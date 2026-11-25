@@ -3,6 +3,14 @@ import '../../../dashboard/domain/models/subject_attendance_stats.dart';
 import '../../../timetable/domain/entities/timetable_session_entity.dart';
 import '../entities/daily_task_entity.dart';
 
+/// Pure planning service merging weekly timetable classes with DailyFlow tasks
+/// and computing daily progress summaries and smart recommendations.
+///
+/// Ownership: DailyFlow Feature (Domain Service)
+// ==========================================
+// DAILYFLOW PLANNER - Timeline & Day Summary Engine
+// ==========================================
+
 /// Unified timeline item combining college timetable sessions and DailyFlow tasks.
 sealed class DailyFlowTimelineItem {
   int get sortMinutes;

@@ -1,4 +1,9 @@
-/// Fixed Attendance Status enum mirroring React `ATTENDANCE_STATUS`.
+/// Fixed attendance status enum mirroring React `ATTENDANCE_STATUS`.
+///
+/// Ownership: Attendance Feature (Domain Entity)
+// ==========================================
+// ATTENDANCE DOMAIN - Status Enum & Daily Subject ID
+// ==========================================
 enum AttendanceStatus {
   present('PRESENT'),
   absent('ABSENT'),

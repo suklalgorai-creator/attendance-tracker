@@ -11,6 +11,11 @@ import '../../domain/entities/daily_task_entity.dart';
 
 /// Clean modal dialog for creating or editing a DailyFlow task with date,
 /// optional OS reminder notification, notes, and optional subject link.
+///
+/// Ownership: DailyFlow Feature (Task Editor)
+// ==========================================
+// DAILYFLOW DIALOG - Task & Reminder Editor
+// ==========================================
 class DailyTaskEditorDialog extends StatefulWidget {
   final DailyTaskEntity? existingTask;
   final DateTime initialDate;

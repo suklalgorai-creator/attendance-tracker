@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
-/// Exact SVG-based multi-color Google 'G' logo drawn using CustomPainter for offline rendering.
+/// Multi-color Google 'G' logo rendered offline via [CustomPainter].
+///
+/// Ownership: Authentication Feature (UI Widget)
+// ==========================================
+// AUTH WIDGETS - Vector Google Logo Icon
+// ==========================================
 class GoogleLogoIcon extends StatelessWidget {
   final double size;
 

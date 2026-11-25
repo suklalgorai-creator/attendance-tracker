@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
-/// Central design tokens for colors matching react_app/src/styles/global.css
+/// Central design tokens for colors matching `react_app/src/styles/global.css`.
+///
+/// Ownership: Core Design System
+// ==========================================
+// CORE TOKENS - Color Palette
+// ==========================================
 abstract final class AppColors {
   // Dark Palette (Default - matching react_app/src/styles/global.css)
   static const Color bgPrimaryDark = Color(0xFF050505);

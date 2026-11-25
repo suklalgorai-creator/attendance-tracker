@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_typography.dart';
 
-/// Interactive & color-coded attendance circular ring
-/// Replicates 1:1 the SVG math and visual aesthetics of `Ring.jsx`.
+/// Animated circular percentage gauge replicating `react_app/src/components/Ring.jsx`.
+///
+/// Ownership: Shared Attendance Visualizations
+// ==========================================
+// SHARED WIDGETS - Attendance Percentage Ring
+// ==========================================
 class AttendanceRing extends StatelessWidget {
   final double? percent;
   final double minPercent;

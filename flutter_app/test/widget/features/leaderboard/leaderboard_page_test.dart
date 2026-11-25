@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:flutter_app/features/dashboard/presentation/providers/dashboard_providers.dart';
 import 'package:flutter_app/features/leaderboard/domain/entities/leaderboard_entry_entity.dart';
-import 'package:flutter_app/features/leaderboard/presentation/leaderboard_page.dart';
+import 'package:flutter_app/features/leaderboard/presentation/pages/leaderboard_page.dart';
 import 'package:flutter_app/features/leaderboard/presentation/providers/leaderboard_providers.dart';
 
 void main() {

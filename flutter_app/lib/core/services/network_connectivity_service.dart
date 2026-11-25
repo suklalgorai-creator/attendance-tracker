@@ -1,7 +1,12 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-/// Contract for network connectivity monitoring.
+/// Network reachability abstraction and mockable test implementation.
+///
+/// Ownership: Core Connectivity
+// ==========================================
+// CONNECTIVITY SERVICE - Online/Offline Stream
+// ==========================================
 abstract class NetworkConnectivityService {
   /// Stream emitting boolean state (true = online, false = offline).
   Stream<bool> get onConnectivityChanged;

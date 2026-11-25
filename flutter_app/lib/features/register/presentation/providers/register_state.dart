@@ -2,6 +2,13 @@ import 'package:flutter/foundation.dart';
 import '../../../../shared/widgets/view_toggles_widget.dart';
 import '../../../attendance/domain/entities/legacy_attendance_entity.dart';
 
+/// Immutable ledger state containing selected [RegisterViewMode], ordered date
+/// keys, and legacy daily totals map.
+///
+/// Ownership: Register Feature (State Model)
+// ==========================================
+// REGISTER STATE - Ledger View State
+// ==========================================
 @immutable
 class RegisterState {
   final RegisterViewMode viewMode;

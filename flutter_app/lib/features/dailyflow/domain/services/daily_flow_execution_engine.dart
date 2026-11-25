@@ -1,6 +1,13 @@
 import '../../../../core/utils/date_utils.dart';
 import '../entities/daily_task_entity.dart';
 
+/// State transition engine managing task execution timers, completions, and recurrences.
+///
+/// Ownership: DailyFlow Feature (Domain Service)
+// ==========================================
+// DAILYFLOW ENGINE - Execution Lifecycle & Recurrence
+// ==========================================
+
 /// Result of transitioning a task's execution state.
 class ExecutionTransitionResult {
   final DailyTaskEntity updatedTask;

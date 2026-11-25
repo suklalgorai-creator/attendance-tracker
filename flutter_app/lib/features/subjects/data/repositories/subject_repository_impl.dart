@@ -3,6 +3,12 @@ import '../../domain/repositories/subject_repository.dart';
 import '../datasources/subject_local_datasource.dart';
 import '../models/subject_model.dart';
 
+/// Repository filtering soft-deleted subjects and maintaining stable sort order.
+///
+/// Ownership: Subjects Feature (Data Layer)
+// ==========================================
+// SUBJECTS REPOSITORY - Sorted CRUD Implementation
+// ==========================================
 class SubjectRepositoryImpl implements SubjectRepository {
   final SubjectLocalDataSource _localDataSource;
 

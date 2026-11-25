@@ -9,7 +9,13 @@ import '../../../../shared/widgets/glass_card.dart';
 import '../../domain/entities/user_settings_entity.dart';
 import '../providers/settings_controller.dart';
 
-/// Card managing reminder time and push notifications preferences.
+/// Card managing attendance reminder time, DailyFlow briefing times,
+/// smart reminders, and notification permissions.
+///
+/// Ownership: Settings Feature (UI Card)
+// ==========================================
+// SETTINGS CARD - Notifications & DailyFlow Schedule
+// ==========================================
 class NotificationsCard extends ConsumerWidget {
   final UserSettingsEntity settings;
 

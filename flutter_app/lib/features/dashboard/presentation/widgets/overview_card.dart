@@ -4,6 +4,11 @@ import '../../../../shared/widgets/hero_card.dart';
 import '../../domain/models/dashboard_stats.dart';
 
 /// Overview card wrapping [HeroCardWidget] to display overall attendance metrics.
+///
+/// Ownership: Dashboard Feature (UI Widget)
+// ==========================================
+// DASHBOARD WIDGET - Attendance Overview Ring Card
+// ==========================================
 class OverviewCard extends StatelessWidget {
   final DashboardStats stats;
   final VoidCallback? onTap;

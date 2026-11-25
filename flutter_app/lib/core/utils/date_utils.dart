@@ -1,4 +1,9 @@
-/// Represents an inclusive date range [start, end] in YYYY-MM-DD format.
+/// Calendar, `YYYY-MM-DD` key formatting, and inclusive date range helpers.
+///
+/// Ownership: Core Utilities
+// ==========================================
+// DATE UTILS - DateRange & YYYY-MM-DD Helpers
+// ==========================================
 class DateRange {
   final String start;
   final String end;

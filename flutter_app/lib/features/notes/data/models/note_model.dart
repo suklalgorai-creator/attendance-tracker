@@ -1,6 +1,11 @@
 import '../../domain/entities/note_entity.dart';
 
-/// Data model for Sticky Note serialization, extending NoteEntity.
+/// Hive serialization model mapping [NoteEntity] to/from persistent Maps.
+///
+/// Ownership: Notes Feature (Data Model)
+// ==========================================
+// NOTES MODEL - Sticky Note Serialization
+// ==========================================
 class NoteModel extends NoteEntity {
   const NoteModel({
     required super.id,

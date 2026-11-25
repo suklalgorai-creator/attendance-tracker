@@ -1,5 +1,9 @@
-/// Domain entity representing a Sticky Note.
-/// Replicates React `notes` array schema.
+/// Domain entity representing a Sticky Note with optional color and reminder timestamp.
+///
+/// Ownership: Notes Feature (Domain Entity)
+// ==========================================
+// NOTES ENTITY - Sticky Note Definition
+// ==========================================
 class NoteEntity {
   final String id;
   final String content;

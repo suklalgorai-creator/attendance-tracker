@@ -4,12 +4,18 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
+import '../../../../core/utils/color_utils.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/glass_card.dart';
 import '../../domain/models/subject_attendance_stats.dart';
 
 /// Interactive subject card supporting single-tap "+ Present" and "- Absent"
 /// logging with haptic feedback, percentage indicators, and safe bunk chips.
+///
+/// Ownership: Dashboard Feature
+// ==========================================
+// DASHBOARD - Quick Action Subject Card
+// ==========================================
 class QuickActionSubjectCard extends StatelessWidget {
   final SubjectAttendanceStats stats;
   final VoidCallback? onPresent;
@@ -23,18 +29,6 @@ class QuickActionSubjectCard extends StatelessWidget {
     this.onAbsent,
     this.onTap,
   });
-
-  Color _parseColor(String hex) {
-    try {
-      final clean = hex.replaceAll('#', '').trim();
-      if (clean.length == 6) {
-        return Color(int.parse('FF$clean', radix: 16));
-      } else if (clean.length == 8) {
-        return Color(int.parse(clean, radix: 16));
-      }
-    } catch (_) {}
-    return AppColors.inkGreen;
-  }
 
   void _handlePresent() {
     HapticFeedback.lightImpact();
@@ -54,7 +48,7 @@ class QuickActionSubjectCard extends StatelessWidget {
         : AppColors.surfaceLight;
     final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
     final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
-    final subjectColor = _parseColor(stats.subject.color);
+    final subjectColor = parseHexColor(stats.subject.color);
 
     // Percentage string
     final percentageText = stats.percentage != null

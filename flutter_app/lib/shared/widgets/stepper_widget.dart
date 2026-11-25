@@ -3,15 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 
-/// Stepper widget replicating `react_app/src/components/Stepper.jsx`.
+/// Increment/decrement numeric stepper replicating `react_app/src/components/Stepper.jsx`.
 ///
-/// Features:
-/// - Horizontal layout with decrease button, value display, and increase button.
-/// - Glassmorphism styling matching `.stepper` CSS class:
-///   background: `inputBg`, border: `ruleBright`, border-radius: 14px.
-/// - Clamps value between [min] (default 0) and [max] (default 99).
-/// - Buttons styled with 40x40px touch targets, rounded corners (10px), and
-///   subtle hover/splash effects.
+/// Ownership: Shared Form Widgets
+// ==========================================
+// SHARED WIDGETS - Numeric Stepper Control
+// ==========================================
 class StepperWidget extends StatelessWidget {
   final int value;
   final ValueChanged<int> onChanged;

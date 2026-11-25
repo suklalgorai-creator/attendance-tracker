@@ -1,5 +1,10 @@
-/// Domain entity representing user profile & attendance configuration.
-/// Replicates React user settings schema.
+/// Domain entity holding user profile, attendance threshold, class schedule,
+/// and DailyFlow reminder configuration.
+///
+/// Ownership: Settings Feature (Domain Entity)
+// ==========================================
+// SETTINGS ENTITY - User Preferences & Rules
+// ==========================================
 class UserSettingsEntity {
   final String name;
   final String programName;

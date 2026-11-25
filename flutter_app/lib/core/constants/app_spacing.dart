@@ -1,4 +1,9 @@
-/// Central design tokens for spacing
+/// Central design tokens for layout padding and element spacing scale.
+///
+/// Ownership: Core Design System
+// ==========================================
+// CORE TOKENS - Spacing Scale
+// ==========================================
 abstract final class AppSpacing {
   static const double xs = 4.0;
   static const double sm = 8.0;

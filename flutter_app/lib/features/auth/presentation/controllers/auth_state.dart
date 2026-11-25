@@ -1,5 +1,12 @@
 import '../../domain/entities/auth_user_entity.dart';
 
+/// Immutable authentication state and status flags consumed by router guards and UI.
+///
+/// Ownership: Authentication Feature (State Model)
+// ==========================================
+// AUTH STATE - Status & Session Flags
+// ==========================================
+
 /// Authentication status representation matching React app authentication lifecycle.
 enum AuthStatus {
   initial,

@@ -6,7 +6,12 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_radius.dart';
 import 'app_button.dart';
 
-/// Modal dialog popup replicating `StreakPopup.jsx` and styling in `components.css`.
+/// Celebratory modal displaying the user's consecutive attendance streak with pulse animation.
+///
+/// Ownership: Shared Gamification Dialogs
+// ==========================================
+// SHARED WIDGETS - Streak Celebration Modal
+// ==========================================
 class StreakPopupDialog extends StatefulWidget {
   final int streak;
   final VoidCallback? onClose;

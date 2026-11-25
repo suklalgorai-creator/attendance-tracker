@@ -8,6 +8,11 @@ import '../../domain/services/daily_flow_planner_service.dart';
 export '../../../../core/providers/repository_providers.dart'
     show dailyFlowRepositoryProvider, dailyFlowTasksStreamProvider;
 
+// ==========================================
+// DAILYFLOW PROVIDERS - Date Filter, Timeline & Summary
+// Manages selected planning date, status filters, merged timeline, and day metrics.
+// ==========================================
+
 final dailyFlowSelectedDateProvider = StateProvider<DateTime>(
   (ref) => DateTime.now(),
 );

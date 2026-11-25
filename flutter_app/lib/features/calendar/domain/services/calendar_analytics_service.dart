@@ -6,6 +6,11 @@ import '../models/calendar_day_summary.dart';
 
 /// Pure domain service calculating day summaries, monthly aggregates,
 /// and heatmap data matrices with exact 1:1 React parity.
+///
+/// Ownership: Calendar Feature (Domain Service)
+// ==========================================
+// CALENDAR ANALYTICS - Month Grid & Heatmap Computation
+// ==========================================
 class CalendarAnalyticsService {
   const CalendarAnalyticsService();
 

@@ -6,6 +6,13 @@ import '../../../settings/domain/services/backup_service.dart';
 import '../datasources/remote_sync_datasource.dart';
 import '../models/sync_state.dart';
 
+/// Orchestrates 5-second debounced cloud pushes, connectivity retries, and
+/// initial bidirectional merge using [mergeUserData].
+///
+/// Ownership: Cloud Sync Feature (Domain Service)
+// ==========================================
+// SYNC SERVICE - Debounced Flush & Connectivity Recovery
+// ==========================================
 class CloudSyncService {
   final Duration debounceDuration;
 

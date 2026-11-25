@@ -3,6 +3,13 @@ import '../../../../core/errors/exceptions.dart';
 import '../../../../core/services/database_service.dart';
 import '../models/user_settings_model.dart';
 
+/// Hive local storage contract and implementation for user profile, attendance rules,
+/// and DailyFlow reminder preferences (`settings_box['user_settings']`).
+///
+/// Ownership: Settings Feature (Data Layer)
+// ==========================================
+// SETTINGS DATA SOURCE - Hive Preferences Store
+// ==========================================
 abstract class SettingsLocalDataSource {
   Future<UserSettingsModel> getSettings();
   Stream<UserSettingsModel> watchSettings();

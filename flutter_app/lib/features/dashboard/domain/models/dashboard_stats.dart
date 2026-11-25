@@ -1,4 +1,9 @@
 /// Domain model representing overall attendance statistics across all subjects and legacy records.
+///
+/// Ownership: Dashboard Feature (Domain Model)
+// ==========================================
+// DASHBOARD MODEL - Overall Attendance Stats
+// ==========================================
 class DashboardStats {
   final int conducted;
   final int present;

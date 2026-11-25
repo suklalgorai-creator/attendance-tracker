@@ -1,5 +1,10 @@
-/// Contract for remote cloud synchronization data sources.
-/// Replicates Firestore operations from react_app/src/services/cloudSync.js.
+/// Domain interface for Firestore snapshot fetch, atomic LWW merge writes,
+/// and global holiday settings loading.
+///
+/// Ownership: Cloud Sync Feature (Domain Contract)
+// ==========================================
+// SYNC DATA SOURCE - Domain Interface
+// ==========================================
 abstract class RemoteSyncDataSource {
   /// Fetches raw user data snapshot from remote doc 'users/{uid}'.
   /// Returns null if the document does not exist.

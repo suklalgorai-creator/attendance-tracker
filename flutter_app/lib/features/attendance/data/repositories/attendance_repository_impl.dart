@@ -5,6 +5,13 @@ import '../datasources/attendance_local_datasource.dart';
 import '../models/attendance_record_model.dart';
 import '../models/legacy_attendance_model.dart';
 
+/// Repository implementation filtering soft-deleted records and delegating
+/// persistence to [AttendanceLocalDataSource].
+///
+/// Ownership: Attendance Feature (Data Layer)
+// ==========================================
+// ATTENDANCE REPOSITORY - Soft-Delete Aware Queries & Saves
+// ==========================================
 class AttendanceRepositoryImpl implements AttendanceRepository {
   final AttendanceLocalDataSource _localDataSource;
 
