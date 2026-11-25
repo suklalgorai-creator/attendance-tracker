@@ -81,6 +81,9 @@ class DailyFlowController extends StateNotifier<AsyncValue<void>> {
       final result = _engine.complete(task, now: now);
       await _repository.saveTask(result.updatedTask);
       await _notificationService.cancelTaskReminder(result.updatedTask.id);
+      await _notificationService.cancelPendingTaskFollowUp(
+        result.updatedTask.id,
+      );
 
       if (result.spawnedNextTask != null) {
         await _repository.saveTask(result.spawnedNextTask!);
@@ -100,6 +103,7 @@ class DailyFlowController extends StateNotifier<AsyncValue<void>> {
       final skipped = _engine.skip(task, now: now);
       await _repository.saveTask(skipped);
       await _notificationService.cancelTaskReminder(skipped.id);
+      await _notificationService.cancelPendingTaskFollowUp(skipped.id);
       _onDataMutated?.call();
       state = const AsyncValue.data(null);
     } catch (e, st) {
@@ -158,6 +162,7 @@ class DailyFlowController extends StateNotifier<AsyncValue<void>> {
     try {
       await _repository.deleteTask(id);
       await _notificationService.cancelTaskReminder(id);
+      await _notificationService.cancelPendingTaskFollowUp(id);
       _onDataMutated?.call();
       state = const AsyncValue.data(null);
     } catch (e, st) {

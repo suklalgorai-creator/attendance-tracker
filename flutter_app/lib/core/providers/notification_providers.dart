@@ -75,6 +75,52 @@ final dailyFlowReminderSchedulerProvider = Provider<void>((ref) {
       } else {
         await notificationService.cancelTaskReminder(task.id);
       }
+
+      if (!task.status.isTerminal && !task.isDeleted) {
+        final followUpAt = computeTaskFollowUpTime(task, now);
+        if (followUpAt != null && followUpAt.isAfter(now)) {
+          await notificationService.schedulePendingTaskFollowUp(
+            taskId: task.id,
+            title: task.title,
+            followUpAt: followUpAt,
+          );
+        } else {
+          await notificationService.cancelPendingTaskFollowUp(task.id);
+        }
+      } else {
+        await notificationService.cancelPendingTaskFollowUp(task.id);
+      }
     }
   });
 });
+
+/// Schedules recurring DailyFlow morning planning, evening review, and next-day
+/// planning notifications using OS-level daily triggers.
+final dailyFlowRoutineSchedulerProvider = Provider<void>((ref) {
+  final notificationService = ref.watch(notificationServiceProvider);
+  final settingsAsync = ref.watch(settingsStreamProvider);
+
+  settingsAsync.whenData((settings) async {
+    await notificationService.scheduleDailyFlowRoutineReminders(
+      isEnabled: settings.pushNotificationsEnabled,
+    );
+  });
+});
+
+/// Computes an OS-scheduled follow-up time for a pending DailyFlow task.
+DateTime? computeTaskFollowUpTime(dynamic task, DateTime now) {
+  final date = DateTime.tryParse(task.scheduledDate as String);
+  if (date == null) return null;
+  if (task.startTime != null && (task.startTime as String).contains(':')) {
+    final parts = (task.startTime as String).split(':');
+    final h = int.tryParse(parts[0].trim());
+    final m = int.tryParse(parts[1].trim());
+    if (h != null && m != null) {
+      final start = DateTime(date.year, date.month, date.day, h, m);
+      return start.add(
+        Duration(minutes: (task.estimatedMinutes as int) + 15),
+      );
+    }
+  }
+  return DateTime(date.year, date.month, date.day, 19, 0);
+}

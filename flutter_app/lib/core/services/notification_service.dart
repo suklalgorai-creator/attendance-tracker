@@ -90,6 +90,19 @@ abstract class NotificationService {
     required DateTime reminderAt,
   });
   Future<void> cancelTaskReminder(String taskId);
+  Future<void> schedulePendingTaskFollowUp({
+    required String taskId,
+    required String title,
+    required DateTime followUpAt,
+  });
+  Future<void> cancelPendingTaskFollowUp(String taskId);
+  Future<void> scheduleDailyFlowRoutineReminders({
+    required bool isEnabled,
+    String morningTime = '08:00',
+    String eveningTime = '20:30',
+    String nextDayPlanTime = '21:15',
+  });
+  Future<void> cancelDailyFlowRoutineReminders();
   Future<String?> requestFCMToken();
   Future<bool> requestNotificationPermissions();
 }
@@ -207,6 +220,87 @@ class DefaultNotificationService implements NotificationService {
   Future<void> cancelTaskReminder(String taskId) async {
     final id = defaultTaskNotificationId(taskId);
     _scheduledReminders.removeWhere((r) => r.id == id);
+  }
+
+  static int defaultFollowUpNotificationId(String taskId) =>
+      50000 + (taskId.hashCode.abs() % 100000);
+
+  @override
+  Future<void> schedulePendingTaskFollowUp({
+    required String taskId,
+    required String title,
+    required DateTime followUpAt,
+  }) async {
+    await cancelPendingTaskFollowUp(taskId);
+    if (!followUpAt.isAfter(DateTime.now())) return;
+    _scheduledReminders.add(
+      ScheduledNotificationInfo(
+        id: defaultFollowUpNotificationId(taskId),
+        scheduledTime: followUpAt,
+        title: 'Pending Task: $title',
+        body: 'Still pending in DailyFlow. Tap to start or mark complete.',
+      ),
+    );
+  }
+
+  @override
+  Future<void> cancelPendingTaskFollowUp(String taskId) async {
+    final id = defaultFollowUpNotificationId(taskId);
+    _scheduledReminders.removeWhere((r) => r.id == id);
+  }
+
+  @override
+  Future<void> cancelDailyFlowRoutineReminders() async {
+    _scheduledReminders.removeWhere((r) => r.id >= 40001 && r.id <= 40003);
+  }
+
+  @override
+  Future<void> scheduleDailyFlowRoutineReminders({
+    required bool isEnabled,
+    String morningTime = '08:00',
+    String eveningTime = '20:30',
+    String nextDayPlanTime = '21:15',
+  }) async {
+    await cancelDailyFlowRoutineReminders();
+    if (!isEnabled) return;
+
+    final now = DateTime.now();
+    final items = <(int, String, String, String)>[
+      (
+        40001,
+        morningTime,
+        'Morning DailyFlow Briefing ☀️',
+        'Review your classes and plan today\'s focus blocks.',
+      ),
+      (
+        40002,
+        eveningTime,
+        'Evening DailyFlow Review 🌙',
+        'Check off completed tasks and wrap up pending items.',
+      ),
+      (
+        40003,
+        nextDayPlanTime,
+        'Plan Tomorrow in DailyFlow 🗓️',
+        'Set priorities and reminders for tomorrow\'s schedule.',
+      ),
+    ];
+
+    for (final (id, timeStr, title, body) in items) {
+      final parts = parseTime(timeStr);
+      var target = DateTime(now.year, now.month, now.day, parts[0], parts[1]);
+      if (!target.isAfter(now)) {
+        target = target.add(const Duration(days: 1));
+      }
+      _scheduledReminders.add(
+        ScheduledNotificationInfo(
+          id: id,
+          scheduledTime: target,
+          title: title,
+          body: body,
+        ),
+      );
+    }
   }
 
   @override
@@ -487,6 +581,161 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
     try {
       await _notificationsPlugin.cancel(id: taskNotificationId(taskId));
     } catch (_) {}
+  }
+
+  static int followUpNotificationId(String taskId) =>
+      50000 + (taskId.hashCode.abs() % 100000);
+
+  @override
+  Future<void> schedulePendingTaskFollowUp({
+    required String taskId,
+    required String title,
+    required DateTime followUpAt,
+  }) async {
+    await cancelPendingTaskFollowUp(taskId);
+    if (!followUpAt.isAfter(DateTime.now())) return;
+
+    try {
+      final tzScheduled = tz.TZDateTime.from(followUpAt, tz.local);
+      const notificationDetails = NotificationDetails(
+        android: AndroidNotificationDetails(
+          'dailyflow_task_reminders',
+          'DailyFlow Task Reminders',
+          channelDescription: 'Scheduled reminders for DailyFlow tasks',
+          importance: Importance.defaultImportance,
+          priority: Priority.defaultPriority,
+        ),
+        iOS: DarwinNotificationDetails(),
+      );
+
+      await _zonedScheduleWithFallback(
+        id: followUpNotificationId(taskId),
+        title: 'Pending Task: $title',
+        body: 'Still pending in DailyFlow. Tap to resume or complete.',
+        scheduledDate: tzScheduled,
+        notificationDetails: notificationDetails,
+        payload: 'dailyflow:$taskId',
+      );
+    } catch (_) {}
+  }
+
+  @override
+  Future<void> cancelPendingTaskFollowUp(String taskId) async {
+    try {
+      await _notificationsPlugin.cancel(id: followUpNotificationId(taskId));
+    } catch (_) {}
+  }
+
+  @override
+  Future<void> cancelDailyFlowRoutineReminders() async {
+    for (final id in const [40001, 40002, 40003]) {
+      try {
+        await _notificationsPlugin.cancel(id: id);
+      } catch (_) {}
+    }
+  }
+
+  @override
+  Future<void> scheduleDailyFlowRoutineReminders({
+    required bool isEnabled,
+    String morningTime = '08:00',
+    String eveningTime = '20:30',
+    String nextDayPlanTime = '21:15',
+  }) async {
+    await cancelDailyFlowRoutineReminders();
+    if (!isEnabled) return;
+
+    final now = DateTime.now();
+    final routines = <(int, String, String, String, String)>[
+      (
+        40001,
+        morningTime,
+        'Morning DailyFlow Briefing ☀️',
+        'Review your classes and plan today\'s focus blocks.',
+        'dailyflow:morning',
+      ),
+      (
+        40002,
+        eveningTime,
+        'Evening DailyFlow Review 🌙',
+        'Check off completed tasks and wrap up pending items.',
+        'dailyflow:evening',
+      ),
+      (
+        40003,
+        nextDayPlanTime,
+        'Plan Tomorrow in DailyFlow 🗓️',
+        'Set priorities and reminders for tomorrow\'s schedule.',
+        'dailyflow:next_day',
+      ),
+    ];
+
+    const notificationDetails = NotificationDetails(
+      android: AndroidNotificationDetails(
+        'dailyflow_routine_reminders',
+        'DailyFlow Planning & Review',
+        channelDescription:
+            'Daily morning briefing, evening review, and next-day planning alerts',
+        importance: Importance.high,
+        priority: Priority.high,
+      ),
+      iOS: DarwinNotificationDetails(),
+    );
+
+    for (final (id, timeStr, title, body, payload) in routines) {
+      final parts = DefaultNotificationService.parseTime(timeStr);
+      var target = DateTime(now.year, now.month, now.day, parts[0], parts[1]);
+      if (!target.isAfter(now)) {
+        target = target.add(const Duration(days: 1));
+      }
+
+      try {
+        final tzScheduled = tz.TZDateTime.from(target, tz.local);
+        await _zonedScheduleWithFallback(
+          id: id,
+          title: title,
+          body: body,
+          scheduledDate: tzScheduled,
+          notificationDetails: notificationDetails,
+          payload: payload,
+          matchDateTimeComponents: DateTimeComponents.time,
+        );
+      } catch (_) {}
+    }
+  }
+
+  Future<void> _zonedScheduleWithFallback({
+    required int id,
+    required String title,
+    required String body,
+    required tz.TZDateTime scheduledDate,
+    required NotificationDetails notificationDetails,
+    String? payload,
+    DateTimeComponents? matchDateTimeComponents,
+  }) async {
+    try {
+      await _notificationsPlugin.zonedSchedule(
+        id: id,
+        title: title,
+        body: body,
+        scheduledDate: scheduledDate,
+        notificationDetails: notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        payload: payload,
+        matchDateTimeComponents: matchDateTimeComponents,
+      );
+    } catch (_) {
+      await _notificationsPlugin.zonedSchedule(
+        id: id,
+        title: title,
+        body: body,
+        scheduledDate: scheduledDate,
+        notificationDetails: notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        payload: payload,
+        matchDateTimeComponents: matchDateTimeComponents,
+      );
+    }
   }
 
   @override

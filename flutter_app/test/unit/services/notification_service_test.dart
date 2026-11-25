@@ -267,5 +267,47 @@ void main() {
         );
       },
     );
+
+    test(
+      'schedules and cancels DailyFlow routine and pending follow-up notifications',
+      () async {
+        await service.scheduleDailyFlowRoutineReminders(isEnabled: true);
+        expect(
+          service.scheduledReminders.map((r) => r.id),
+          containsAll([40001, 40002, 40003]),
+        );
+
+        final followUpAt = DateTime.now().add(const Duration(hours: 2));
+        await service.schedulePendingTaskFollowUp(
+          taskId: 'df_99',
+          title: 'DBMS Lab',
+          followUpAt: followUpAt,
+        );
+        expect(
+          service.scheduledReminders.any(
+            (r) =>
+                r.id ==
+                DefaultNotificationService.defaultFollowUpNotificationId('df_99'),
+          ),
+          isTrue,
+        );
+
+        await service.cancelPendingTaskFollowUp('df_99');
+        expect(
+          service.scheduledReminders.any(
+            (r) =>
+                r.id ==
+                DefaultNotificationService.defaultFollowUpNotificationId('df_99'),
+          ),
+          isFalse,
+        );
+
+        await service.scheduleDailyFlowRoutineReminders(isEnabled: false);
+        expect(
+          service.scheduledReminders.where((r) => r.id >= 40001 && r.id <= 40003),
+          isEmpty,
+        );
+      },
+    );
   });
 }

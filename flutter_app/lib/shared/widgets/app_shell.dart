@@ -53,6 +53,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     final streak = ref.watch(streakCountProvider).valueOrNull ?? 0;
     ref.watch(notificationSchedulerProvider);
     ref.watch(dailyFlowReminderSchedulerProvider);
+    ref.watch(dailyFlowRoutineSchedulerProvider);
 
     return Scaffold(
       key: _scaffoldKey,
