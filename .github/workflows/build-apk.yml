@@ -61,7 +61,7 @@ jobs:
             --dart-define=FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }} \
             --dart-define=FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }} \
             --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }} 2>&1 | tee /tmp/apk_build.log || {
-              grep -E 'FAILURE:|What went wrong:|Execution failed|Error:|Exception:|> ' /tmp/apk_build.log | head -n 20 | while IFS= read -r line; do
+              grep -E '^(e: |w: |FAILURE:|What went wrong:|Execution failed|Caused by:|> )' /tmp/apk_build.log | head -n 30 | while IFS= read -r line; do
                 echo "::error::${line}"
               done
               exit 1
