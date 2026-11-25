@@ -71,50 +71,29 @@ class DailyFlowDashboardCard extends ConsumerWidget {
             const SizedBox(height: 10),
             Row(
               children: [
-                if (summary.activeTask != null)
-                  Expanded(
-                    child: AppButton(
-                      label: 'Complete',
-                      icon: const Icon(
-                        Icons.check_rounded,
-                        size: 16,
-                        color: Colors.white,
-                      ),
-                      variant: AppButtonVariant.present,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
-                      ),
-                      fontSize: 12.5,
-                      onPressed: () => ref
-                          .read(dailyFlowControllerProvider.notifier)
-                          .completeTask(focusTask),
+                Expanded(
+                  child: AppButton(
+                    label: 'Mark Done',
+                    icon: const Icon(
+                      Icons.check_rounded,
+                      size: 16,
+                      color: Colors.white,
                     ),
-                  )
-                else
-                  Expanded(
-                    child: AppButton(
-                      label: 'Start Focus',
-                      icon: const Icon(
-                        Icons.play_arrow_rounded,
-                        size: 16,
-                        color: Colors.white,
-                      ),
-                      variant: AppButtonVariant.present,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
-                      ),
-                      fontSize: 12.5,
-                      onPressed: () => ref
-                          .read(dailyFlowControllerProvider.notifier)
-                          .startTask(focusTask),
+                    variant: AppButtonVariant.present,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
                     ),
+                    fontSize: 12.5,
+                    onPressed: () => ref
+                        .read(dailyFlowControllerProvider.notifier)
+                        .completeTask(focusTask),
                   ),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: AppButton(
-                    label: 'Open Planner',
+                    label: 'Open',
                     variant: AppButtonVariant.ghost,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -132,7 +111,7 @@ class DailyFlowDashboardCard extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     summary.totalTasks == 0
-                        ? 'Plan tasks, time-blocks, and reminders for today.'
+                        ? 'Quickly add tasks & smart reminders for today.'
                         : 'All planned tasks completed for today!',
                     style: AppTypography.bodyMedium(muted),
                   ),

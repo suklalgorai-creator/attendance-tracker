@@ -9,6 +9,7 @@ import 'package:flutter_app/features/attendance/domain/entities/attendance_recor
 import 'package:flutter_app/features/attendance/domain/entities/attendance_status.dart';
 import 'package:flutter_app/features/attendance/domain/entities/legacy_attendance_entity.dart';
 import 'package:flutter_app/features/attendance/domain/repositories/attendance_repository.dart';
+import 'package:flutter_app/features/dailyflow/presentation/widgets/daily_flow_dashboard_card.dart';
 import 'package:flutter_app/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:flutter_app/features/dashboard/presentation/widgets/advisor_banner.dart';
 import 'package:flutter_app/features/dashboard/presentation/widgets/empty_dashboard_view.dart';
@@ -160,7 +161,7 @@ void main() {
 
   group('DashboardPage Widget Tests', () {
     testWidgets(
-      'Renders Dashboard title exactly once, Program subtitle, OverviewCard, and AdvisorBanner',
+      'Renders DailyFlowDashboardCard at top, OverviewCard, and Quick Attendance without AdvisorBanner',
       (tester) async {
         setTallScreen(tester);
         final fakeRepo = FakeAttendanceRepo();
@@ -184,12 +185,15 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        // CRITICAL: Text 'Dashboard' must be found exactly once for app_router_test compatibility
-        expect(find.text('Dashboard'), findsOneWidget);
-        expect(find.text('Computer Science & Engineering'), findsOneWidget);
+        expect(find.text('Dashboard'), findsNothing);
+        expect(find.byType(AdvisorBanner), findsNothing);
+        expect(find.byType(DailyFlowDashboardCard), findsOneWidget);
         expect(find.byType(OverviewCard), findsOneWidget);
-        expect(find.byType(AdvisorBanner), findsOneWidget);
         expect(find.text('Quick Attendance'), findsOneWidget);
+        expect(
+          tester.getTopLeft(find.byType(DailyFlowDashboardCard)).dy,
+          lessThan(tester.getTopLeft(find.byType(OverviewCard)).dy),
+        );
       },
     );
 
@@ -262,45 +266,52 @@ void main() {
       expect(find.text('2 subjects'), findsOneWidget);
     });
 
-    testWidgets('Renders StreakBadge when streak > 0', (tester) async {
-      setTallScreen(tester);
-      final fakeRepo = FakeAttendanceRepo();
-      // Attended today Wednesday 2026-11-18
-      final record = AttendanceRecordEntity(
-        id: 'rec_1',
-        date:
-            '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}',
-        subjectId: 'sub_math',
-        sessionId: 'sess_1',
-        status: AttendanceStatus.present,
-        createdAt: now,
-        updatedAt: now,
-      );
+    testWidgets(
+      'Renders DailyFlowDashboardCard above OverviewCard when subjects exist',
+      (tester) async {
+        setTallScreen(tester);
+        final fakeRepo = FakeAttendanceRepo();
+        // Attended today Wednesday 2026-11-18
+        final record = AttendanceRecordEntity(
+          id: 'rec_1',
+          date:
+              '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}',
+          subjectId: 'sub_math',
+          sessionId: 'sess_1',
+          status: AttendanceStatus.present,
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      await tester.pumpWidget(
-        _wrapPage(
-          overrides: [
-            attendanceRepositoryProvider.overrideWithValue(fakeRepo),
-            subjectsStreamProvider.overrideWith(
-              (ref) => Stream.value([testSubject1]),
-            ),
-            attendanceRecordsStreamProvider.overrideWith(
-              (ref) => Stream.value([record]),
-            ),
-            legacyAttendanceStreamProvider.overrideWith(
-              (ref) => Stream.value([]),
-            ),
-            settingsStreamProvider.overrideWith(
-              (ref) => Stream.value(testSettings),
-            ),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          _wrapPage(
+            overrides: [
+              attendanceRepositoryProvider.overrideWithValue(fakeRepo),
+              subjectsStreamProvider.overrideWith(
+                (ref) => Stream.value([testSubject1]),
+              ),
+              attendanceRecordsStreamProvider.overrideWith(
+                (ref) => Stream.value([record]),
+              ),
+              legacyAttendanceStreamProvider.overrideWith(
+                (ref) => Stream.value([]),
+              ),
+              settingsStreamProvider.overrideWith(
+                (ref) => Stream.value(testSettings),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.byType(StreakBadge), findsOneWidget);
-      expect(find.text('🔥'), findsOneWidget);
-    });
+        expect(find.byType(StreakBadge), findsNothing);
+        expect(find.byType(DailyFlowDashboardCard), findsOneWidget);
+        expect(
+          tester.getTopLeft(find.byType(DailyFlowDashboardCard)).dy,
+          lessThan(tester.getTopLeft(find.byType(OverviewCard)).dy),
+        );
+      },
+    );
 
     testWidgets(
       'Tapping + Present logs attendance and displays SnackBar with Undo action',
@@ -442,7 +453,7 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(tester.takeException(), isNull);
-        expect(find.text('Dashboard'), findsOneWidget);
+        expect(find.byType(DailyFlowDashboardCard), findsOneWidget);
 
         await tester.scrollUntilVisible(find.text('Quick Attendance'), 100);
         await tester.pumpAndSettle();
@@ -498,7 +509,7 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(tester.takeException(), isNull);
-        expect(find.text('Dashboard'), findsOneWidget);
+        expect(find.byType(DailyFlowDashboardCard), findsOneWidget);
 
         await tester.scrollUntilVisible(find.text('Quick Attendance'), 100);
         await tester.pumpAndSettle();

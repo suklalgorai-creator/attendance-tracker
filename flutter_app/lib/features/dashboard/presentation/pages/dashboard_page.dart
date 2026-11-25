@@ -10,16 +10,13 @@ import '../../../subjects/presentation/widgets/subject_dialog.dart';
 import '../../domain/models/dashboard_stats.dart';
 import '../providers/dashboard_controller.dart';
 import '../providers/dashboard_providers.dart';
-import '../../../../core/providers/repository_providers.dart';
-import '../widgets/advisor_banner.dart';
 import '../widgets/empty_dashboard_view.dart';
 import '../widgets/overview_card.dart';
 import '../widgets/quick_action_subject_card.dart';
-import '../widgets/streak_badge.dart';
 import '../widgets/todays_schedule_card.dart';
 
-/// Main Dashboard Page displaying attendance overview, safe bunk advisor,
-/// streak indicators, and quick action subject cards.
+/// Main Dashboard Page displaying today's DailyFlow summary, attendance overview,
+/// and quick action subject cards.
 class DashboardPage extends ConsumerWidget {
   final VoidCallback? onAddSubject;
 
@@ -29,13 +26,9 @@ class DashboardPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final statsAsync = ref.watch(dashboardStatsProvider);
     final subjectStatsAsync = ref.watch(subjectStatsListProvider);
-    final streakAsync = ref.watch(streakCountProvider);
-    final settingsAsync = ref.watch(settingsStreamProvider);
 
     final stats = statsAsync.valueOrNull ?? DashboardStats.empty();
     final subjectStatsList = subjectStatsAsync.valueOrNull ?? const [];
-    final streak = streakAsync.valueOrNull ?? 0;
-    final settings = settingsAsync.valueOrNull;
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
@@ -44,45 +37,8 @@ class DashboardPage extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
       children: [
-        // Header Row: Title ('Dashboard'), Program/Course subtitle, and Streak Pill
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Dashboard',
-                    style: GoogleFonts.outfit(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: paperColor,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    (settings?.programName.isNotEmpty ?? false)
-                        ? settings!.programName
-                        : 'Semester Overview',
-                    style: GoogleFonts.outfit(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: mutedColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            StreakBadge(streak: streak),
-          ],
-        ),
-
-        const SizedBox(height: 12),
-
-        // Advisor Banner
-        AdvisorBanner(stats: stats),
+        // DailyFlow Planning & Execution Summary Card
+        const DailyFlowDashboardCard(),
 
         const SizedBox(height: 12),
 
@@ -176,11 +132,6 @@ class DashboardPage extends ConsumerWidget {
                 );
               },
             ),
-
-        const SizedBox(height: 12),
-
-        // DailyFlow Planning & Execution Summary Card
-        const DailyFlowDashboardCard(),
       ],
     );
   }

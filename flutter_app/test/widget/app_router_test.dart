@@ -9,6 +9,7 @@ import 'package:flutter_app/features/auth/domain/entities/auth_user_entity.dart'
 import 'package:flutter_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:flutter_app/features/auth/presentation/controllers/auth_notifier.dart';
 import 'package:flutter_app/features/auth/presentation/controllers/auth_providers.dart';
+import 'package:flutter_app/features/dailyflow/presentation/widgets/daily_flow_dashboard_card.dart';
 
 class RouterTestAuthRepository implements AuthRepository {
   AuthUserEntity? user;
@@ -137,7 +138,7 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text('My Attendance'), findsOneWidget);
-        expect(find.text('Dashboard'), findsOneWidget);
+        expect(find.byType(DailyFlowDashboardCard), findsOneWidget);
         expect(find.text('Home'), findsOneWidget);
         expect(find.text('Register'), findsOneWidget);
         expect(find.text('DailyFlow'), findsWidgets);
@@ -258,7 +259,7 @@ void main() {
         // Tap DailyFlow Tab
         await tester.tap(find.text('DailyFlow'));
         await tester.pumpAndSettle();
-        expect(find.text('Execution Progress'), findsOneWidget);
+        expect(find.text('Add a task...'), findsOneWidget);
 
         // Tap Leaderboard Tab
         await tester.tap(find.byIcon(Icons.emoji_events_rounded));
@@ -273,7 +274,7 @@ void main() {
         // Return to Home Tab
         await tester.tap(find.text('Home'));
         await tester.pumpAndSettle();
-        expect(find.text('Dashboard'), findsOneWidget);
+        expect(find.byType(DailyFlowDashboardCard), findsOneWidget);
       },
     );
 
@@ -381,7 +382,7 @@ void main() {
         await tester.tap(find.byKey(const Key('not_found_back_button')));
         await tester.pumpAndSettle();
 
-        expect(find.text('Dashboard'), findsOneWidget);
+        expect(find.byType(DailyFlowDashboardCard), findsOneWidget);
       },
     );
   });

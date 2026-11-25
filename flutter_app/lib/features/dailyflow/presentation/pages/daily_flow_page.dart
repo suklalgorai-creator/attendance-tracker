@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,7 +7,6 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/utils/date_utils.dart';
-import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/glass_card.dart';
 import '../../../subjects/domain/entities/subject_entity.dart';
 import '../../../timetable/domain/entities/timetable_session_entity.dart';
@@ -18,7 +16,10 @@ import '../providers/daily_flow_controller.dart';
 import '../providers/daily_flow_providers.dart';
 import '../widgets/daily_task_editor_dialog.dart';
 
-/// Production DailyFlow Planning, Reminder & Execution screen.
+/// Clean, simplified DailyFlow checklist & smart-reminder planner.
+/// Morning briefing (07:00), evening review (22:00), and task reminders remain
+/// synced automatically via [dailyFlowReminderSchedulerProvider] &
+/// [dailyFlowRoutineSchedulerProvider].
 class DailyFlowPage extends ConsumerWidget {
   final bool showBackButton;
 
@@ -31,6 +32,9 @@ class DailyFlowPage extends ConsumerWidget {
     final timeline = ref.watch(dailyFlowTimelineProvider);
     final summary = ref.watch(dailyFlowDaySummaryProvider);
     final subjects = ref.watch(subjectsStreamProvider).valueOrNull ?? const [];
+    final settings = ref.watch(settingsStreamProvider).valueOrNull;
+    final tasks =
+        ref.watch(dailyFlowTasksStreamProvider).valueOrNull ?? const [];
     final subjectById = {for (final s in subjects) s.id: s};
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -64,23 +68,17 @@ class DailyFlowPage extends ConsumerWidget {
               ],
             )
           : null,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openEditor(context, ref, selectedDate, subjects),
-        backgroundColor: AppColors.inkGreen,
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('New Task'),
-      ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(14, 10, 14, 96),
+        padding: const EdgeInsets.fromLTRB(14, 10, 14, 28),
         children: [
-          // Date Navigation Header
+          // Compact Date Navigation + Done Summary
           GlassCard(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             child: Row(
               children: [
                 IconButton(
                   tooltip: 'Previous day',
+                  visualDensity: VisualDensity.compact,
                   onPressed: () {
                     ref.read(dailyFlowSelectedDateProvider.notifier).state =
                         selectedDate.subtract(const Duration(days: 1));
@@ -89,6 +87,7 @@ class DailyFlowPage extends ConsumerWidget {
                 ),
                 Expanded(
                   child: InkWell(
+                    borderRadius: BorderRadius.circular(10),
                     onTap: () async {
                       final picked = await showDatePicker(
                         context: context,
@@ -101,26 +100,30 @@ class DailyFlowPage extends ConsumerWidget {
                             picked;
                       }
                     },
-                    child: Column(
-                      children: [
-                        Text(
-                          _formatDayHeader(selectedDate),
-                          style: AppTypography.cardTitle(paper),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          DateFormat('EEEE, MMM d, y').format(selectedDate),
-                          style: AppTypography.bodySmall(muted),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: Column(
+                        children: [
+                          Text(
+                            _formatDayHeader(selectedDate),
+                            style: AppTypography.cardTitle(paper),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            DateFormat('EEE, MMM d').format(selectedDate),
+                            style: AppTypography.bodySmall(muted),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
                 IconButton(
                   tooltip: 'Next day',
+                  visualDensity: VisualDensity.compact,
                   onPressed: () {
                     ref.read(dailyFlowSelectedDateProvider.notifier).state =
                         selectedDate.add(const Duration(days: 1));
@@ -133,195 +136,127 @@ class DailyFlowPage extends ConsumerWidget {
 
           const SizedBox(height: 10),
 
-          // Rolling Planning Horizon Strip (Default: 7 days)
+          // Rolling 7-Day Planning Horizon Strip
           _HorizonStrip(
             selectedDate: selectedDate,
-            horizonDays:
-                ref
-                    .watch(settingsStreamProvider)
-                    .valueOrNull
-                    ?.dailyFlowPlanningHorizonDays ??
-                7,
-            tasks:
-                ref.watch(dailyFlowTasksStreamProvider).valueOrNull ?? const [],
+            horizonDays: settings?.dailyFlowPlanningHorizonDays ?? 7,
+            tasks: tasks,
             onSelectDate: (d) =>
                 ref.read(dailyFlowSelectedDateProvider.notifier).state = d,
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
-          // Active Focus Execution Banner or Smart Next Recommendation
-          if (summary.activeTask != null) ...[
-            _LiveFocusCard(task: summary.activeTask!),
-            const SizedBox(height: 12),
-          ] else if (summary.recommendedNextTask != null) ...[
-            GlassCard(
-              padding: const EdgeInsets.all(14),
-              child: Row(
-                children: [
-                  const Text('⚡', style: TextStyle(fontSize: 22)),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'SUGGESTED NEXT FOCUS',
-                          style: AppTypography.eyebrow(AppColors.amber),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          summary.recommendedNextTask!.title,
-                          style: AppTypography.cardTitle(paper),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        if (summary.smartFocusReason != null)
-                          Text(
-                            summary.smartFocusReason!,
-                            style: AppTypography.bodySmall(muted),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  AppButton(
-                    label: 'Start',
-                    icon: const Icon(
-                      Icons.play_arrow_rounded,
-                      size: 16,
-                      color: Colors.white,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    fontSize: 12.5,
-                    onPressed: () => ref
-                        .read(dailyFlowControllerProvider.notifier)
-                        .startTask(summary.recommendedNextTask!),
-                  ),
-                ],
-              ),
+          // Inline Quick-Add Bar
+          _QuickAddTaskBar(
+            selectedDate: selectedDate,
+            onOpenDetailedEditor: (draftTitle) => _openEditor(
+              context,
+              ref,
+              selectedDate,
+              subjects,
+              initialTitle: draftTitle,
             ),
-            const SizedBox(height: 12),
-          ],
+          ),
 
-          // Execution Progress Summary
-          GlassCard(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Execution Progress',
-                        style: AppTypography.cardTitle(paper),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+          const SizedBox(height: 10),
+
+          // Simple 3-chip filter + Smart Reminder status hint
+          Row(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      ChoiceChip(
+                        label: const Text('All'),
+                        selected: statusFilter == null,
+                        onSelected: (_) =>
+                            ref
+                                    .read(
+                                      dailyFlowStatusFilterProvider.notifier,
+                                    )
+                                    .state =
+                                null,
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${summary.completedTasks}/${summary.totalTasks} done',
-                      style: AppTypography.statLabel(AppColors.inkGreen),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(999),
-                  child: LinearProgressIndicator(
-                    value: summary.completionRate,
-                    minHeight: 7,
-                    backgroundColor: isDark
-                        ? AppColors.ruleBrightDark
-                        : AppColors.ruleBrightLight,
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      AppColors.inkGreen,
-                    ),
+                      const SizedBox(width: 6),
+                      ChoiceChip(
+                        label: const Text('Pending'),
+                        selected: statusFilter == DailyTaskStatus.planned,
+                        onSelected: (_) =>
+                            ref
+                                .read(dailyFlowStatusFilterProvider.notifier)
+                                .state = DailyTaskStatus
+                                .planned,
+                      ),
+                      const SizedBox(width: 6),
+                      ChoiceChip(
+                        label: const Text('Done'),
+                        selected: statusFilter == DailyTaskStatus.completed,
+                        onSelected: (_) =>
+                            ref
+                                .read(dailyFlowStatusFilterProvider.notifier)
+                                .state = DailyTaskStatus
+                                .completed,
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 14,
-                  runSpacing: 4,
-                  children: [
-                    Text(
-                      'Planned: ${summary.plannedMinutes}m',
-                      style: AppTypography.bodySmall(muted),
-                    ),
-                    Text(
-                      'Focused: ${(summary.executedSeconds / 60).floor()}m',
-                      style: AppTypography.bodySmall(muted),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          // Status Filter Chips
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                ChoiceChip(
-                  label: const Text('All'),
-                  selected: statusFilter == null,
-                  onSelected: (_) =>
-                      ref.read(dailyFlowStatusFilterProvider.notifier).state =
-                          null,
-                ),
+              ),
+              if (summary.totalTasks > 0) ...[
                 const SizedBox(width: 6),
-                ...[
-                  DailyTaskStatus.planned,
-                  DailyTaskStatus.inProgress,
-                  DailyTaskStatus.paused,
-                  DailyTaskStatus.completed,
-                  DailyTaskStatus.skipped,
-                ].map(
-                  (status) => Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: ChoiceChip(
-                      label: Text(status.label),
-                      selected: statusFilter == status,
-                      onSelected: (_) =>
-                          ref
-                                  .read(dailyFlowStatusFilterProvider.notifier)
-                                  .state =
-                              status,
-                    ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.inkGreenSoft,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    '${summary.completedTasks}/${summary.totalTasks} done',
+                    style: AppTypography.bodySmall(
+                      AppColors.inkGreen,
+                    ).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
-            ),
+              if (settings?.pushNotificationsEnabled == true &&
+                  (settings?.dailyFlowSmartRemindersEnabled ?? true))
+                Tooltip(
+                  message:
+                      'Smart reminders active (${settings?.dailyFlowMorningTime ?? "07:00"} briefing)',
+                  child: const Padding(
+                    padding: EdgeInsets.only(left: 6),
+                    child: Icon(
+                      Icons.notifications_active_outlined,
+                      size: 18,
+                      color: AppColors.inkGreen,
+                    ),
+                  ),
+                ),
+            ],
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
-          // Unified Timeline
+          // Clean Task & Class List
           if (timeline.isEmpty)
             GlassCard(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
               child: Column(
                 children: [
-                  const Text('🗓️', style: TextStyle(fontSize: 36)),
-                  const SizedBox(height: 10),
+                  const Text('✨', style: TextStyle(fontSize: 32)),
+                  const SizedBox(height: 8),
                   Text(
                     'No classes or tasks planned',
                     style: AppTypography.cardTitle(paper),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   Text(
-                    'Tap "+ New Task" to time-block your study goals, assignments, and reminders.',
+                    'Type a task above and hit + to add it quickly, or tap the tune icon to set a reminder.',
                     textAlign: TextAlign.center,
                     style: AppTypography.bodyMedium(muted),
                   ),
@@ -332,7 +267,7 @@ class DailyFlowPage extends ConsumerWidget {
             ...timeline.map((item) {
               return switch (item) {
                 TimetableTimelineItem(:final session) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.only(bottom: 8),
                   child: _TimetableBlockCard(
                     session: session,
                     subject: subjectById[session.subjectId],
@@ -340,7 +275,7 @@ class DailyFlowPage extends ConsumerWidget {
                 ),
                 TaskTimelineItem(:final task, :final hasTimetableConflict) =>
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.only(bottom: 8),
                     child: _DailyTaskCard(
                       task: task,
                       subject: task.subjectId != null
@@ -384,12 +319,14 @@ class DailyFlowPage extends ConsumerWidget {
     DateTime initialDate,
     List<SubjectEntity> subjects, {
     DailyTaskEntity? existingTask,
+    String? initialTitle,
   }) async {
     final result = await showDialog<DailyTaskEntity>(
       context: context,
       builder: (_) => DailyTaskEditorDialog(
         existingTask: existingTask,
         initialDate: initialDate,
+        initialTitle: initialTitle,
         subjects: subjects,
       ),
     );
@@ -399,127 +336,95 @@ class DailyFlowPage extends ConsumerWidget {
   }
 }
 
-class _LiveFocusCard extends ConsumerStatefulWidget {
-  final DailyTaskEntity task;
+class _QuickAddTaskBar extends ConsumerStatefulWidget {
+  final DateTime selectedDate;
+  final ValueChanged<String?> onOpenDetailedEditor;
 
-  const _LiveFocusCard({required this.task});
+  const _QuickAddTaskBar({
+    required this.selectedDate,
+    required this.onOpenDetailedEditor,
+  });
 
   @override
-  ConsumerState<_LiveFocusCard> createState() => _LiveFocusCardState();
+  ConsumerState<_QuickAddTaskBar> createState() => _QuickAddTaskBarState();
 }
 
-class _LiveFocusCardState extends ConsumerState<_LiveFocusCard> {
-  Timer? _ticker;
-  DateTime _now = DateTime.now();
-
-  @override
-  void initState() {
-    super.initState();
-    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) setState(() => _now = DateTime.now());
-    });
-  }
+class _QuickAddTaskBarState extends ConsumerState<_QuickAddTaskBar> {
+  final TextEditingController _controller = TextEditingController();
 
   @override
   void dispose() {
-    _ticker?.cancel();
+    _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _submitQuickTask() async {
+    final title = _controller.text.trim();
+    if (title.isEmpty) return;
+
+    final now = DateTime.now();
+    final task = DailyTaskEntity(
+      id: 'df_${now.microsecondsSinceEpoch}',
+      title: title,
+      scheduledDate: AppDateUtils.formatDateKey(widget.selectedDate),
+      createdAt: now,
+      updatedAt: now,
+    );
+    _controller.clear();
+    await ref.read(dailyFlowControllerProvider.notifier).saveTask(task);
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final paper = isDark ? AppColors.paperDark : AppColors.paperLight;
-    final elapsed = widget.task.totalElapsedSecondsAt(_now);
-    final mins = (elapsed ~/ 60).toString().padLeft(2, '0');
-    final secs = (elapsed % 60).toString().padLeft(2, '0');
+    final muted = isDark ? AppColors.mutedDark : AppColors.mutedLight;
 
     return GlassCard(
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Row(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.inkGreenSoft,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    'ACTIVE FOCUS',
-                    style: AppTypography.eyebrow(AppColors.inkGreen),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+          Expanded(
+            child: TextField(
+              controller: _controller,
+              style: AppTypography.inputText(paper),
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => _submitQuickTask(),
+              decoration: InputDecoration(
+                hintText: 'Add a task...',
+                hintStyle: AppTypography.inputHint(
+                  muted.withValues(alpha: 0.85),
                 ),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(vertical: 10),
               ),
-              const SizedBox(width: 8),
-              Flexible(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    '$mins:$secs / ${widget.task.estimatedMinutes}m',
-                    style: AppTypography.statValue(
-                      AppColors.inkGreen,
-                    ).copyWith(fontSize: 16),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            widget.task.title,
-            style: AppTypography.cardTitle(paper),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          IconButton(
+            tooltip: 'Add with reminder & options',
+            visualDensity: VisualDensity.compact,
+            onPressed: () {
+              final draft = _controller.text.trim();
+              _controller.clear();
+              widget.onOpenDetailedEditor(draft.isEmpty ? null : draft);
+            },
+            icon: Icon(
+              Icons.notifications_none_rounded,
+              color: muted,
+              size: 20,
+            ),
           ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: AppButton(
-                  label: 'Pause',
-                  icon: Icon(Icons.pause_rounded, size: 16, color: paper),
-                  variant: AppButtonVariant.ghost,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 9,
-                  ),
-                  fontSize: 12.5,
-                  onPressed: () => ref
-                      .read(dailyFlowControllerProvider.notifier)
-                      .pauseTask(widget.task),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: AppButton(
-                  label: 'Complete',
-                  icon: const Icon(
-                    Icons.check_rounded,
-                    size: 16,
-                    color: Colors.white,
-                  ),
-                  variant: AppButtonVariant.present,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 9,
-                  ),
-                  fontSize: 12.5,
-                  onPressed: () => ref
-                      .read(dailyFlowControllerProvider.notifier)
-                      .completeTask(widget.task),
-                ),
-              ),
-            ],
+          const SizedBox(width: 2),
+          IconButton.filled(
+            tooltip: 'Quick add task',
+            visualDensity: VisualDensity.compact,
+            style: IconButton.styleFrom(
+              backgroundColor: AppColors.inkGreen,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: _submitQuickTask,
+            icon: const Icon(Icons.add_rounded, size: 20),
           ),
         ],
       ),
@@ -545,9 +450,9 @@ class _TimetableBlockCard extends StatelessWidget {
         children: [
           Container(
             width: 4,
-            height: 36,
+            height: 32,
             decoration: BoxDecoration(
-              color: AppColors.blueMesh.withValues(alpha: 0.9),
+              color: const Color(0xFF3B82F6),
               borderRadius: BorderRadius.circular(4),
             ),
           ),
@@ -563,25 +468,12 @@ class _TimetableBlockCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  'Scheduled Class • ${session.label}',
+                  'Class • ${session.label}',
                   style: AppTypography.bodySmall(muted),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.blueMesh,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              'Timetable',
-              style: AppTypography.bodySmall(
-                isDark ? AppColors.paperDark : AppColors.paperLight,
-              ),
             ),
           ),
         ],
@@ -609,22 +501,34 @@ class _DailyTaskCard extends ConsumerWidget {
     final paper = isDark ? AppColors.paperDark : AppColors.paperLight;
     final muted = isDark ? AppColors.mutedDark : AppColors.mutedLight;
     final controller = ref.read(dailyFlowControllerProvider.notifier);
-
-    final priorityColor = switch (task.priority) {
-      DailyTaskPriority.urgent => AppColors.penRed,
-      DailyTaskPriority.high => AppColors.amber,
-      DailyTaskPriority.medium => AppColors.inkGreen,
-      DailyTaskPriority.low => muted,
-    };
+    final isCompleted = task.status == DailyTaskStatus.completed;
 
     return GlassCard(
-      padding: const EdgeInsets.all(14),
+      onTap: onEdit,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // 1-tap Done Checkbox
+              InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () => isCompleted
+                    ? controller.reopenTask(task)
+                    : controller.completeTask(task),
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Icon(
+                    isCompleted
+                        ? Icons.check_circle_rounded
+                        : Icons.radio_button_unchecked_rounded,
+                    size: 24,
+                    color: isCompleted ? AppColors.inkGreen : muted,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -632,54 +536,50 @@ class _DailyTaskCard extends ConsumerWidget {
                     Text(
                       task.title,
                       style: AppTypography.cardTitle(paper).copyWith(
-                        decoration: task.status == DailyTaskStatus.completed
+                        fontSize: 15,
+                        color: isCompleted ? muted : paper,
+                        decoration: isCompleted
                             ? TextDecoration.lineThrough
                             : null,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 4,
-                      children: [
-                        _BadgeChip(
-                          label: task.priority.label,
-                          color: priorityColor,
-                        ),
-                        _BadgeChip(
-                          label: task.status.label,
-                          color: task.status == DailyTaskStatus.completed
-                              ? AppColors.inkGreen
-                              : muted,
-                        ),
-                        if (task.startTime != null)
-                          _BadgeChip(
-                            label:
-                                '${task.startTime} (${task.estimatedMinutes}m)',
-                            color: muted,
-                          )
-                        else
-                          _BadgeChip(
-                            label: '${task.estimatedMinutes}m',
-                            color: muted,
-                          ),
-                        if (subject != null)
-                          _BadgeChip(
-                            label: subject!.name,
-                            color: AppColors.inkGreen,
-                          ),
-                        if (hasConflict)
-                          const _BadgeChip(
-                            label: 'Overlaps class',
-                            color: AppColors.penRed,
-                          ),
-                      ],
-                    ),
+                    if (task.reminderAt != null ||
+                        task.startTime != null ||
+                        subject != null ||
+                        hasConflict) ...[
+                      const SizedBox(height: 4),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
+                        children: [
+                          if (task.reminderAt != null &&
+                              !task.status.isTerminal)
+                            _BadgeChip(
+                              label:
+                                  '⏰ ${DateFormat('MMM d, h:mm a').format(task.reminderAt!)}',
+                              color: AppColors.amber,
+                            ),
+                          if (task.startTime != null)
+                            _BadgeChip(label: task.startTime!, color: muted),
+                          if (subject != null)
+                            _BadgeChip(
+                              label: subject!.name,
+                              color: AppColors.inkGreen,
+                            ),
+                          if (hasConflict)
+                            const _BadgeChip(
+                              label: 'Overlaps class',
+                              color: AppColors.penRed,
+                            ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
               PopupMenuButton<String>(
                 icon: Icon(Icons.more_vert_rounded, color: muted, size: 20),
+                padding: EdgeInsets.zero,
                 onSelected: (value) async {
                   switch (value) {
                     case 'edit':
@@ -694,8 +594,6 @@ class _DailyTaskCard extends ConsumerWidget {
                         task,
                         const Duration(hours: 1),
                       );
-                    case 'skip':
-                      await controller.skipTask(task);
                     case 'reopen':
                       await controller.reopenTask(task);
                     case 'delete':
@@ -703,7 +601,10 @@ class _DailyTaskCard extends ConsumerWidget {
                   }
                 },
                 itemBuilder: (_) => [
-                  const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                  const PopupMenuItem(
+                    value: 'edit',
+                    child: Text('Edit / Reminder'),
+                  ),
                   if (!task.status.isTerminal) ...[
                     const PopupMenuItem(
                       value: 'snooze15',
@@ -713,7 +614,6 @@ class _DailyTaskCard extends ConsumerWidget {
                       value: 'snooze60',
                       child: Text('Snooze Reminder +1h'),
                     ),
-                    const PopupMenuItem(value: 'skip', child: Text('Skip')),
                   ] else
                     const PopupMenuItem(
                       value: 'reopen',
@@ -725,37 +625,37 @@ class _DailyTaskCard extends ConsumerWidget {
             ],
           ),
           if (task.notes.trim().isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(task.notes, style: AppTypography.bodyMedium(muted)),
-          ],
-          if (task.reminderAt != null && !task.status.isTerminal) ...[
-            const SizedBox(height: 6),
-            Text(
-              '⏰ ${DateFormat('MMM d, h:mm a').format(task.reminderAt!)}',
-              style: AppTypography.bodySmall(AppColors.amber),
+            Padding(
+              padding: const EdgeInsets.only(left: 40, top: 4),
+              child: Text(
+                task.notes,
+                style: AppTypography.bodySmall(muted),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
           if (task.subtasks.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             ...task.subtasks.map(
               (st) => InkWell(
                 onTap: () => controller.toggleSubtask(task, st.id),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 3),
+                  padding: const EdgeInsets.only(left: 36, top: 2, bottom: 2),
                   child: Row(
                     children: [
                       Icon(
                         st.isDone
                             ? Icons.check_box_rounded
                             : Icons.check_box_outline_blank_rounded,
-                        size: 18,
+                        size: 16,
                         color: st.isDone ? AppColors.inkGreen : muted,
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           st.title,
-                          style: AppTypography.bodyMedium(paper).copyWith(
+                          style: AppTypography.bodySmall(paper).copyWith(
                             decoration: st.isDone
                                 ? TextDecoration.lineThrough
                                 : null,
@@ -766,65 +666,6 @@ class _DailyTaskCard extends ConsumerWidget {
                   ),
                 ),
               ),
-            ),
-          ],
-          if (!task.status.isTerminal) ...[
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                if (task.status == DailyTaskStatus.inProgress)
-                  Expanded(
-                    child: AppButton(
-                      label: 'Pause',
-                      icon: Icon(Icons.pause_rounded, size: 16, color: paper),
-                      variant: AppButtonVariant.ghost,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
-                      ),
-                      fontSize: 12.5,
-                      onPressed: () => controller.pauseTask(task),
-                    ),
-                  )
-                else
-                  Expanded(
-                    child: AppButton(
-                      label: task.status == DailyTaskStatus.paused
-                          ? 'Resume'
-                          : 'Start',
-                      icon: Icon(
-                        Icons.play_arrow_rounded,
-                        size: 16,
-                        color: paper,
-                      ),
-                      variant: AppButtonVariant.ghost,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
-                      ),
-                      fontSize: 12.5,
-                      onPressed: () => controller.startTask(task),
-                    ),
-                  ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: AppButton(
-                    label: 'Complete',
-                    icon: const Icon(
-                      Icons.check_rounded,
-                      size: 16,
-                      color: Colors.white,
-                    ),
-                    variant: AppButtonVariant.present,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 8,
-                    ),
-                    fontSize: 12.5,
-                    onPressed: () => controller.completeTask(task),
-                  ),
-                ),
-              ],
             ),
           ],
         ],
@@ -878,7 +719,7 @@ class _HorizonStrip extends StatelessWidget {
     final count = horizonDays.clamp(1, 14);
 
     return SizedBox(
-      height: 40,
+      height: 38,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: count,

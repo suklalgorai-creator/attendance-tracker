@@ -318,9 +318,8 @@ void main() {
 
         await tester.pumpAndSettle();
 
-        // 4. Verify Dashboard displays Attendance metrics & Subject Cards
-        expect(find.text('Dashboard'), findsOneWidget);
-        expect(find.text('B.Tech Computer Science'), findsOneWidget);
+        // 4. Verify Dashboard displays DailyFlow, Attendance metrics & Subject Cards
+        expect(find.text('DailyFlow'), findsOneWidget);
         expect(find.text('CONDUCTED'), findsWidgets);
         expect(find.text('PRESENT'), findsWidgets);
         expect(

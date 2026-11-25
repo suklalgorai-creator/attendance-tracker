@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_app/core/providers/notification_providers.dart';
 import 'package:flutter_app/core/providers/repository_providers.dart';
 import 'package:flutter_app/core/services/notification_service.dart';
-import 'package:flutter_app/core/utils/date_utils.dart';
 import 'package:flutter_app/features/dailyflow/domain/entities/daily_task_entity.dart';
 import 'package:flutter_app/features/dailyflow/domain/repositories/daily_flow_repository.dart';
 import 'package:flutter_app/features/dailyflow/presentation/pages/daily_flow_page.dart';
@@ -92,54 +91,70 @@ void main() {
   }
 
   group('DailyFlowPage Widget Tests', () {
-    testWidgets('renders empty state when no tasks or classes exist', (
-      tester,
-    ) async {
+    testWidgets('renders empty state and inline quick-add bar', (tester) async {
       final repo = _InMemoryDailyFlowRepository();
       await tester.pumpWidget(buildApp(repo));
       await tester.pumpAndSettle();
 
       expect(find.text('DailyFlow'), findsOneWidget);
       expect(find.text('No classes or tasks planned'), findsOneWidget);
-      expect(find.text('New Task'), findsOneWidget);
+      expect(find.text('Add a task...'), findsOneWidget);
+      expect(find.byTooltip('Quick add task'), findsOneWidget);
+      expect(find.byTooltip('Add with reminder & options'), findsOneWidget);
     });
 
     testWidgets(
-      'executes Start -> Complete lifecycle and renders cleanly at 320px',
+      'quick-adds task inline and completes via 1-tap checkbox cleanly at 320px',
       (tester) async {
         await tester.binding.setSurfaceSize(const Size(320, 640));
         addTearDown(() => tester.binding.setSurfaceSize(null));
 
-        final now = DateTime.now();
-        final repo = _InMemoryDailyFlowRepository([
-          DailyTaskEntity(
-            id: 'df_test_1',
-            title: 'Revise Compiler Design',
-            priority: DailyTaskPriority.high,
-            scheduledDate: AppDateUtils.todayStr(),
-            estimatedMinutes: 30,
-            createdAt: now,
-            updatedAt: now,
-          ),
-        ]);
-
+        final repo = _InMemoryDailyFlowRepository();
         await tester.pumpWidget(buildApp(repo));
         await tester.pumpAndSettle();
 
-        expect(find.text('Revise Compiler Design'), findsWidgets);
+        await tester.enterText(
+          find.byType(TextField),
+          'Revise Compiler Design',
+        );
+        await tester.tap(find.byTooltip('Quick add task'));
+        await tester.pumpAndSettle();
 
-        // Start task from Suggested Next Focus or task card
-        await tester.tap(find.text('Start').first);
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 50));
+        expect(find.text('Revise Compiler Design'), findsOneWidget);
+        expect(find.text('0/1 done'), findsOneWidget);
 
-        expect(find.text('ACTIVE FOCUS'), findsOneWidget);
-
-        // Complete task
-        await tester.tap(find.text('Complete').first);
+        // Toggle done with 1-tap checkbox
+        await tester.tap(find.byIcon(Icons.radio_button_unchecked_rounded));
         await tester.pumpAndSettle();
 
         expect(find.text('1/1 done'), findsOneWidget);
+        expect(find.byIcon(Icons.check_circle_rounded), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets(
+      'opens clean task & reminder dialog without extra timer chips',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(360, 720));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+
+        final repo = _InMemoryDailyFlowRepository();
+        await tester.pumpWidget(buildApp(repo));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byTooltip('Add with reminder & options'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('New Task'), findsOneWidget);
+        expect(find.text('Set Reminder'), findsOneWidget);
+        expect(find.text('Estimated Focus'), findsNothing);
+        expect(find.text('15m'), findsNothing);
+        expect(find.text('Priority'), findsNothing);
+        expect(find.text('Repeat'), findsNothing);
+
+        await tester.tap(find.text('Cancel'));
+        await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
       },
     );
