@@ -202,6 +202,9 @@ void main() {
         buildTestableWidget(dateStr: '2026-10-15', legacyRecord: record),
       );
 
+      expect(find.text('Clear'), findsNothing);
+      await tester.tap(find.byIcon(Icons.edit_outlined));
+      await tester.pump();
       expect(find.text('Clear'), findsOneWidget);
     });
 
@@ -305,6 +308,15 @@ void main() {
         ),
       );
 
+      // Collapsed by default when already marked
+      expect(find.text('DAILY ATTENDANCE'), findsNothing);
+      expect(find.text('Clear'), findsNothing);
+
+      // Tap edit icon to expand and tap Clear
+      await tester.tap(find.byIcon(Icons.edit_outlined));
+      await tester.pump();
+      expect(find.text('DAILY ATTENDANCE'), findsOneWidget);
+
       await tester.tap(find.text('Clear'));
       await tester.pump();
 
@@ -339,6 +351,12 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(find.text('TODAY'), findsOneWidget);
+      expect(find.text('DAILY ATTENDANCE'), findsNothing);
+
+      await tester.tap(find.byIcon(Icons.edit_outlined));
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
       expect(find.text('DAILY ATTENDANCE'), findsOneWidget);
       expect(find.text('Clear'), findsOneWidget);
     });

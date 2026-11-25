@@ -8,15 +8,10 @@ import '../../../attendance/domain/entities/legacy_attendance_entity.dart';
 
 /// Single day attendance item replicating `react_app/src/components/DayRow.jsx`.
 ///
-/// Features:
-/// - Date label formatted with [formatDateLabel] + "today" badge when [isToday] is true.
-/// - Status label computed across 7 distinct states:
-///   Holiday, Upcoming, Not marked, Present, Absent, Partial · X/Y, Holiday / No class.
-/// - 65% opacity on future dates (`dateStr > todayStr()`).
-/// - Inline custom editor when editable (`!future && !isHoliday`) featuring 4 action buttons
-///   (Present, Absent, Holiday / No class, Clear) in a responsive 2-row layout guaranteed
-///   never to overflow on narrow 320px screens.
-class DayRow extends StatelessWidget {
+/// Displays date label, TODAY tag, and status indicator. When a day is already
+/// marked (`legacyRecord != null`), the 4 quick-action buttons are collapsed by
+/// default and can be toggled open by tapping the row header or edit icon.
+class DayRow extends StatefulWidget {
   final String dateStr;
   final LegacyAttendanceEntity? legacyRecord;
   final bool isToday;
@@ -40,10 +35,28 @@ class DayRow extends StatelessWidget {
   });
 
   @override
+  State<DayRow> createState() => _DayRowState();
+}
+
+class _DayRowState extends State<DayRow> {
+  bool _isEditing = false;
+
+  @override
+  void didUpdateWidget(covariant DayRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.legacyRecord != widget.legacyRecord &&
+        widget.legacyRecord != null) {
+      _isEditing = false;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final today = AppDateUtils.todayStr();
-    final future = dateStr.compareTo(today) > 0;
-    final editable = !future && !isHoliday;
+    final future = widget.dateStr.compareTo(today) > 0;
+    final editable = !future && !widget.isHoliday;
+    final showEditor =
+        editable && (widget.legacyRecord == null || _isEditing);
 
     final String status;
     final Color statusColor;
@@ -57,26 +70,27 @@ class DayRow extends StatelessWidget {
         : AppColors.ruleBrightLight;
     final inputBg = isDark ? AppColors.inputBgDark : AppColors.inputBgLight;
 
-    if (isHoliday) {
+    if (widget.isHoliday) {
       status = 'Holiday';
       statusColor = AppColors.amber;
     } else if (future) {
       status = 'Upcoming';
       statusColor = mutedColor;
-    } else if (legacyRecord == null) {
+    } else if (widget.legacyRecord == null) {
       status = 'Not marked';
       statusColor = mutedColor;
-    } else if (legacyRecord!.held == 0) {
+    } else if (widget.legacyRecord!.held == 0) {
       status = 'Holiday / No class';
       statusColor = AppColors.amber;
-    } else if (legacyRecord!.attended == legacyRecord!.held) {
+    } else if (widget.legacyRecord!.attended == widget.legacyRecord!.held) {
       status = 'Present';
       statusColor = AppColors.inkGreen;
-    } else if (legacyRecord!.attended == 0) {
+    } else if (widget.legacyRecord!.attended == 0) {
       status = 'Absent';
       statusColor = AppColors.penRed;
     } else {
-      status = 'Partial · ${legacyRecord!.attended}/${legacyRecord!.held}';
+      status =
+          'Partial \u00B7 ${widget.legacyRecord!.attended}/${widget.legacyRecord!.held}';
       statusColor = AppColors.amber;
     }
 
@@ -89,78 +103,102 @@ class DayRow extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header section
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 14.0,
-              vertical: 12.0,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Date label & Today badge
-                Flexible(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          AppDateUtils.formatDateLabel(dateStr),
-                          style: AppTypography.labelLarge.copyWith(
-                            fontSize: 15.0,
-                            fontWeight: FontWeight.w600,
-                            color: paperColor,
+          // Header section (tap to expand/collapse editor when already marked)
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: editable && widget.legacyRecord != null
+                ? () => setState(() => _isEditing = !_isEditing)
+                : null,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 14.0,
+                vertical: 12.0,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Date label & Today badge
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            AppDateUtils.formatDateLabel(widget.dateStr),
+                            style: AppTypography.labelLarge.copyWith(
+                              fontSize: 15.0,
+                              fontWeight: FontWeight.w600,
+                              color: paperColor,
+                            ),
                           ),
-                        ),
-                        if (isToday) ...[
-                          const SizedBox(width: 8.0),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0,
-                              vertical: 3.0,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.inkGreen,
-                              borderRadius: BorderRadius.circular(999.0),
-                            ),
-                            child: Text(
-                              'TODAY',
-                              style: GoogleFonts.outfit(
-                                fontSize: 10.0,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 1.0,
-                                color: Colors.white,
+                          if (widget.isToday) ...[
+                            const SizedBox(width: 8.0),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                                vertical: 3.0,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.inkGreen,
+                                borderRadius: BorderRadius.circular(999.0),
+                              ),
+                              child: Text(
+                                'TODAY',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 10.0,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.0,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8.0),
+
+                  // Status text + edit toggle icon when already marked
+                  Flexible(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            status,
+                            textAlign: TextAlign.end,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.outfit(
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.w800,
+                              color: statusColor,
+                            ),
+                          ),
+                        ),
+                        if (editable && widget.legacyRecord != null) ...[
+                          const SizedBox(width: 6.0),
+                          Icon(
+                            _isEditing
+                                ? Icons.expand_less_rounded
+                                : Icons.edit_outlined,
+                            size: 16.0,
+                            color: mutedColor,
                           ),
                         ],
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(width: 8.0),
-
-                // Status text
-                Flexible(
-                  child: Text(
-                    status,
-                    textAlign: TextAlign.end,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.w800,
-                      color: statusColor,
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
 
-          // Custom editor section (if editable)
-          if (editable)
+          // Custom editor section (visible when unmarked or editing)
+          if (showEditor)
             Container(
               margin: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0),
               padding: const EdgeInsets.all(12.0),
@@ -194,8 +232,14 @@ class DayRow extends StatelessWidget {
                             horizontal: 8.0,
                           ),
                           fontSize: 13.0,
-                          onPressed: () =>
-                              onSaveDaily(date: dateStr, held: 1, attended: 1),
+                          onPressed: () {
+                            setState(() => _isEditing = false);
+                            widget.onSaveDaily(
+                              date: widget.dateStr,
+                              held: 1,
+                              attended: 1,
+                            );
+                          },
                         ),
                       ),
                       const SizedBox(width: 8.0),
@@ -207,8 +251,14 @@ class DayRow extends StatelessWidget {
                             horizontal: 8.0,
                           ),
                           fontSize: 13.0,
-                          onPressed: () =>
-                              onSaveDaily(date: dateStr, held: 1, attended: 0),
+                          onPressed: () {
+                            setState(() => _isEditing = false);
+                            widget.onSaveDaily(
+                              date: widget.dateStr,
+                              held: 1,
+                              attended: 0,
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -217,7 +267,7 @@ class DayRow extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        flex: legacyRecord != null ? 3 : 1,
+                        flex: widget.legacyRecord != null ? 3 : 1,
                         child: AppButton.ghost(
                           label: 'Holiday / No class',
                           padding: const EdgeInsets.symmetric(
@@ -225,11 +275,17 @@ class DayRow extends StatelessWidget {
                             horizontal: 8.0,
                           ),
                           fontSize: 13.0,
-                          onPressed: () =>
-                              onSaveDaily(date: dateStr, held: 0, attended: 0),
+                          onPressed: () {
+                            setState(() => _isEditing = false);
+                            widget.onSaveDaily(
+                              date: widget.dateStr,
+                              held: 0,
+                              attended: 0,
+                            );
+                          },
                         ),
                       ),
-                      if (legacyRecord != null) ...[
+                      if (widget.legacyRecord != null) ...[
                         const SizedBox(width: 8.0),
                         Expanded(
                           flex: 2,
@@ -240,7 +296,10 @@ class DayRow extends StatelessWidget {
                               horizontal: 8.0,
                             ),
                             fontSize: 13.0,
-                            onPressed: () => onDeleteDaily(legacyRecord!.id),
+                            onPressed: () {
+                              setState(() => _isEditing = false);
+                              widget.onDeleteDaily(widget.legacyRecord!.id);
+                            },
                           ),
                         ),
                       ],
