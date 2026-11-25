@@ -230,5 +230,42 @@ void main() {
         expect(savedAbsent.attended, 0);
       },
     );
+
+    test(
+      'suppresses today reminder when isTodayMarked is true and preserves note/task reminders',
+      () async {
+        final now = DateTime(2026, 11, 25, 10, 0); // Wednesday (dayOfWeek = 3)
+        await service.scheduleTaskReminder(
+          taskId: 'df_keep',
+          title: 'Keep me',
+          body: 'Do not cancel',
+          reminderAt: DateTime.now().add(const Duration(hours: 3)),
+        );
+
+        await service.scheduleAttendanceReminder(
+          reminderTime: '18:00',
+          classDays: [3, 4], // Wed, Thu
+          isEnabled: true,
+          isTodayMarked: true,
+          nowOverride: now,
+        );
+
+        // Task reminder preserved + 2 attendance reminders (no duplicates)
+        final wedReminder = service.scheduledReminders.firstWhere(
+          (r) => r.id == 1003,
+        );
+        final thuReminder = service.scheduledReminders.firstWhere(
+          (r) => r.id == 1004,
+        );
+        expect(wedReminder.scheduledTime, DateTime(2026, 12, 2, 18, 0));
+        expect(thuReminder.scheduledTime, DateTime(2026, 11, 26, 18, 0));
+        expect(
+          service.scheduledReminders.any(
+            (r) => r.id == DefaultNotificationService.defaultTaskNotificationId('df_keep'),
+          ),
+          isTrue,
+        );
+      },
+    );
   });
 }

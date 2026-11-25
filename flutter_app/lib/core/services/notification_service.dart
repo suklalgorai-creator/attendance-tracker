@@ -74,6 +74,7 @@ abstract class NotificationService {
     required List<int> classDays,
     required bool isEnabled,
     Map<String, dynamic> holidays = const {},
+    bool isTodayMarked = false,
   });
   Future<void> cancelAllReminders();
   Future<void> scheduleNoteReminder({
@@ -151,6 +152,10 @@ class DefaultNotificationService implements NotificationService {
     _scheduledReminders.clear();
   }
 
+  Future<void> cancelAttendanceReminders() async {
+    _scheduledReminders.removeWhere((r) => r.id >= 1000 && r.id <= 1006);
+  }
+
   @override
   Future<void> scheduleNoteReminder({
     required String noteId,
@@ -210,8 +215,10 @@ class DefaultNotificationService implements NotificationService {
     required List<int> classDays,
     required bool isEnabled,
     Map<String, dynamic> holidays = const {},
+    bool isTodayMarked = false,
+    DateTime? nowOverride,
   }) async {
-    await cancelAllReminders();
+    await cancelAttendanceReminders();
 
     if (!isEnabled || classDays.isEmpty) {
       return;
@@ -221,17 +228,24 @@ class DefaultNotificationService implements NotificationService {
     final hour = timeParts[0];
     final minute = timeParts[1];
 
-    final now = DateTime.now();
+    final now = nowOverride ?? DateTime.now();
+    final todayKey = formatDateKey(now);
 
     for (final dayOfWeek in classDays) {
-      final scheduledDate = calculateNextOccurrence(
+      var scheduledDate = calculateNextOccurrence(
         now: now,
         targetDayOfWeek: dayOfWeek,
         hour: hour,
         minute: minute,
       );
 
-      final dateKey = formatDateKey(scheduledDate);
+      var dateKey = formatDateKey(scheduledDate);
+      if (isTodayMarked && dateKey == todayKey) {
+        // Attendance already marked for today -> suppress today and schedule next week
+        scheduledDate = scheduledDate.add(const Duration(days: 7));
+        dateKey = formatDateKey(scheduledDate);
+      }
+
       if (holidays.containsKey(dateKey)) {
         // Skip declared holiday
         continue;
@@ -373,6 +387,14 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
     } catch (_) {}
   }
 
+  Future<void> cancelAttendanceReminders() async {
+    for (int d = 0; d <= 6; d++) {
+      try {
+        await _notificationsPlugin.cancel(id: 1000 + d);
+      } catch (_) {}
+    }
+  }
+
   static int noteNotificationId(String noteId) =>
       20000 + (noteId.hashCode.abs() % 100000);
 
@@ -473,8 +495,9 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
     required List<int> classDays,
     required bool isEnabled,
     Map<String, dynamic> holidays = const {},
+    bool isTodayMarked = false,
   }) async {
-    await cancelAllReminders();
+    await cancelAttendanceReminders();
 
     if (!isEnabled || classDays.isEmpty) return;
 
@@ -483,16 +506,23 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
     final minute = timeParts[1];
 
     final now = DateTime.now();
+    final todayKey = formatDateKey(now);
 
     for (final dayOfWeek in classDays) {
-      final scheduledDate = DefaultNotificationService.calculateNextOccurrence(
+      var scheduledDate = DefaultNotificationService.calculateNextOccurrence(
         now: now,
         targetDayOfWeek: dayOfWeek,
         hour: hour,
         minute: minute,
       );
 
-      final dateKey = formatDateKey(scheduledDate);
+      var dateKey = formatDateKey(scheduledDate);
+      if (isTodayMarked && dateKey == todayKey) {
+        // Attendance already marked for today -> suppress today and schedule next week
+        scheduledDate = scheduledDate.add(const Duration(days: 7));
+        dateKey = formatDateKey(scheduledDate);
+      }
+
       if (holidays.containsKey(dateKey)) {
         continue;
       }
@@ -524,15 +554,28 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
           iOS: DarwinNotificationDetails(),
         );
 
-        await _notificationsPlugin.zonedSchedule(
-          id: 1000 + dayOfWeek,
-          title: 'Attendance Reminder 📝',
-          body: "Don't forget to mark your classes for today!",
-          scheduledDate: tzScheduled,
-          notificationDetails: notificationDetails,
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-          payload: 'attendance_reminder:$dateKey',
-        );
+        try {
+          await _notificationsPlugin.zonedSchedule(
+            id: 1000 + dayOfWeek,
+            title: 'Attendance Reminder 📝',
+            body: "Don't forget to mark your classes for today!",
+            scheduledDate: tzScheduled,
+            notificationDetails: notificationDetails,
+            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+            payload: 'attendance_reminder:$dateKey',
+          );
+        } catch (_) {
+          // Fallback to inexact scheduling if exact alarms permission is denied
+          await _notificationsPlugin.zonedSchedule(
+            id: 1000 + dayOfWeek,
+            title: 'Attendance Reminder 📝',
+            body: "Don't forget to mark your classes for today!",
+            scheduledDate: tzScheduled,
+            notificationDetails: notificationDetails,
+            androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+            payload: 'attendance_reminder:$dateKey',
+          );
+        }
       } catch (_) {
         // Fallback or test environment
       }
