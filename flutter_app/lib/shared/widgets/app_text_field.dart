@@ -134,10 +134,12 @@ class _AppTextFieldState extends State<AppTextField> {
           : AppColors.surfaceSolidLight;
     } else {
       borderColor = isDark
-          ? AppColors.ruleBrightDark
+          ? Colors.white.withValues(alpha: 0.18)
           : AppColors.ruleBrightLight;
       shadows = null;
-      backgroundColor = isDark ? AppColors.inputBgDark : AppColors.inputBgLight;
+      backgroundColor = isDark
+          ? const Color(0x9918181B)
+          : AppColors.inputBgLight;
     }
 
     return Column(
@@ -184,7 +186,7 @@ class _AppTextFieldState extends State<AppTextField> {
               isDense: true,
               hintText: effectiveHint,
               hintStyle: AppTypography.inputHint(
-                mutedColor.withValues(alpha: 0.6),
+                mutedColor.withValues(alpha: 0.85),
               ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16.0,

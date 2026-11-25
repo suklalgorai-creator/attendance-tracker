@@ -240,7 +240,9 @@ class _PersonalizationCardState extends ConsumerState<PersonalizationCard> {
           },
       optionsViewBuilder: (context, onSelected, options) {
         final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
-        final bgColor = isDark ? AppColors.ruleDark : AppColors.ruleLight;
+        final bgColor = isDark
+            ? AppColors.surfaceSolidDark
+            : AppColors.surfaceSolidLight;
         final borderColor = isDark
             ? AppColors.glassBorderDark
             : AppColors.glassBorderLight;

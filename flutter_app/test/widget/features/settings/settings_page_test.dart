@@ -198,6 +198,27 @@ void main() {
         find.text('Not logged in — stored on this device only'),
         findsOneWidget,
       );
+      expect(find.text('Sign In to Sync'), findsOneWidget);
+    });
+
+    testWidgets('Tapping Sign In to Sync triggers Google sign-in directly', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(400, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        createWidget(settings: const UserSettingsEntity(name: ''), user: null),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Sign In to Sync'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('test@student.edu'), findsOneWidget);
+      expect(find.text('Log Out'), findsOneWidget);
     });
 
     testWidgets(
