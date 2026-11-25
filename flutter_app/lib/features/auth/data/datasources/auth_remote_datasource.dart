@@ -29,6 +29,8 @@ abstract class AuthRemoteDataSource {
   Future<void> signOut();
 }
 
+const _googleWebClientId = String.fromEnvironment('GOOGLE_WEB_CLIENT_ID');
+
 /// Production remote auth data source backed by [FirebaseAuth] and [GoogleSignIn].
 class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
   final FirebaseAuth? _firebaseAuthOverride;
@@ -44,7 +46,9 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
 
   Future<void> _ensureGoogleInitialized() async {
     if (_googleInitialized) return;
-    await GoogleSignIn.instance.initialize();
+    await GoogleSignIn.instance.initialize(
+      serverClientId: _googleWebClientId.isNotEmpty ? _googleWebClientId : null,
+    );
     _googleInitialized = true;
   }
 
