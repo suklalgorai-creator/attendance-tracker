@@ -21,22 +21,24 @@ void main() {
 
   group('StatRowWidget Tests', () {
     testWidgets('Renders uppercase label and normal value', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const StatRowWidget(label: 'Conducted', value: '42'),
-      ));
+      await tester.pumpWidget(
+        _wrap(const StatRowWidget(label: 'Conducted', value: '42')),
+      );
       expect(find.text('CONDUCTED'), findsOneWidget);
       expect(find.text('42'), findsOneWidget);
     });
 
     testWidgets('Renders safe and danger colored values', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const Column(
-          children: [
-            StatRowWidget.safe(label: 'Present', value: '38'),
-            StatRowWidget.danger(label: 'Status', value: 'Danger Zone'),
-          ],
+      await tester.pumpWidget(
+        _wrap(
+          const Column(
+            children: [
+              StatRowWidget.safe(label: 'Present', value: '38'),
+              StatRowWidget.danger(label: 'Status', value: 'Danger Zone'),
+            ],
+          ),
         ),
-      ));
+      );
 
       expect(find.text('PRESENT'), findsOneWidget);
       expect(find.text('38'), findsOneWidget);
@@ -50,22 +52,28 @@ void main() {
       expect(dangerText.style?.color, AppColors.penRed);
     });
 
-    testWidgets('Applies status-text 15px font size when isStatus is true', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const StatRowWidget(
-          label: 'Status',
-          value: 'Can miss 3 classes',
-          isStatus: true,
+    testWidgets('Applies status-text 15px font size when isStatus is true', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          const StatRowWidget(
+            label: 'Status',
+            value: 'Can miss 3 classes',
+            isStatus: true,
+          ),
         ),
-      ));
+      );
       final Text statusText = tester.widget(find.text('Can miss 3 classes'));
       expect(statusText.style?.fontSize, 15.0);
     });
 
     testWidgets('Omit dashed divider when isLast is true', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const StatRowWidget(label: 'Last Stat', value: '100%', isLast: true),
-      ));
+      await tester.pumpWidget(
+        _wrap(
+          const StatRowWidget(label: 'Last Stat', value: '100%', isLast: true),
+        ),
+      );
       expect(
         find.descendant(
           of: find.byType(StatRowWidget),
@@ -76,9 +84,15 @@ void main() {
     });
 
     testWidgets('Renders dashed divider when isLast is false', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const StatRowWidget(label: 'Middle Stat', value: '50%', isLast: false),
-      ));
+      await tester.pumpWidget(
+        _wrap(
+          const StatRowWidget(
+            label: 'Middle Stat',
+            value: '50%',
+            isLast: false,
+          ),
+        ),
+      );
       expect(
         find.descendant(
           of: find.byType(StatRowWidget),
@@ -89,40 +103,47 @@ void main() {
     });
 
     testWidgets('Renders trailing widget when provided', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const StatRowWidget(
-          label: 'Rank',
-          value: '#1',
-          trailing: Icon(Icons.star, key: Key('star_icon')),
+      await tester.pumpWidget(
+        _wrap(
+          const StatRowWidget(
+            label: 'Rank',
+            value: '#1',
+            trailing: Icon(Icons.star, key: Key('star_icon')),
+          ),
         ),
-      ));
+      );
       expect(find.byKey(const Key('star_icon')), findsOneWidget);
     });
 
-    testWidgets('Renders descriptive label with 30+ characters in 360px width without overflow', (tester) async {
-      tester.view.physicalSize = const Size(360, 800);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
+    testWidgets(
+      'Renders descriptive label with 30+ characters in 360px width without overflow',
+      (tester) async {
+        tester.view.physicalSize = const Size(360, 800);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() {
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
 
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: StatRowWidget(
-              label: 'Minimum Attendance Requirement',
-              value: '75%',
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: StatRowWidget(
+                  label: 'Minimum Attendance Requirement',
+                  value: '75%',
+                ),
+              ),
             ),
           ),
-        ),
-      ));
-      await tester.pump();
+        );
+        await tester.pump();
 
-      expect(tester.takeException(), isNull);
-      expect(find.text('MINIMUM ATTENDANCE REQUIREMENT'), findsOneWidget);
-      expect(find.text('75%'), findsOneWidget);
-    });
+        expect(tester.takeException(), isNull);
+        expect(find.text('MINIMUM ATTENDANCE REQUIREMENT'), findsOneWidget);
+        expect(find.text('75%'), findsOneWidget);
+      },
+    );
   });
 }

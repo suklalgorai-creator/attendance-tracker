@@ -108,21 +108,27 @@ void main() {
       repository.dispose();
     });
 
-    test('getCurrentUser returns null when unauthenticated and not guest', () async {
-      final user = await repository.getCurrentUser();
-      expect(user, isNull);
-      expect(repository.getCachedCurrentUser(), isNull);
-    });
+    test(
+      'getCurrentUser returns null when unauthenticated and not guest',
+      () async {
+        final user = await repository.getCurrentUser();
+        expect(user, isNull);
+        expect(repository.getCachedCurrentUser(), isNull);
+      },
+    );
 
-    test('getCurrentUser returns guest user when guest mode is active', () async {
-      await fakeLocal.setGuestMode(true);
+    test(
+      'getCurrentUser returns guest user when guest mode is active',
+      () async {
+        await fakeLocal.setGuestMode(true);
 
-      final user = await repository.getCurrentUser();
-      expect(user, isNotNull);
-      expect(user!.isGuest, isTrue);
-      expect(user.id, 'guest');
-      expect(repository.getCachedCurrentUser()?.isGuest, isTrue);
-    });
+        final user = await repository.getCurrentUser();
+        expect(user, isNotNull);
+        expect(user!.isGuest, isTrue);
+        expect(user.id, 'guest');
+        expect(repository.getCachedCurrentUser()?.isGuest, isTrue);
+      },
+    );
 
     test('getCurrentUser returns local user when present', () async {
       const saved = AuthUserModel(id: 'local_1', email: 'saved@college.edu');
@@ -135,14 +141,17 @@ void main() {
       expect(user.isGuest, isFalse);
     });
 
-    test('signInWithGoogle signs in remotely, persists locally, and returns entity', () async {
-      final user = await repository.signInWithGoogle();
+    test(
+      'signInWithGoogle signs in remotely, persists locally, and returns entity',
+      () async {
+        final user = await repository.signInWithGoogle();
 
-      expect(user.id, 'google_1');
-      expect(user.email, 'test@college.edu');
-      expect(await fakeLocal.getSavedUser(), isNotNull);
-      expect(await fakeLocal.isGuestMode(), isFalse);
-    });
+        expect(user.id, 'google_1');
+        expect(user.email, 'test@college.edu');
+        expect(await fakeLocal.getSavedUser(), isNotNull);
+        expect(await fakeLocal.isGuestMode(), isFalse);
+      },
+    );
 
     test('signInAsGuest sets guest mode in local data source', () async {
       final guest = await repository.signInAsGuest();
@@ -152,42 +161,48 @@ void main() {
       expect(await fakeLocal.getSavedUser(), isNull);
     });
 
-    test('signOut clears local and remote state without resetting onboarding', () async {
-      await repository.signInWithGoogle();
-      await repository.setOnboardingComplete(true);
+    test(
+      'signOut clears local and remote state without resetting onboarding',
+      () async {
+        await repository.signInWithGoogle();
+        await repository.setOnboardingComplete(true);
 
-      await repository.signOut();
+        await repository.signOut();
 
-      expect(await repository.getCurrentUser(), isNull);
-      expect(await fakeLocal.isGuestMode(), isFalse);
-      expect(await repository.isOnboardingComplete(), isTrue);
-    });
+        expect(await repository.getCurrentUser(), isNull);
+        expect(await fakeLocal.isGuestMode(), isFalse);
+        expect(await repository.isOnboardingComplete(), isTrue);
+      },
+    );
 
-    test('re-login after sign out retains isOnboardingComplete == true when user_settings has non-empty startDate', () async {
-      fakeLocal.setUserSettings({
-        'startDate': '2026-01-10',
-        'programName': 'B.Tech CSE',
-        'minPercent': 75.0,
-      });
+    test(
+      're-login after sign out retains isOnboardingComplete == true when user_settings has non-empty startDate',
+      () async {
+        fakeLocal.setUserSettings({
+          'startDate': '2026-01-10',
+          'programName': 'B.Tech CSE',
+          'minPercent': 75.0,
+        });
 
-      // Initial login
-      final user = await repository.signInWithGoogle();
-      expect(user.id, 'google_1');
-      expect(await repository.isOnboardingComplete(), isTrue);
-      expect(repository.isCachedOnboardingComplete(), isTrue);
+        // Initial login
+        final user = await repository.signInWithGoogle();
+        expect(user.id, 'google_1');
+        expect(await repository.isOnboardingComplete(), isTrue);
+        expect(repository.isCachedOnboardingComplete(), isTrue);
 
-      // Sign out
-      await repository.signOut();
-      expect(await repository.getCurrentUser(), isNull);
-      expect(await repository.isOnboardingComplete(), isTrue);
-      expect(repository.isCachedOnboardingComplete(), isTrue);
+        // Sign out
+        await repository.signOut();
+        expect(await repository.getCurrentUser(), isNull);
+        expect(await repository.isOnboardingComplete(), isTrue);
+        expect(repository.isCachedOnboardingComplete(), isTrue);
 
-      // Re-login
-      final relogged = await repository.signInWithGoogle();
-      expect(relogged.id, 'google_1');
-      expect(await repository.isOnboardingComplete(), isTrue);
-      expect(repository.isCachedOnboardingComplete(), isTrue);
-    });
+        // Re-login
+        final relogged = await repository.signInWithGoogle();
+        expect(relogged.id, 'google_1');
+        expect(await repository.isOnboardingComplete(), isTrue);
+        expect(repository.isCachedOnboardingComplete(), isTrue);
+      },
+    );
 
     test('isOnboardingComplete delegates to local data source', () async {
       expect(await repository.isOnboardingComplete(), isFalse);

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../calendar/presentation/widgets/activity_card.dart';
+import '../../../dailyflow/presentation/widgets/daily_flow_dashboard_card.dart';
 import '../../../subjects/presentation/widgets/subject_dialog.dart';
 import '../../domain/models/dashboard_stats.dart';
 import '../providers/dashboard_controller.dart';
@@ -22,10 +23,7 @@ import '../widgets/todays_schedule_card.dart';
 class DashboardPage extends ConsumerWidget {
   final VoidCallback? onAddSubject;
 
-  const DashboardPage({
-    super.key,
-    this.onAddSubject,
-  });
+  const DashboardPage({super.key, this.onAddSubject});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -44,12 +42,12 @@ class DashboardPage extends ConsumerWidget {
     final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
 
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
       children: [
         // Header Row: Title ('Dashboard'), Program/Course subtitle, and Streak Pill
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               child: Column(
@@ -58,18 +56,18 @@ class DashboardPage extends ConsumerWidget {
                   Text(
                     'Dashboard',
                     style: GoogleFonts.outfit(
-                      fontSize: 24,
+                      fontSize: 18,
                       fontWeight: FontWeight.w800,
                       color: paperColor,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     (settings?.programName.isNotEmpty ?? false)
                         ? settings!.programName
                         : 'Semester Overview',
                     style: GoogleFonts.outfit(
-                      fontSize: 13,
+                      fontSize: 12,
                       fontWeight: FontWeight.w500,
                       color: mutedColor,
                     ),
@@ -81,29 +79,25 @@ class DashboardPage extends ConsumerWidget {
           ],
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
 
         // Advisor Banner
-        AdvisorBanner(
-          stats: stats,
-        ),
+        AdvisorBanner(stats: stats),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
 
         // Today's Scheduled Sessions Card (Conditional)
         const TodaysScheduleCard(),
 
         // Overview Hero Card
-        OverviewCard(
-          stats: stats,
-        ),
+        OverviewCard(stats: stats),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
 
         // Activity Card (Calendar View & Contribution Heatmap)
         const ActivityCard(),
 
-        const SizedBox(height: 24),
+        const SizedBox(height: 18),
 
         // Section Title: Quick Attendance
         Row(
@@ -115,7 +109,7 @@ class DashboardPage extends ConsumerWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.outfit(
-                  fontSize: 18,
+                  fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: paperColor,
                 ),
@@ -182,6 +176,11 @@ class DashboardPage extends ConsumerWidget {
                 );
               },
             ),
+
+        const SizedBox(height: 12),
+
+        // DailyFlow Planning & Execution Summary Card
+        const DailyFlowDashboardCard(),
       ],
     );
   }

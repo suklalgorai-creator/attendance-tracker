@@ -23,12 +23,15 @@ class TimetablePage extends ConsumerWidget {
     final subjectsAsync = ref.watch(subjectsStreamProvider);
     final timetableAsync = ref.watch(timetableStreamProvider);
 
-    final classDays = settingsAsync.valueOrNull?.classDays ?? const [1, 2, 3, 4, 5];
+    final classDays =
+        settingsAsync.valueOrNull?.classDays ?? const [1, 2, 3, 4, 5];
     final subjects = subjectsAsync.valueOrNull ?? const [];
     final timetable = timetableAsync.valueOrNull ?? const {};
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.bgPrimaryDark : AppColors.bgPrimaryLight,
+      backgroundColor: isDark
+          ? AppColors.bgPrimaryDark
+          : AppColors.bgPrimaryLight,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -65,10 +68,9 @@ class TimetablePage extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         'WEEKLY SCHEDULE',
-                        style: AppTypography.cardTitle(paperColor).copyWith(
-                          fontSize: 16,
-                          letterSpacing: 0.5,
-                        ),
+                        style: AppTypography.cardTitle(
+                          paperColor,
+                        ).copyWith(fontSize: 16, letterSpacing: 0.5),
                       ),
                     ),
                   ],
@@ -92,7 +94,9 @@ class TimetablePage extends ConsumerWidget {
                   subjects: subjects,
                   onAddSession: (day, subjectId) async {
                     try {
-                      await ref.read(timetableRepositoryProvider).addSession(day, subjectId);
+                      await ref
+                          .read(timetableRepositoryProvider)
+                          .addSession(day, subjectId);
                     } catch (e) {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -103,11 +107,15 @@ class TimetablePage extends ConsumerWidget {
                   },
                   onRemoveSession: (day, sessionId) async {
                     try {
-                      await ref.read(timetableRepositoryProvider).removeSession(day, sessionId);
+                      await ref
+                          .read(timetableRepositoryProvider)
+                          .removeSession(day, sessionId);
                     } catch (e) {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Failed to remove session: $e')),
+                          SnackBar(
+                            content: Text('Failed to remove session: $e'),
+                          ),
                         );
                       }
                     }

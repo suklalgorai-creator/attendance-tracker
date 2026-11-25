@@ -72,50 +72,55 @@ void main() {
       expect(find.text('SAT'), findsNothing);
     });
 
-    testWidgets('renders existing sessions and invokes onRemoveSession on tap', (tester) async {
-      int? removedDay;
-      String? removedSessionId;
+    testWidgets(
+      'renders existing sessions and invokes onRemoveSession on tap',
+      (tester) async {
+        int? removedDay;
+        String? removedSessionId;
 
-      final timetable = {
-        1: [
-          TimetableSessionEntity(
-            id: 'session-101',
-            subjectId: 'sub-math',
-            label: 'Mathematics',
-            dayOfWeek: 1,
-            createdAt: now,
-            updatedAt: now,
+        final timetable = {
+          1: [
+            TimetableSessionEntity(
+              id: 'session-101',
+              subjectId: 'sub-math',
+              label: 'Mathematics',
+              dayOfWeek: 1,
+              createdAt: now,
+              updatedAt: now,
+            ),
+          ],
+        };
+
+        await tester.pumpWidget(
+          buildWidget(
+            classDays: [1],
+            timetable: timetable,
+            subjects: mockSubjects,
+            onRemoveSession: (day, id) {
+              removedDay = day;
+              removedSessionId = id;
+            },
           ),
-        ],
-      };
+        );
+        await tester.pumpAndSettle();
 
-      await tester.pumpWidget(
-        buildWidget(
-          classDays: [1],
-          timetable: timetable,
-          subjects: mockSubjects,
-          onRemoveSession: (day, id) {
-            removedDay = day;
-            removedSessionId = id;
-          },
-        ),
-      );
-      await tester.pumpAndSettle();
+        expect(find.text('Mathematics'), findsWidgets);
 
-      expect(find.text('Mathematics'), findsWidgets);
+        // Find and tap remove button
+        final removeButton = find.bySemanticsLabel('Remove Mathematics');
+        expect(removeButton, findsOneWidget);
 
-      // Find and tap remove button
-      final removeButton = find.bySemanticsLabel('Remove Mathematics');
-      expect(removeButton, findsOneWidget);
+        await tester.tap(removeButton);
+        await tester.pumpAndSettle();
 
-      await tester.tap(removeButton);
-      await tester.pumpAndSettle();
+        expect(removedDay, 1);
+        expect(removedSessionId, 'session-101');
+      },
+    );
 
-      expect(removedDay, 1);
-      expect(removedSessionId, 'session-101');
-    });
-
-    testWidgets('allows adding session and invokes onAddSession', (tester) async {
+    testWidgets('allows adding session and invokes onAddSession', (
+      tester,
+    ) async {
       int? addedDay;
       String? addedSubjectId;
 
@@ -142,13 +147,11 @@ void main() {
       expect(addedSubjectId, 'sub-math');
     });
 
-    testWidgets('shows "Create a subject first." when subjects list is empty', (tester) async {
+    testWidgets('shows "Create a subject first." when subjects list is empty', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        buildWidget(
-          classDays: [1, 2],
-          timetable: const {},
-          subjects: const [],
-        ),
+        buildWidget(classDays: [1, 2], timetable: const {}, subjects: const []),
       );
       await tester.pumpAndSettle();
 
@@ -169,7 +172,9 @@ void main() {
       expect(find.textContaining('No class days configured'), findsOneWidget);
     });
 
-    testWidgets('320px narrow screen width renders without overflow', (tester) async {
+    testWidgets('320px narrow screen width renders without overflow', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(320, 800);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);

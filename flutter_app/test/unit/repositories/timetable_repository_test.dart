@@ -16,7 +16,9 @@ class FakeSubjectRepository implements SubjectRepository {
   Future<SubjectEntity?> getSubjectById(String id) async => _subjects[id];
 
   @override
-  Future<List<SubjectEntity>> getSubjects({bool includeDeleted = false}) async =>
+  Future<List<SubjectEntity>> getSubjects({
+    bool includeDeleted = false,
+  }) async =>
       _subjects.values.where((s) => includeDeleted || !s.isDeleted).toList();
 
   @override
@@ -24,7 +26,8 @@ class FakeSubjectRepository implements SubjectRepository {
       Stream.value(_subjects.values.toList());
 
   @override
-  Future<void> saveSubject(SubjectEntity subject) async => _subjects[subject.id] = subject;
+  Future<void> saveSubject(SubjectEntity subject) async =>
+      _subjects[subject.id] = subject;
 
   @override
   Future<void> saveSubjects(List<SubjectEntity> subjects) async {
@@ -96,20 +99,23 @@ void main() {
       expect(timetable, isEmpty);
     });
 
-    test('addSession successfully resolves subject name and appends to day', () async {
-      await repository.addSession(1, 'sub-math');
+    test(
+      'addSession successfully resolves subject name and appends to day',
+      () async {
+        await repository.addSession(1, 'sub-math');
 
-      final timetable = await repository.getTimetable();
-      expect(timetable.containsKey(1), isTrue);
-      expect(timetable[1]!.length, 1);
+        final timetable = await repository.getTimetable();
+        expect(timetable.containsKey(1), isTrue);
+        expect(timetable[1]!.length, 1);
 
-      final session = timetable[1]!.first;
-      expect(session.subjectId, 'sub-math');
-      expect(session.label, 'Mathematics');
-      expect(session.dayOfWeek, 1);
-      expect(session.active, isTrue);
-      expect(session.isDeleted, isFalse);
-    });
+        final session = timetable[1]!.first;
+        expect(session.subjectId, 'sub-math');
+        expect(session.label, 'Mathematics');
+        expect(session.dayOfWeek, 1);
+        expect(session.active, isTrue);
+        expect(session.isDeleted, isFalse);
+      },
+    );
 
     test('addSession uses custom label when provided', () async {
       await repository.addSession(2, 'sub-phy', label: 'Physics Honors');
@@ -170,7 +176,9 @@ void main() {
         stream,
         emitsInOrder([
           isEmpty, // initial
-          predicate<Map<int, dynamic>>((m) => m.containsKey(1) && m[1].length == 1),
+          predicate<Map<int, dynamic>>(
+            (m) => m.containsKey(1) && m[1].length == 1,
+          ),
         ]),
       );
 

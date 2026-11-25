@@ -8,11 +8,7 @@ class OverviewCard extends StatelessWidget {
   final DashboardStats stats;
   final VoidCallback? onTap;
 
-  const OverviewCard({
-    super.key,
-    required this.stats,
-    this.onTap,
-  });
+  const OverviewCard({super.key, required this.stats, this.onTap});
 
   @override
   Widget build(BuildContext context) {

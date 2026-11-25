@@ -20,12 +20,6 @@ class AttendanceApp extends ConsumerWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
       routerConfig: router,
-      builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(accessibleNavigation: false),
-          child: child ?? const SizedBox.shrink(),
-        );
-      },
     );
   }
 }

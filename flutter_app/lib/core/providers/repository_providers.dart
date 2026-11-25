@@ -25,13 +25,20 @@ import '../../features/timetable/data/repositories/timetable_repository_impl.dar
 import '../../features/timetable/domain/entities/timetable_session_entity.dart';
 import '../../features/timetable/domain/repositories/timetable_repository.dart';
 
+import '../../features/dailyflow/data/datasources/daily_flow_local_datasource.dart';
+import '../../features/dailyflow/data/repositories/daily_flow_repository_impl.dart';
+import '../../features/dailyflow/domain/entities/daily_task_entity.dart';
+import '../../features/dailyflow/domain/repositories/daily_flow_repository.dart';
+
 // ==================== Local Data Sources ====================
 
 final subjectLocalDataSourceProvider = Provider<SubjectLocalDataSource>((ref) {
   return SubjectLocalDataSourceImpl();
 });
 
-final attendanceLocalDataSourceProvider = Provider<AttendanceLocalDataSource>((ref) {
+final attendanceLocalDataSourceProvider = Provider<AttendanceLocalDataSource>((
+  ref,
+) {
   return AttendanceLocalDataSourceImpl();
 });
 
@@ -39,7 +46,9 @@ final notesLocalDataSourceProvider = Provider<NotesLocalDataSource>((ref) {
   return NotesLocalDataSourceImpl();
 });
 
-final settingsLocalDataSourceProvider = Provider<SettingsLocalDataSource>((ref) {
+final settingsLocalDataSourceProvider = Provider<SettingsLocalDataSource>((
+  ref,
+) {
   return SettingsLocalDataSourceImpl();
 });
 
@@ -75,13 +84,15 @@ final subjectsStreamProvider = StreamProvider<List<SubjectEntity>>((ref) {
   return ref.watch(subjectRepositoryProvider).watchSubjects();
 });
 
-final attendanceRecordsStreamProvider = StreamProvider<List<AttendanceRecordEntity>>((ref) {
-  return ref.watch(attendanceRepositoryProvider).watchAttendanceRecords();
-});
+final attendanceRecordsStreamProvider =
+    StreamProvider<List<AttendanceRecordEntity>>((ref) {
+      return ref.watch(attendanceRepositoryProvider).watchAttendanceRecords();
+    });
 
-final legacyAttendanceStreamProvider = StreamProvider<List<LegacyAttendanceEntity>>((ref) {
-  return ref.watch(attendanceRepositoryProvider).watchLegacyAttendance();
-});
+final legacyAttendanceStreamProvider =
+    StreamProvider<List<LegacyAttendanceEntity>>((ref) {
+      return ref.watch(attendanceRepositoryProvider).watchLegacyAttendance();
+    });
 
 final notesStreamProvider = StreamProvider<List<NoteEntity>>((ref) {
   return ref.watch(notesRepositoryProvider).watchNotes();
@@ -97,6 +108,27 @@ final timetableRepositoryProvider = Provider<TimetableRepository>((ref) {
   );
 });
 
-final timetableStreamProvider = StreamProvider<Map<int, List<TimetableSessionEntity>>>((ref) {
-  return ref.watch(timetableRepositoryProvider).watchTimetable();
+final timetableStreamProvider =
+    StreamProvider<Map<int, List<TimetableSessionEntity>>>((ref) {
+      return ref.watch(timetableRepositoryProvider).watchTimetable();
+    });
+
+// ==================== DailyFlow ====================
+
+final dailyFlowLocalDataSourceProvider = Provider<DailyFlowLocalDataSource>((
+  ref,
+) {
+  return DailyFlowLocalDataSourceImpl();
+});
+
+final dailyFlowRepositoryProvider = Provider<DailyFlowRepository>((ref) {
+  return DailyFlowRepositoryImpl(
+    localDataSource: ref.watch(dailyFlowLocalDataSourceProvider),
+  );
+});
+
+final dailyFlowTasksStreamProvider = StreamProvider<List<DailyTaskEntity>>((
+  ref,
+) {
+  return ref.watch(dailyFlowRepositoryProvider).watchTasks();
 });

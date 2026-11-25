@@ -18,7 +18,10 @@ void main() async {
       MaterialApp(
         home: Scaffold(
           body: Center(
-            child: Text('Startup Error: $e', style: const TextStyle(color: Colors.red)),
+            child: Text(
+              'Startup Error: $e',
+              style: const TextStyle(color: Colors.red),
+            ),
           ),
         ),
       ),

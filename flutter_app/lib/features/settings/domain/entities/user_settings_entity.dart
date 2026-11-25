@@ -39,7 +39,8 @@ class UserSettingsEntity {
       minPercent: minPercent ?? this.minPercent,
       classDays: classDays ?? this.classDays,
       reminderTime: reminderTime ?? this.reminderTime,
-      pushNotificationsEnabled: pushNotificationsEnabled ?? this.pushNotificationsEnabled,
+      pushNotificationsEnabled:
+          pushNotificationsEnabled ?? this.pushNotificationsEnabled,
     );
   }
 

@@ -19,7 +19,8 @@ class PersonalizationCard extends ConsumerStatefulWidget {
   const PersonalizationCard({super.key, required this.settings});
 
   @override
-  ConsumerState<PersonalizationCard> createState() => _PersonalizationCardState();
+  ConsumerState<PersonalizationCard> createState() =>
+      _PersonalizationCardState();
 }
 
 class _PersonalizationCardState extends ConsumerState<PersonalizationCard> {
@@ -60,27 +61,37 @@ class _PersonalizationCardState extends ConsumerState<PersonalizationCard> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.settings.name);
-    _programController = TextEditingController(text: widget.settings.programName);
+    _programController = TextEditingController(
+      text: widget.settings.programName,
+    );
     _courseController = TextEditingController(text: widget.settings.courseName);
 
     // Apply toTitleCase on blur matching React
     _programFocus.addListener(() {
       if (!_programFocus.hasFocus) {
-        final titleCased = SettingsController.toTitleCase(_programController.text);
+        final titleCased = SettingsController.toTitleCase(
+          _programController.text,
+        );
         if (titleCased != _programController.text) {
           _programController.text = titleCased;
         }
-        ref.read(settingsControllerProvider.notifier).updateProgramName(_programController.text);
+        ref
+            .read(settingsControllerProvider.notifier)
+            .updateProgramName(_programController.text);
       }
     });
 
     _courseFocus.addListener(() {
       if (!_courseFocus.hasFocus) {
-        final titleCased = SettingsController.toTitleCase(_courseController.text);
+        final titleCased = SettingsController.toTitleCase(
+          _courseController.text,
+        );
         if (titleCased != _courseController.text) {
           _courseController.text = titleCased;
         }
-        ref.read(settingsControllerProvider.notifier).updateCourseName(_courseController.text);
+        ref
+            .read(settingsControllerProvider.notifier)
+            .updateCourseName(_courseController.text);
       }
     });
   }
@@ -88,13 +99,16 @@ class _PersonalizationCardState extends ConsumerState<PersonalizationCard> {
   @override
   void didUpdateWidget(covariant PersonalizationCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.settings.name != _nameController.text && !_nameController.selection.isValid) {
+    if (widget.settings.name != _nameController.text &&
+        !_nameController.selection.isValid) {
       _nameController.text = widget.settings.name;
     }
-    if (widget.settings.programName != _programController.text && !_programFocus.hasFocus) {
+    if (widget.settings.programName != _programController.text &&
+        !_programFocus.hasFocus) {
       _programController.text = widget.settings.programName;
     }
-    if (widget.settings.courseName != _courseController.text && !_courseFocus.hasFocus) {
+    if (widget.settings.courseName != _courseController.text &&
+        !_courseFocus.hasFocus) {
       _courseController.text = widget.settings.courseName;
     }
   }
@@ -120,19 +134,15 @@ class _PersonalizationCardState extends ConsumerState<PersonalizationCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Personalization',
-            style: AppTypography.cardTitle(paperColor),
-          ),
+          Text('Personalization', style: AppTypography.cardTitle(paperColor)),
           const SizedBox(height: 16),
           // Theme switch row
-          Text(
-            'THEME',
-            style: AppTypography.inputLabel(mutedColor),
-          ),
+          Text('THEME', style: AppTypography.inputLabel(mutedColor)),
           const SizedBox(height: 8),
           AppButton(
-            label: isDark ? '☀️ Switch to Light Mode' : '🌙 Switch to Dark Mode',
+            label: isDark
+                ? '☀️ Switch to Light Mode'
+                : '🌙 Switch to Dark Mode',
             variant: AppButtonVariant.ghost,
             isWide: true,
             onPressed: () {
@@ -144,7 +154,9 @@ class _PersonalizationCardState extends ConsumerState<PersonalizationCard> {
           AppTextField(
             label: 'Your Name',
             controller: _nameController,
-            hint: authUser?.displayName != null && authUser!.displayName!.isNotEmpty
+            hint:
+                authUser?.displayName != null &&
+                    authUser!.displayName!.isNotEmpty
                 ? authUser.displayName!
                 : 'Enter your name',
             onChanged: (val) {
@@ -160,7 +172,9 @@ class _PersonalizationCardState extends ConsumerState<PersonalizationCard> {
             options: defaultPrograms,
             hint: 'e.g. B.Tech CSE',
             onChanged: (val) {
-              ref.read(settingsControllerProvider.notifier).updateProgramName(val);
+              ref
+                  .read(settingsControllerProvider.notifier)
+                  .updateProgramName(val);
             },
           ),
           const SizedBox(height: 16),
@@ -172,7 +186,9 @@ class _PersonalizationCardState extends ConsumerState<PersonalizationCard> {
             options: defaultSemesters,
             hint: 'e.g. Semester 6',
             onChanged: (val) {
-              ref.read(settingsControllerProvider.notifier).updateCourseName(val);
+              ref
+                  .read(settingsControllerProvider.notifier)
+                  .updateCourseName(val);
             },
           ),
         ],
@@ -197,26 +213,37 @@ class _PersonalizationCardState extends ConsumerState<PersonalizationCard> {
         if (textEditingValue.text.isEmpty) {
           return options;
         }
-        return options.where((option) =>
-            option.toLowerCase().contains(textEditingValue.text.toLowerCase()));
+        return options.where(
+          (option) => option.toLowerCase().contains(
+            textEditingValue.text.toLowerCase(),
+          ),
+        );
       },
       onSelected: (String selection) {
         controller.text = selection;
         onChanged(selection);
       },
-      fieldViewBuilder: (context, fieldTextEditingController, fieldFocusNode, onFieldSubmitted) {
-        return AppTextField(
-          label: label,
-          controller: fieldTextEditingController,
-          focusNode: fieldFocusNode,
-          hint: hint,
-          onChanged: onChanged,
-        );
-      },
+      fieldViewBuilder:
+          (
+            context,
+            fieldTextEditingController,
+            fieldFocusNode,
+            onFieldSubmitted,
+          ) {
+            return AppTextField(
+              label: label,
+              controller: fieldTextEditingController,
+              focusNode: fieldFocusNode,
+              hint: hint,
+              onChanged: onChanged,
+            );
+          },
       optionsViewBuilder: (context, onSelected, options) {
         final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
         final bgColor = isDark ? AppColors.ruleDark : AppColors.ruleLight;
-        final borderColor = isDark ? AppColors.glassBorderDark : AppColors.glassBorderLight;
+        final borderColor = isDark
+            ? AppColors.glassBorderDark
+            : AppColors.glassBorderLight;
 
         return Align(
           alignment: Alignment.topLeft,
@@ -241,10 +268,16 @@ class _PersonalizationCardState extends ConsumerState<PersonalizationCard> {
                     onTap: () => onSelected(option),
                     borderRadius: BorderRadius.circular(8),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 10.0,
+                      ),
                       child: Text(
                         option,
-                        style: GoogleFonts.outfit(fontSize: 14, color: paperColor),
+                        style: GoogleFonts.outfit(
+                          fontSize: 14,
+                          color: paperColor,
+                        ),
                       ),
                     ),
                   );

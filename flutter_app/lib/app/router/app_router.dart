@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/controllers/auth_providers.dart';
 import '../../features/auth/presentation/controllers/auth_state.dart';
 import '../../features/auth/presentation/pages/auth_page.dart';
+import '../../features/dailyflow/presentation/pages/daily_flow_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/leaderboard/presentation/leaderboard_page.dart';
 import '../../features/notes/presentation/notes_page.dart';
@@ -16,19 +17,22 @@ import '../../shared/widgets/app_shell.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final homeNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'homeBranch');
-final registerNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'registerBranch');
-final leaderboardNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'leaderboardBranch');
-final settingsNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'settingsBranch');
+final registerNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'registerBranch',
+);
+final leaderboardNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'leaderboardBranch',
+);
+final settingsNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'settingsBranch',
+);
 
 /// Listenable notifier reacting to auth and onboarding changes without rebuilding GoRouter.
 class RouterNotifier extends ChangeNotifier {
   final Ref _ref;
 
   RouterNotifier(this._ref) {
-    _ref.listen<AuthState>(
-      authNotifierProvider,
-      (_, _) => notifyListeners(),
-    );
+    _ref.listen<AuthState>(authNotifierProvider, (_, _) => notifyListeners());
   }
 
   /// Declarative redirection rules matching React AppLayout.jsx:
@@ -40,7 +44,8 @@ class RouterNotifier extends ChangeNotifier {
     final authState = _ref.read(authNotifierProvider);
     final loc = state.matchedLocation;
 
-    if (authState.status == AuthStatus.loading || authState.status == AuthStatus.initial) {
+    if (authState.status == AuthStatus.loading ||
+        authState.status == AuthStatus.initial) {
       return null;
     }
 
@@ -155,6 +160,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'notes',
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const NotesPage(),
+      ),
+
+      // Standalone top-level route (DailyFlow Planner & Execution pushed over shell)
+      GoRoute(
+        path: '/dailyflow',
+        name: 'dailyflow',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const DailyFlowPage(),
       ),
 
       // Standalone top-level route (Timetable pushed over shell)

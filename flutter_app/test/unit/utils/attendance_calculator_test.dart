@@ -18,15 +18,33 @@ void main() {
     });
 
     test('recovery math returns the minimum integer solution', () {
-      expect(AttendanceCalculator.calculateRequiredRecoveryClasses(60, 100, 75), 60);
-      expect(AttendanceCalculator.calculateRequiredRecoveryClasses(70, 100, 75), 20);
-      expect(AttendanceCalculator.calculateRequiredRecoveryClasses(74, 100, 75), 4);
-      expect(AttendanceCalculator.calculateRequiredRecoveryClasses(75, 100, 75), 0);
+      expect(
+        AttendanceCalculator.calculateRequiredRecoveryClasses(60, 100, 75),
+        60,
+      );
+      expect(
+        AttendanceCalculator.calculateRequiredRecoveryClasses(70, 100, 75),
+        20,
+      );
+      expect(
+        AttendanceCalculator.calculateRequiredRecoveryClasses(74, 100, 75),
+        4,
+      );
+      expect(
+        AttendanceCalculator.calculateRequiredRecoveryClasses(75, 100, 75),
+        0,
+      );
     });
 
     test('100 percent recovery is represented as impossible', () {
-      expect(AttendanceCalculator.calculateRequiredRecoveryClasses(9, 10, 100), -1);
-      expect(AttendanceCalculator.calculateRequiredRecoveryClasses(10, 10, 100), 0);
+      expect(
+        AttendanceCalculator.calculateRequiredRecoveryClasses(9, 10, 100),
+        -1,
+      );
+      expect(
+        AttendanceCalculator.calculateRequiredRecoveryClasses(10, 10, 100),
+        0,
+      );
     });
 
     test('invalid thresholds and impossible records are rejected safely', () {
@@ -35,7 +53,10 @@ void main() {
       expect(AttendanceCalculator.isValidThreshold(100.01), isFalse);
       expect(AttendanceCalculator.calculateMaximumAbsences(10, 10, 0), 0);
       expect(AttendanceCalculator.calculateMaximumAbsences(11, 10, 75), 0);
-      expect(AttendanceCalculator.calculateRequiredRecoveryClasses(5, 10, 101), 0);
+      expect(
+        AttendanceCalculator.calculateRequiredRecoveryClasses(5, 10, 101),
+        0,
+      );
     });
 
     test('projected attendance supports multiple future classes', () {
@@ -56,7 +77,11 @@ void main() {
         closeTo(66.6666666667, 1e-9),
       );
       expect(
-        AttendanceCalculator.calculateProjectedAttendance(8, 10, futurePresent: -1),
+        AttendanceCalculator.calculateProjectedAttendance(
+          8,
+          10,
+          futurePresent: -1,
+        ),
         isNull,
       );
     });

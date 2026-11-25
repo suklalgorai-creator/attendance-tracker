@@ -1,4 +1,6 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../sync/presentation/providers/sync_providers.dart';
 import '../../data/datasources/auth_local_datasource.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
@@ -11,9 +13,9 @@ final authLocalDataSourceProvider = Provider<AuthLocalDataSource>((ref) {
   return AuthLocalDataSourceImpl();
 });
 
-/// Provider for remote authentication data source (offline default).
+/// Provider for remote authentication data source backed by Firebase Auth & Google Sign-In.
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
-  return DefaultAuthRemoteDataSource();
+  return FirebaseAuthRemoteDataSource();
 });
 
 /// Provider for [AuthRepository].
@@ -27,8 +29,17 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 });
 
 /// StateNotifierProvider exposing the authentication state.
-final authNotifierProvider =
-    StateNotifierProvider<AuthNotifier, AuthState>((ref) {
+final authNotifierProvider = StateNotifierProvider<AuthNotifier, AuthState>((
+  ref,
+) {
   final repository = ref.watch(authRepositoryProvider);
-  return AuthNotifier(repository);
+  return AuthNotifier(
+    repository,
+    onAuthenticated: (uid) async {
+      if (Firebase.apps.isNotEmpty) {
+        final syncService = ref.read(cloudSyncServiceProvider);
+        await syncService.loadUserData(uid);
+      }
+    },
+  );
 });

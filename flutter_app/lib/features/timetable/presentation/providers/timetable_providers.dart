@@ -9,7 +9,9 @@ export '../../../../core/providers/repository_providers.dart'
     show timetableRepositoryProvider, timetableStreamProvider;
 
 /// Provider that calculates today's scheduled sessions from the weekly timetable.
-final todaysScheduledSessionsProvider = Provider<List<TimetableSessionEntity>>((ref) {
+final todaysScheduledSessionsProvider = Provider<List<TimetableSessionEntity>>((
+  ref,
+) {
   final timetableAsync = ref.watch(timetableStreamProvider);
   final timetable = timetableAsync.valueOrNull ?? const {};
   final todayDay = DateTime.now().weekday % 7; // 0 = Sun, 1 = Mon ... 6 = Sat
@@ -18,7 +20,9 @@ final todaysScheduledSessionsProvider = Provider<List<TimetableSessionEntity>>((
 });
 
 /// Provider returning scheduled sessions for today that have not yet been marked (present, absent, cancelled).
-final unmarkedTodaySessionsProvider = Provider<List<TimetableSessionEntity>>((ref) {
+final unmarkedTodaySessionsProvider = Provider<List<TimetableSessionEntity>>((
+  ref,
+) {
   final todaySessions = ref.watch(todaysScheduledSessionsProvider);
   if (todaySessions.isEmpty) return const [];
 

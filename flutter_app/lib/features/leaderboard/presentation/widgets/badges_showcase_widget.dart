@@ -10,18 +10,16 @@ import '../../domain/entities/streak_badge_tier.dart';
 class BadgesShowcaseWidget extends StatelessWidget {
   final int currentStreak;
 
-  const BadgesShowcaseWidget({
-    super.key,
-    required this.currentStreak,
-  });
+  const BadgesShowcaseWidget({super.key, required this.currentStreak});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
     final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
-    final ruleBrightColor =
-        isDark ? AppColors.ruleBrightDark : AppColors.ruleBrightLight;
+    final ruleBrightColor = isDark
+        ? AppColors.ruleBrightDark
+        : AppColors.ruleBrightLight;
 
     final currentTier = StreakTier.fromStreak(currentStreak);
     final nextTier = currentTier.nextTier;
@@ -39,10 +37,7 @@ class BadgesShowcaseWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: ruleBrightColor,
-          width: 1.0,
-        ),
+        border: Border.all(color: ruleBrightColor, width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,7 +57,10 @@ class BadgesShowcaseWidget extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.amberSoft,
                   borderRadius: BorderRadius.circular(20),
@@ -121,8 +119,9 @@ class BadgesShowcaseWidget extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: progress,
                 minHeight: 6,
-                backgroundColor:
-                    isDark ? AppColors.ruleDark : AppColors.ruleLight,
+                backgroundColor: isDark
+                    ? AppColors.ruleDark
+                    : AppColors.ruleLight,
                 valueColor: AlwaysStoppedAnimation<Color>(nextTier.color),
               ),
             ),

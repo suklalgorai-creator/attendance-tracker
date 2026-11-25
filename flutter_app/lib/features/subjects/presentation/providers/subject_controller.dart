@@ -24,7 +24,8 @@ class SubjectController extends StateNotifier<AsyncValue<void>> {
     if (trimmedName.isEmpty) {
       throw ArgumentError('Subject name is required');
     }
-    if (targetPercentage != null && (targetPercentage <= 0 || targetPercentage > 100)) {
+    if (targetPercentage != null &&
+        (targetPercentage <= 0 || targetPercentage > 100)) {
       throw ArgumentError('Target must be between 0 and 100%');
     }
 
@@ -36,9 +37,13 @@ class SubjectController extends StateNotifier<AsyncValue<void>> {
 
       final newSubject = SubjectEntity(
         id: 'sub_${now.millisecondsSinceEpoch}',
-        name: trimmedName.length > 120 ? trimmedName.substring(0, 120) : trimmedName,
+        name: trimmedName.length > 120
+            ? trimmedName.substring(0, 120)
+            : trimmedName,
         code: (code != null && code.trim().isNotEmpty)
-            ? (code.trim().length > 20 ? code.trim().substring(0, 20) : code.trim())
+            ? (code.trim().length > 20
+                  ? code.trim().substring(0, 20)
+                  : code.trim())
             : null,
         color: color,
         icon: icon,
@@ -72,8 +77,12 @@ class SubjectController extends StateNotifier<AsyncValue<void>> {
     try {
       final now = DateTime.now();
       final updated = subject.copyWith(
-        name: trimmedName.length > 120 ? trimmedName.substring(0, 120) : trimmedName,
-        code: subject.code?.trim().isEmpty == true ? null : subject.code?.trim(),
+        name: trimmedName.length > 120
+            ? trimmedName.substring(0, 120)
+            : trimmedName,
+        code: subject.code?.trim().isEmpty == true
+            ? null
+            : subject.code?.trim(),
         updatedAt: now,
       );
 

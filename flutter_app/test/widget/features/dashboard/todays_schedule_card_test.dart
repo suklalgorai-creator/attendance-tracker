@@ -17,7 +17,9 @@ class FakeAttendanceRepo implements AttendanceRepository {
   final List<AttendanceRecordEntity> saved = [];
 
   @override
-  Future<void> saveAttendanceRecords(List<AttendanceRecordEntity> records) async {
+  Future<void> saveAttendanceRecords(
+    List<AttendanceRecordEntity> records,
+  ) async {
     saved.addAll(records);
   }
 
@@ -27,11 +29,14 @@ class FakeAttendanceRepo implements AttendanceRepository {
   }
 
   @override
-  Future<List<AttendanceRecordEntity>> getAttendanceRecords({bool includeDeleted = false}) async => saved;
+  Future<List<AttendanceRecordEntity>> getAttendanceRecords({
+    bool includeDeleted = false,
+  }) async => saved;
 
   @override
-  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({bool includeDeleted = false}) =>
-      Stream.value(saved);
+  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({
+    bool includeDeleted = false,
+  }) => Stream.value(saved);
 
   @override
   Future<void> clearAllAttendanceHistory() async => saved.clear();
@@ -43,13 +48,21 @@ class FakeAttendanceRepo implements AttendanceRepository {
   Future<void> deleteLegacyAttendance(String id) async {}
 
   @override
-  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({bool includeDeleted = false}) async => [];
+  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({
+    bool includeDeleted = false,
+  }) async => [];
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForDate(String date, {bool includeDeleted = false}) async => [];
+  Future<List<AttendanceRecordEntity>> getRecordsForDate(
+    String date, {
+    bool includeDeleted = false,
+  }) async => [];
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForSubject(String subjectId, {bool includeDeleted = false}) async => [];
+  Future<List<AttendanceRecordEntity>> getRecordsForSubject(
+    String subjectId, {
+    bool includeDeleted = false,
+  }) async => [];
 
   @override
   Future<void> hardDeleteAttendanceRecord(String id) async {}
@@ -67,11 +80,14 @@ class FakeAttendanceRepo implements AttendanceRepository {
   Future<void> saveLegacyAttendance(LegacyAttendanceEntity record) async {}
 
   @override
-  Future<void> saveLegacyAttendances(List<LegacyAttendanceEntity> records) async {}
+  Future<void> saveLegacyAttendances(
+    List<LegacyAttendanceEntity> records,
+  ) async {}
 
   @override
-  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({bool includeDeleted = false}) =>
-      Stream.value([]);
+  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({
+    bool includeDeleted = false,
+  }) => Stream.value([]);
 }
 
 void main() {
@@ -131,11 +147,19 @@ void main() {
     return ProviderScope(
       overrides: [
         attendanceRepositoryProvider.overrideWithValue(attendanceRepo),
-        attendanceRecordsStreamProvider.overrideWith((ref) => Stream.value(records ?? const [])),
-        timetableStreamProvider.overrideWith((ref) => Stream.value(timetable ?? mondayTimetable)),
-        subjectsStreamProvider.overrideWith((ref) => Stream.value(mockSubjects)),
+        attendanceRecordsStreamProvider.overrideWith(
+          (ref) => Stream.value(records ?? const []),
+        ),
+        timetableStreamProvider.overrideWith(
+          (ref) => Stream.value(timetable ?? mondayTimetable),
+        ),
+        subjectsStreamProvider.overrideWith(
+          (ref) => Stream.value(mockSubjects),
+        ),
         settingsStreamProvider.overrideWith(
-          (ref) => Stream.value(settings ?? const UserSettingsEntity(classDays: [1, 2, 3, 4, 5])),
+          (ref) => Stream.value(
+            settings ?? const UserSettingsEntity(classDays: [1, 2, 3, 4, 5]),
+          ),
         ),
       ],
       child: MaterialApp(
@@ -152,7 +176,9 @@ void main() {
   }
 
   group('TodaysScheduleCard Widget Tests', () {
-    testWidgets('renders when today has scheduled unmarked sessions', (tester) async {
+    testWidgets('renders when today has scheduled unmarked sessions', (
+      tester,
+    ) async {
       final repo = FakeAttendanceRepo();
 
       await tester.pumpWidget(buildCard(attendanceRepo: repo));
@@ -166,7 +192,9 @@ void main() {
       expect(find.text('Review individually'), findsOneWidget);
     });
 
-    testWidgets('collapses when today has no scheduled sessions', (tester) async {
+    testWidgets('collapses when today has no scheduled sessions', (
+      tester,
+    ) async {
       final repo = FakeAttendanceRepo();
 
       // Sunday: March 1, 2026 (weekday: 7, 7 % 7 = 0)
@@ -184,7 +212,9 @@ void main() {
       expect(find.text("Mark Today's Scheduled Sessions"), findsNothing);
     });
 
-    testWidgets('collapses when today is not a class day in settings', (tester) async {
+    testWidgets('collapses when today is not a class day in settings', (
+      tester,
+    ) async {
       final repo = FakeAttendanceRepo();
 
       final settingsWithoutMonday = const UserSettingsEntity(
@@ -192,101 +222,115 @@ void main() {
       );
 
       await tester.pumpWidget(
-        buildCard(
-          attendanceRepo: repo,
-          settings: settingsWithoutMonday,
-        ),
+        buildCard(attendanceRepo: repo, settings: settingsWithoutMonday),
       );
       await tester.pumpAndSettle();
 
       expect(find.text("Mark Today's Scheduled Sessions"), findsNothing);
     });
 
-    testWidgets('collapses when all scheduled sessions for today are already marked', (tester) async {
-      final repo = FakeAttendanceRepo();
+    testWidgets(
+      'collapses when all scheduled sessions for today are already marked',
+      (tester) async {
+        final repo = FakeAttendanceRepo();
 
-      final markedRecords = [
-        AttendanceRecordEntity(
-          id: 'att_1',
-          date: mondayDateStr,
-          subjectId: 'sub-algo',
-          sessionId: 'sess-algo-1',
-          status: AttendanceStatus.present,
-          createdAt: mondayDate,
-          updatedAt: mondayDate,
-        ),
-        AttendanceRecordEntity(
-          id: 'att_2',
-          date: mondayDateStr,
-          subjectId: 'sub-db',
-          sessionId: 'sess-db-1',
-          status: AttendanceStatus.absent,
-          createdAt: mondayDate,
-          updatedAt: mondayDate,
-        ),
-      ];
+        final markedRecords = [
+          AttendanceRecordEntity(
+            id: 'att_1',
+            date: mondayDateStr,
+            subjectId: 'sub-algo',
+            sessionId: 'sess-algo-1',
+            status: AttendanceStatus.present,
+            createdAt: mondayDate,
+            updatedAt: mondayDate,
+          ),
+          AttendanceRecordEntity(
+            id: 'att_2',
+            date: mondayDateStr,
+            subjectId: 'sub-db',
+            sessionId: 'sess-db-1',
+            status: AttendanceStatus.absent,
+            createdAt: mondayDate,
+            updatedAt: mondayDate,
+          ),
+        ];
 
-      await tester.pumpWidget(
-        buildCard(
-          attendanceRepo: repo,
-          records: markedRecords,
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          buildCard(attendanceRepo: repo, records: markedRecords),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text("Mark Today's Scheduled Sessions"), findsNothing);
-    });
+        expect(find.text("Mark Today's Scheduled Sessions"), findsNothing);
+      },
+    );
 
-    testWidgets('tapping "Mark all present" saves all sessions with status present', (tester) async {
-      final repo = FakeAttendanceRepo();
+    testWidgets(
+      'tapping "Mark all present" saves all sessions with status present',
+      (tester) async {
+        final repo = FakeAttendanceRepo();
 
-      await tester.pumpWidget(buildCard(attendanceRepo: repo));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(buildCard(attendanceRepo: repo));
+        await tester.pumpAndSettle();
 
-      final markPresentBtn = find.text('Mark all present');
-      await tester.tap(markPresentBtn);
-      await tester.pumpAndSettle();
+        final markPresentBtn = find.text('Mark all present');
+        await tester.tap(markPresentBtn);
+        await tester.pumpAndSettle();
 
-      expect(repo.saved.length, 2);
-      expect(repo.saved.every((r) => r.status == AttendanceStatus.present), isTrue);
-      expect(repo.saved.every((r) => r.date == mondayDateStr), isTrue);
-    });
+        expect(repo.saved.length, 2);
+        expect(
+          repo.saved.every((r) => r.status == AttendanceStatus.present),
+          isTrue,
+        );
+        expect(repo.saved.every((r) => r.date == mondayDateStr), isTrue);
+      },
+    );
 
-    testWidgets('tapping "Mark all absent" saves all sessions with status absent', (tester) async {
-      final repo = FakeAttendanceRepo();
+    testWidgets(
+      'tapping "Mark all absent" saves all sessions with status absent',
+      (tester) async {
+        final repo = FakeAttendanceRepo();
 
-      await tester.pumpWidget(buildCard(attendanceRepo: repo));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(buildCard(attendanceRepo: repo));
+        await tester.pumpAndSettle();
 
-      final markAbsentBtn = find.text('Mark all absent');
-      await tester.tap(markAbsentBtn);
-      await tester.pumpAndSettle();
+        final markAbsentBtn = find.text('Mark all absent');
+        await tester.tap(markAbsentBtn);
+        await tester.pumpAndSettle();
 
-      expect(repo.saved.length, 2);
-      expect(repo.saved.every((r) => r.status == AttendanceStatus.absent), isTrue);
-      expect(repo.saved.every((r) => r.date == mondayDateStr), isTrue);
-    });
+        expect(repo.saved.length, 2);
+        expect(
+          repo.saved.every((r) => r.status == AttendanceStatus.absent),
+          isTrue,
+        );
+        expect(repo.saved.every((r) => r.date == mondayDateStr), isTrue);
+      },
+    );
 
-    testWidgets('tapping "Review individually" calls onReviewIndividually callback', (tester) async {
-      final repo = FakeAttendanceRepo();
-      bool reviewed = false;
+    testWidgets(
+      'tapping "Review individually" calls onReviewIndividually callback',
+      (tester) async {
+        final repo = FakeAttendanceRepo();
+        bool reviewed = false;
 
-      await tester.pumpWidget(
-        buildCard(
-          attendanceRepo: repo,
-          onReviewIndividually: () => reviewed = true,
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          buildCard(
+            attendanceRepo: repo,
+            onReviewIndividually: () => reviewed = true,
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      final reviewBtn = find.text('Review individually');
-      await tester.tap(reviewBtn);
-      await tester.pumpAndSettle();
+        final reviewBtn = find.text('Review individually');
+        await tester.tap(reviewBtn);
+        await tester.pumpAndSettle();
 
-      expect(reviewed, isTrue);
-    });
+        expect(reviewed, isTrue);
+      },
+    );
 
-    testWidgets('320px narrow screen width renders without overflow', (tester) async {
+    testWidgets('320px narrow screen width renders without overflow', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(320, 800);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);

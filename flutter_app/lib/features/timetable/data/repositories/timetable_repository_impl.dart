@@ -12,11 +12,9 @@ class TimetableRepositoryImpl implements TimetableRepository {
   final Box? _boxOverride;
   final SubjectRepository? _subjectRepository;
 
-  TimetableRepositoryImpl({
-    Box? box,
-    SubjectRepository? subjectRepository,
-  })  : _boxOverride = box,
-        _subjectRepository = subjectRepository;
+  TimetableRepositoryImpl({Box? box, SubjectRepository? subjectRepository})
+    : _boxOverride = box,
+      _subjectRepository = subjectRepository;
 
   Box get _box {
     if (_boxOverride != null) return _boxOverride;
@@ -56,11 +54,17 @@ class TimetableRepositoryImpl implements TimetableRepository {
     bool includeDeleted = false,
   }) async* {
     yield await getTimetable(includeDeleted: includeDeleted);
-    yield* _box.watch(key: 'timetable').asyncMap((_) => getTimetable(includeDeleted: includeDeleted));
+    yield* _box
+        .watch(key: 'timetable')
+        .asyncMap((_) => getTimetable(includeDeleted: includeDeleted));
   }
 
   @override
-  Future<void> addSession(int dayOfWeek, String subjectId, {String? label}) async {
+  Future<void> addSession(
+    int dayOfWeek,
+    String subjectId, {
+    String? label,
+  }) async {
     if (dayOfWeek < 0 || dayOfWeek > 6) {
       return; // Invalid day index
     }
@@ -90,7 +94,9 @@ class TimetableRepositoryImpl implements TimetableRepository {
       );
 
       final current = await getTimetable(includeDeleted: true);
-      final daySessions = List<TimetableSessionEntity>.from(current[dayOfWeek] ?? []);
+      final daySessions = List<TimetableSessionEntity>.from(
+        current[dayOfWeek] ?? [],
+      );
       daySessions.add(newSession);
       current[dayOfWeek] = daySessions;
 
@@ -147,7 +153,9 @@ class TimetableRepositoryImpl implements TimetableRepository {
   }
 
   @override
-  Future<void> saveTimetable(Map<int, List<TimetableSessionEntity>> timetable) async {
+  Future<void> saveTimetable(
+    Map<int, List<TimetableSessionEntity>> timetable,
+  ) async {
     try {
       await _box.put('timetable', TimetableModel.timetableToMap(timetable));
     } catch (e) {

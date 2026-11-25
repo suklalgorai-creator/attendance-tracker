@@ -36,7 +36,9 @@ class AttendanceRing extends StatelessWidget {
               begin: 0.0,
               end: (percent ?? 0.0).clamp(0.0, 100.0),
             ),
-            duration: animate ? const Duration(milliseconds: 700) : Duration.zero,
+            duration: animate
+                ? const Duration(milliseconds: 700)
+                : Duration.zero,
             curve: const Cubic(0.4, 0.0, 0.2, 1.0),
             builder: (context, animatedValue, _) {
               return CustomPaint(
@@ -66,10 +68,10 @@ class AttendanceRing extends StatelessWidget {
                         percent == null
                             ? '—'
                             : (percent! % 1 == 0
-                                ? percent!.toInt().toString()
-                                : (percent! * 10).round() / 10 == percent!
-                                    ? percent!.toStringAsFixed(1)
-                                    : ((percent! * 10).round() / 10).toString()),
+                                  ? percent!.toInt().toString()
+                                  : (percent! * 10).round() / 10 == percent!
+                                  ? percent!.toStringAsFixed(1)
+                                  : ((percent! * 10).round() / 10).toString()),
                         style: AppTypography.displayMedium.copyWith(
                           color: paperColor,
                           fontWeight: FontWeight.w700,
@@ -103,7 +105,8 @@ class AttendanceRing extends StatelessWidget {
                       children: [
                         const TextSpan(text: 'TARGET '),
                         TextSpan(
-                          text: '${minPercent.toStringAsFixed(minPercent % 1 == 0 ? 0 : 1)}%',
+                          text:
+                              '${minPercent.toStringAsFixed(minPercent % 1 == 0 ? 0 : 1)}%',
                           style: TextStyle(
                             color: paperColor,
                             fontWeight: FontWeight.w800,
@@ -201,7 +204,11 @@ class _RingPainter extends CustomPainter {
       ..strokeWidth = 3.0 * scale
       ..strokeCap = StrokeCap.round;
 
-    canvas.drawLine(Offset(innerX, innerY), Offset(outerX, outerY), needlePaint);
+    canvas.drawLine(
+      Offset(innerX, innerY),
+      Offset(outerX, outerY),
+      needlePaint,
+    );
   }
 
   @override

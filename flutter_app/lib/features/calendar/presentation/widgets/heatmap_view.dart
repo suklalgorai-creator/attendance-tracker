@@ -22,8 +22,9 @@ class HeatmapView extends ConsumerWidget {
     final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
     final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
     final ruleColor = isDark ? AppColors.ruleDark : AppColors.ruleLight;
-    final ruleBrightColor =
-        isDark ? AppColors.ruleBrightDark : AppColors.ruleBrightLight;
+    final ruleBrightColor = isDark
+        ? AppColors.ruleBrightDark
+        : AppColors.ruleBrightLight;
 
     final recordsMap = heatmapAsync.valueOrNull ?? const {};
 
@@ -58,7 +59,9 @@ class HeatmapView extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.only(right: 8.0, top: 2.0),
               child: SizedBox(
-                height: 7 * 12.0 + 6 * 4.0, // 7 cells of 12px + 6 gaps of 4px = 108px
+                height:
+                    7 * 12.0 +
+                    6 * 4.0, // 7 cells of 12px + 6 gaps of 4px = 108px
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -209,12 +212,7 @@ class HeatmapView extends ConsumerWidget {
       decoration: BoxDecoration(
         color: cellColor,
         borderRadius: BorderRadius.circular(3),
-        border: isToday
-            ? Border.all(
-                color: paperColor,
-                width: 2.0,
-              )
-            : null,
+        border: isToday ? Border.all(color: paperColor, width: 2.0) : null,
       ),
     );
 
@@ -222,10 +220,7 @@ class HeatmapView extends ConsumerWidget {
       return widget;
     }
 
-    return Tooltip(
-      message: tooltip,
-      child: widget,
-    );
+    return Tooltip(message: tooltip, child: widget);
   }
 
   Widget _buildLegendBox(Color color) {

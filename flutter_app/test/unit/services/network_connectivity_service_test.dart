@@ -16,41 +16,48 @@ void main() {
     test('isOnline returns initial online status', () async {
       expect(await service.isOnline, isTrue);
 
-      final offlineService = FakeNetworkConnectivityService(initialOnline: false);
+      final offlineService = FakeNetworkConnectivityService(
+        initialOnline: false,
+      );
       expect(await offlineService.isOnline, isFalse);
       offlineService.dispose();
     });
 
-    test('onConnectivityChanged broadcasts transitions between online and offline', () async {
-      final events = <bool>[];
-      final subscription = service.onConnectivityChanged.listen(events.add);
+    test(
+      'onConnectivityChanged broadcasts transitions between online and offline',
+      () async {
+        final events = <bool>[];
+        final subscription = service.onConnectivityChanged.listen(events.add);
 
-      service.setOnline(false);
-      service.setOnline(true);
-      service.setOnline(false);
+        service.setOnline(false);
+        service.setOnline(true);
+        service.setOnline(false);
 
-      await Future.delayed(const Duration(milliseconds: 10));
+        await Future.delayed(const Duration(milliseconds: 10));
 
-      expect(events, equals([false, true, false]));
-      expect(await service.isOnline, isFalse);
+        expect(events, equals([false, true, false]));
+        expect(await service.isOnline, isFalse);
 
-      await subscription.cancel();
-    });
+        await subscription.cancel();
+      },
+    );
 
-    test('setting the same online status does not trigger duplicate events', () async {
-      final events = <bool>[];
-      final subscription = service.onConnectivityChanged.listen(events.add);
+    test(
+      'setting the same online status does not trigger duplicate events',
+      () async {
+        final events = <bool>[];
+        final subscription = service.onConnectivityChanged.listen(events.add);
 
-      service.setOnline(true); // already true
-      service.setOnline(false);
-      service.setOnline(false); // already false
+        service.setOnline(true); // already true
+        service.setOnline(false);
+        service.setOnline(false); // already false
 
-      await Future.delayed(const Duration(milliseconds: 10));
+        await Future.delayed(const Duration(milliseconds: 10));
 
-      expect(events, equals([false]));
+        expect(events, equals([false]));
 
-      await subscription.cancel();
-    });
+        await subscription.cancel();
+      },
+    );
   });
 }
-

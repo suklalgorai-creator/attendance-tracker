@@ -7,13 +7,12 @@ import '../../domain/models/calendar_day_summary.dart';
 import '../../domain/services/calendar_analytics_service.dart';
 
 /// Supported display views for the Activity Card.
-enum CalendarViewMode {
-  calendar,
-  heatmap,
-}
+enum CalendarViewMode { calendar, heatmap }
 
 /// Provider for pure calendar analytics calculation service.
-final calendarAnalyticsServiceProvider = Provider<CalendarAnalyticsService>((ref) {
+final calendarAnalyticsServiceProvider = Provider<CalendarAnalyticsService>((
+  ref,
+) {
   return const CalendarAnalyticsService();
 });
 
@@ -42,8 +41,8 @@ class CalendarDateNotifier extends StateNotifier<DateTime> {
 /// Provider holding the active year & month in the calendar view.
 final calendarDateProvider =
     StateNotifierProvider<CalendarDateNotifier, DateTime>((ref) {
-  return CalendarDateNotifier();
-});
+      return CalendarDateNotifier();
+    });
 
 /// Provider for toggling between Calendar grid and GitHub-style Heatmap views.
 final calendarViewModeProvider = StateProvider<CalendarViewMode>((ref) {
@@ -53,87 +52,94 @@ final calendarViewModeProvider = StateProvider<CalendarViewMode>((ref) {
 /// Reactive provider computing day summaries for all days in the currently viewed month.
 final calendarDaysInMonthProvider =
     Provider<AsyncValue<List<CalendarDaySummary>>>((ref) {
-  final service = ref.watch(calendarAnalyticsServiceProvider);
-  final focusedDate = ref.watch(calendarDateProvider);
-  final recordsAsync = ref.watch(attendanceRecordsStreamProvider);
-  final legacyAsync = ref.watch(legacyAttendanceStreamProvider);
-  final settingsAsync = ref.watch(settingsStreamProvider);
+      final service = ref.watch(calendarAnalyticsServiceProvider);
+      final focusedDate = ref.watch(calendarDateProvider);
+      final recordsAsync = ref.watch(attendanceRecordsStreamProvider);
+      final legacyAsync = ref.watch(legacyAttendanceStreamProvider);
+      final settingsAsync = ref.watch(settingsStreamProvider);
 
-  if (recordsAsync.isLoading || legacyAsync.isLoading || settingsAsync.isLoading) {
-    return const AsyncValue.loading();
-  }
+      if (recordsAsync.isLoading ||
+          legacyAsync.isLoading ||
+          settingsAsync.isLoading) {
+        return const AsyncValue.loading();
+      }
 
-  final records = recordsAsync.valueOrNull ?? <AttendanceRecordEntity>[];
-  final legacyList = legacyAsync.valueOrNull ?? <LegacyAttendanceEntity>[];
+      final records = recordsAsync.valueOrNull ?? <AttendanceRecordEntity>[];
+      final legacyList = legacyAsync.valueOrNull ?? <LegacyAttendanceEntity>[];
 
-  final Map<String, LegacyAttendanceEntity> legacyByDate = {
-    for (final l in legacyList)
-      if (!l.isDeleted) l.date: l,
-  };
+      final Map<String, LegacyAttendanceEntity> legacyByDate = {
+        for (final l in legacyList)
+          if (!l.isDeleted) l.date: l,
+      };
 
-  // Convert settings holidays or custom dates if present
-  final Map<String, bool> holidays = {};
+      // Convert settings holidays or custom dates if present
+      final Map<String, bool> holidays = {};
 
-  try {
-    final summaries = service.computeDaysInMonth(
-      year: focusedDate.year,
-      month: focusedDate.month,
-      records: records,
-      legacyByDate: legacyByDate,
-      holidays: holidays,
-    );
-    return AsyncValue.data(summaries);
-  } catch (error, stackTrace) {
-    return AsyncValue.error(error, stackTrace);
-  }
-});
+      try {
+        final summaries = service.computeDaysInMonth(
+          year: focusedDate.year,
+          month: focusedDate.month,
+          records: records,
+          legacyByDate: legacyByDate,
+          holidays: holidays,
+        );
+        return AsyncValue.data(summaries);
+      } catch (error, stackTrace) {
+        return AsyncValue.error(error, stackTrace);
+      }
+    });
 
 /// Reactive provider calculating monthly summary statistics (held, attended, holidays).
-final calendarMonthSummaryProvider =
-    Provider<AsyncValue<CalendarMonthSummary>>((ref) {
-  final service = ref.watch(calendarAnalyticsServiceProvider);
-  final focusedDate = ref.watch(calendarDateProvider);
-  final daysAsync = ref.watch(calendarDaysInMonthProvider);
+final calendarMonthSummaryProvider = Provider<AsyncValue<CalendarMonthSummary>>(
+  (ref) {
+    final service = ref.watch(calendarAnalyticsServiceProvider);
+    final focusedDate = ref.watch(calendarDateProvider);
+    final daysAsync = ref.watch(calendarDaysInMonthProvider);
 
-  return daysAsync.when(
-    data: (daySummaries) {
-      final summary = service.computeMonthSummary(
-        year: focusedDate.year,
-        month: focusedDate.month,
-        daySummaries: daySummaries,
-      );
-      return AsyncValue.data(summary);
-    },
-    loading: () => const AsyncValue.loading(),
-    error: (err, st) => AsyncValue.error(err, st),
-  );
-});
+    return daysAsync.when(
+      data: (daySummaries) {
+        final summary = service.computeMonthSummary(
+          year: focusedDate.year,
+          month: focusedDate.month,
+          daySummaries: daySummaries,
+        );
+        return AsyncValue.data(summary);
+      },
+      loading: () => const AsyncValue.loading(),
+      error: (err, st) => AsyncValue.error(err, st),
+    );
+  },
+);
 
 /// Reactive provider calculating the 26-week heatmap data map.
-final heatmapRecordsProvider = Provider<
-    AsyncValue<Map<String, ({int held, int attended, bool isHoliday})>>>((ref) {
-  final service = ref.watch(calendarAnalyticsServiceProvider);
-  final recordsAsync = ref.watch(attendanceRecordsStreamProvider);
-  final legacyAsync = ref.watch(legacyAttendanceStreamProvider);
-  final settingsAsync = ref.watch(settingsStreamProvider);
+final heatmapRecordsProvider =
+    Provider<
+      AsyncValue<Map<String, ({int held, int attended, bool isHoliday})>>
+    >((ref) {
+      final service = ref.watch(calendarAnalyticsServiceProvider);
+      final recordsAsync = ref.watch(attendanceRecordsStreamProvider);
+      final legacyAsync = ref.watch(legacyAttendanceStreamProvider);
+      final settingsAsync = ref.watch(settingsStreamProvider);
 
-  if (recordsAsync.isLoading || legacyAsync.isLoading || settingsAsync.isLoading) {
-    return const AsyncValue.loading();
-  }
+      if (recordsAsync.isLoading ||
+          legacyAsync.isLoading ||
+          settingsAsync.isLoading) {
+        return const AsyncValue.loading();
+      }
 
-  final records = recordsAsync.valueOrNull ?? <AttendanceRecordEntity>[];
-  final legacyList = legacyAsync.valueOrNull ?? <LegacyAttendanceEntity>[];
+      final records = recordsAsync.valueOrNull ?? <AttendanceRecordEntity>[];
+      final legacyList = legacyAsync.valueOrNull ?? <LegacyAttendanceEntity>[];
 
-  final Map<String, bool> holidays = {};
+      final Map<String, bool> holidays = {};
 
-  try {
-    final heatmapData = service.computeHeatmapRecords(
-      records: records,
-      legacyRecords: legacyList,
-      holidays: holidays,
-    );
-    return AsyncValue.data(heatmapData);
-  } catch (error, stackTrace) {
-    return AsyncValue.error(error, stackTrace);
-  }
-});
+      try {
+        final heatmapData = service.computeHeatmapRecords(
+          records: records,
+          legacyRecords: legacyList,
+          holidays: holidays,
+        );
+        return AsyncValue.data(heatmapData);
+      } catch (error, stackTrace) {
+        return AsyncValue.error(error, stackTrace);
+      }
+    });

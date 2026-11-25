@@ -9,10 +9,9 @@ abstract final class AppTheme {
   /// Dark Theme (Default)
   static ThemeData get darkTheme {
     final baseTextTheme = ThemeData.dark().textTheme;
-    final outfitTextTheme = GoogleFonts.outfitTextTheme(baseTextTheme).apply(
-      bodyColor: AppColors.paperDark,
-      displayColor: AppColors.paperDark,
-    );
+    final outfitTextTheme = GoogleFonts.outfitTextTheme(
+      baseTextTheme,
+    ).apply(bodyColor: AppColors.paperDark, displayColor: AppColors.paperDark);
 
     return ThemeData(
       useMaterial3: true,

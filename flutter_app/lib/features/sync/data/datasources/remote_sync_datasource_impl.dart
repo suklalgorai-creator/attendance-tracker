@@ -49,7 +49,9 @@ class DefaultRemoteSyncDataSource implements RemoteSyncDataSource {
       await Future.delayed(simulatedLatency);
     }
     if (simulateOffline) {
-      throw const SyncNetworkException('Network is unreachable (simulated offline)');
+      throw const SyncNetworkException(
+        'Network is unreachable (simulated offline)',
+      );
     }
     final existing = _remoteStore[uid];
     if (existing == null) return null;
@@ -67,7 +69,9 @@ class DefaultRemoteSyncDataSource implements RemoteSyncDataSource {
       await Future.delayed(simulatedLatency);
     }
     if (simulateOffline) {
-      throw const SyncNetworkException('Network is unreachable (simulated offline)');
+      throw const SyncNetworkException(
+        'Network is unreachable (simulated offline)',
+      );
     }
 
     // Atomic transaction simulation matching Firestore runTransaction

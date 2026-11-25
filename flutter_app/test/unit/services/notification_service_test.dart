@@ -36,42 +36,48 @@ void main() {
       expect(nextDay.minute, 0);
     });
 
-    test('scheduleAttendanceReminder schedules for all classDays when enabled', () async {
-      await service.scheduleAttendanceReminder(
-        reminderTime: '17:00',
-        classDays: [1, 2, 3, 4, 5], // Mon to Fri
-        isEnabled: true,
-      );
+    test(
+      'scheduleAttendanceReminder schedules for all classDays when enabled',
+      () async {
+        await service.scheduleAttendanceReminder(
+          reminderTime: '17:00',
+          classDays: [1, 2, 3, 4, 5], // Mon to Fri
+          isEnabled: true,
+        );
 
-      expect(service.scheduledReminders.length, 5);
-      expect(
-        service.scheduledReminders.map((r) => r.id).toList(),
-        equals([1001, 1002, 1003, 1004, 1005]),
-      );
-    });
+        expect(service.scheduledReminders.length, 5);
+        expect(
+          service.scheduledReminders.map((r) => r.id).toList(),
+          equals([1001, 1002, 1003, 1004, 1005]),
+        );
+      },
+    );
 
-    test('scheduleAttendanceReminder cancels all when isEnabled is false or classDays empty', () async {
-      await service.scheduleAttendanceReminder(
-        reminderTime: '17:00',
-        classDays: [1, 2, 3],
-        isEnabled: true,
-      );
-      expect(service.scheduledReminders.length, 3);
+    test(
+      'scheduleAttendanceReminder cancels all when isEnabled is false or classDays empty',
+      () async {
+        await service.scheduleAttendanceReminder(
+          reminderTime: '17:00',
+          classDays: [1, 2, 3],
+          isEnabled: true,
+        );
+        expect(service.scheduledReminders.length, 3);
 
-      await service.scheduleAttendanceReminder(
-        reminderTime: '17:00',
-        classDays: [1, 2, 3],
-        isEnabled: false,
-      );
-      expect(service.scheduledReminders.length, 0);
+        await service.scheduleAttendanceReminder(
+          reminderTime: '17:00',
+          classDays: [1, 2, 3],
+          isEnabled: false,
+        );
+        expect(service.scheduledReminders.length, 0);
 
-      await service.scheduleAttendanceReminder(
-        reminderTime: '17:00',
-        classDays: [],
-        isEnabled: true,
-      );
-      expect(service.scheduledReminders.length, 0);
-    });
+        await service.scheduleAttendanceReminder(
+          reminderTime: '17:00',
+          classDays: [],
+          isEnabled: true,
+        );
+        expect(service.scheduledReminders.length, 0);
+      },
+    );
 
     test('scheduleAttendanceReminder skips declared holidays', () async {
       final now = DateTime.now();
@@ -98,14 +104,46 @@ void main() {
       expect(service.scheduledReminders.first.id, 1002);
     });
 
-    test('requestNotificationPermissions and requestFCMToken reflect permission state', () async {
-      expect(await service.requestNotificationPermissions(), isTrue);
-      expect(await service.requestFCMToken(), isNotNull);
+    test(
+      'requestNotificationPermissions and requestFCMToken reflect permission state',
+      () async {
+        expect(await service.requestNotificationPermissions(), isTrue);
+        expect(await service.requestFCMToken(), isNotNull);
 
-      service.setPermissionGranted(false);
-      expect(await service.requestNotificationPermissions(), isFalse);
-      expect(await service.requestFCMToken(), isNull);
+        service.setPermissionGranted(false);
+        expect(await service.requestNotificationPermissions(), isFalse);
+        expect(await service.requestFCMToken(), isNull);
+      },
+    );
+
+    test(
+      'scheduleNoteReminder and cancelNoteReminder manage future note reminders',
+      () async {
+        final futureDate = DateTime.now().add(const Duration(hours: 2));
+        await service.scheduleNoteReminder(
+          noteId: 'note-123',
+          content: 'Submit OS assignment',
+          reminderDate: futureDate,
+        );
+        expect(service.scheduledReminders.length, 1);
+        expect(
+          service.scheduledReminders.first.title,
+          'Sticky Note Reminder 📝',
+        );
+
+        await service.cancelNoteReminder('note-123');
+        expect(service.scheduledReminders, isEmpty);
+      },
+    );
+
+    test('scheduleNoteReminder ignores past reminder dates', () async {
+      final pastDate = DateTime.now().subtract(const Duration(hours: 1));
+      await service.scheduleNoteReminder(
+        noteId: 'note-past',
+        content: 'Old reminder',
+        reminderDate: pastDate,
+      );
+      expect(service.scheduledReminders, isEmpty);
     });
   });
 }
-

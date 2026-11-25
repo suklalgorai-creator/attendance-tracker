@@ -10,21 +10,22 @@ import 'register_state.dart';
 
 class _NoopAttendanceRepository implements AttendanceRepository {
   @override
-  Future<List<AttendanceRecordEntity>> getAttendanceRecords(
-          {bool includeDeleted = false}) async =>
-      [];
+  Future<List<AttendanceRecordEntity>> getAttendanceRecords({
+    bool includeDeleted = false,
+  }) async => [];
 
   @override
-  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords(
-          {bool includeDeleted = false}) =>
-      const Stream.empty();
+  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({
+    bool includeDeleted = false,
+  }) => const Stream.empty();
 
   @override
   Future<void> saveAttendanceRecord(AttendanceRecordEntity record) async {}
 
   @override
   Future<void> saveAttendanceRecords(
-      List<AttendanceRecordEntity> records) async {}
+    List<AttendanceRecordEntity> records,
+  ) async {}
 
   @override
   Future<void> deleteAttendanceRecord(String id) async {}
@@ -36,31 +37,34 @@ class _NoopAttendanceRepository implements AttendanceRepository {
   Future<void> hardDeleteAttendanceRecord(String id) async {}
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForSubject(String subjectId,
-          {bool includeDeleted = false}) async =>
-      [];
+  Future<List<AttendanceRecordEntity>> getRecordsForSubject(
+    String subjectId, {
+    bool includeDeleted = false,
+  }) async => [];
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForDate(String date,
-          {bool includeDeleted = false}) async =>
-      [];
+  Future<List<AttendanceRecordEntity>> getRecordsForDate(
+    String date, {
+    bool includeDeleted = false,
+  }) async => [];
 
   @override
-  Future<List<LegacyAttendanceEntity>> getLegacyAttendance(
-          {bool includeDeleted = false}) async =>
-      [];
+  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({
+    bool includeDeleted = false,
+  }) async => [];
 
   @override
-  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance(
-          {bool includeDeleted = false}) =>
-      const Stream.empty();
+  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({
+    bool includeDeleted = false,
+  }) => const Stream.empty();
 
   @override
   Future<void> saveLegacyAttendance(LegacyAttendanceEntity record) async {}
 
   @override
   Future<void> saveLegacyAttendances(
-      List<LegacyAttendanceEntity> records) async {}
+    List<LegacyAttendanceEntity> records,
+  ) async {}
 
   @override
   Future<void> deleteLegacyAttendance(String id) async {}
@@ -77,8 +81,7 @@ class _NoopAttendanceRepository implements AttendanceRepository {
 
 class _NoopSettingsRepository implements SettingsRepository {
   @override
-  Future<UserSettingsEntity> getSettings() async =>
-      const UserSettingsEntity();
+  Future<UserSettingsEntity> getSettings() async => const UserSettingsEntity();
 
   @override
   Stream<UserSettingsEntity> watchSettings() => const Stream.empty();
@@ -92,50 +95,50 @@ class _NoopSettingsRepository implements SettingsRepository {
 
 final registerControllerProvider =
     StateNotifierProvider.autoDispose<RegisterController, RegisterState>((ref) {
-  AttendanceRepository attendanceRepo;
-  SettingsRepository? settingsRepo;
+      AttendanceRepository attendanceRepo;
+      SettingsRepository? settingsRepo;
 
-  try {
-    attendanceRepo = ref.watch(attendanceRepositoryProvider);
-  } catch (_) {
-    attendanceRepo = _NoopAttendanceRepository();
-  }
+      try {
+        attendanceRepo = ref.watch(attendanceRepositoryProvider);
+      } catch (_) {
+        attendanceRepo = _NoopAttendanceRepository();
+      }
 
-  try {
-    settingsRepo = ref.watch(settingsRepositoryProvider);
-  } catch (_) {
-    settingsRepo = _NoopSettingsRepository();
-  }
+      try {
+        settingsRepo = ref.watch(settingsRepositoryProvider);
+      } catch (_) {
+        settingsRepo = _NoopSettingsRepository();
+      }
 
-  Stream<List<LegacyAttendanceEntity>> safeLegacyStream() {
-    try {
-      return attendanceRepo.watchLegacyAttendance();
-    } catch (_) {
-      return const Stream.empty();
-    }
-  }
+      Stream<List<LegacyAttendanceEntity>> safeLegacyStream() {
+        try {
+          return attendanceRepo.watchLegacyAttendance();
+        } catch (_) {
+          return const Stream.empty();
+        }
+      }
 
-  Stream<List<AttendanceRecordEntity>> safeRecordsStream() {
-    try {
-      return attendanceRepo.watchAttendanceRecords();
-    } catch (_) {
-      return const Stream.empty();
-    }
-  }
+      Stream<List<AttendanceRecordEntity>> safeRecordsStream() {
+        try {
+          return attendanceRepo.watchAttendanceRecords();
+        } catch (_) {
+          return const Stream.empty();
+        }
+      }
 
-  Stream<UserSettingsEntity> safeSettingsStream() {
-    try {
-      return settingsRepo?.watchSettings() ?? const Stream.empty();
-    } catch (_) {
-      return const Stream.empty();
-    }
-  }
+      Stream<UserSettingsEntity> safeSettingsStream() {
+        try {
+          return settingsRepo?.watchSettings() ?? const Stream.empty();
+        } catch (_) {
+          return const Stream.empty();
+        }
+      }
 
-  return RegisterController(
-    attendanceRepository: attendanceRepo,
-    settingsRepository: settingsRepo,
-    legacyStream: safeLegacyStream(),
-    recordsStream: safeRecordsStream(),
-    settingsStream: safeSettingsStream(),
-  );
-});
+      return RegisterController(
+        attendanceRepository: attendanceRepo,
+        settingsRepository: settingsRepo,
+        legacyStream: safeLegacyStream(),
+        recordsStream: safeRecordsStream(),
+        settingsStream: safeSettingsStream(),
+      );
+    });

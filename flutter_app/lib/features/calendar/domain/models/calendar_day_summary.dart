@@ -64,10 +64,7 @@ class CalendarMonthSummary {
     required this.holidays,
   });
 
-  const CalendarMonthSummary.empty()
-      : held = 0,
-        attended = 0,
-        holidays = 0;
+  const CalendarMonthSummary.empty() : held = 0, attended = 0, holidays = 0;
 
   @override
   bool operator ==(Object other) =>

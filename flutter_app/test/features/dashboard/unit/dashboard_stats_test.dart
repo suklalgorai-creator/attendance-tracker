@@ -5,19 +5,22 @@ import 'package:flutter_app/features/subjects/domain/entities/subject_entity.dar
 
 void main() {
   group('DashboardStats Model Tests', () {
-    test('DashboardStats.empty() instantiates with zero counts and null percentage', () {
-      final stats = DashboardStats.empty(minPercent: 80.0);
-      expect(stats.conducted, 0);
-      expect(stats.present, 0);
-      expect(stats.absent, 0);
-      expect(stats.percentage, isNull);
-      expect(stats.minPercent, 80.0);
-      expect(stats.canMiss, 0);
-      expect(stats.needToAttend, 0);
-      expect(stats.isImpossible, isFalse);
-      expect(stats.isSafe, isTrue);
-      expect(stats.unmarkedPastSessions, 0);
-    });
+    test(
+      'DashboardStats.empty() instantiates with zero counts and null percentage',
+      () {
+        final stats = DashboardStats.empty(minPercent: 80.0);
+        expect(stats.conducted, 0);
+        expect(stats.present, 0);
+        expect(stats.absent, 0);
+        expect(stats.percentage, isNull);
+        expect(stats.minPercent, 80.0);
+        expect(stats.canMiss, 0);
+        expect(stats.needToAttend, 0);
+        expect(stats.isImpossible, isFalse);
+        expect(stats.isSafe, isTrue);
+        expect(stats.unmarkedPastSessions, 0);
+      },
+    );
 
     test('DashboardStats equality, hashCode and toString', () {
       final stats1 = const DashboardStats(

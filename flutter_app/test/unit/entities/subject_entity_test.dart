@@ -25,24 +25,27 @@ void main() {
       expect(subject.deletedAt, isNull);
     });
 
-    test('instantiates with custom code, icon, targetPercentage, sortOrder', () {
-      final subject = SubjectEntity(
-        id: 'sub-custom',
-        name: 'Computer Networks',
-        code: 'CS301',
-        color: '#3B82F6',
-        icon: 'computer',
-        targetPercentage: 85.0,
-        sortOrder: 3,
-        createdAt: now,
-        updatedAt: now,
-      );
+    test(
+      'instantiates with custom code, icon, targetPercentage, sortOrder',
+      () {
+        final subject = SubjectEntity(
+          id: 'sub-custom',
+          name: 'Computer Networks',
+          code: 'CS301',
+          color: '#3B82F6',
+          icon: 'computer',
+          targetPercentage: 85.0,
+          sortOrder: 3,
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      expect(subject.code, 'CS301');
-      expect(subject.icon, 'computer');
-      expect(subject.targetPercentage, 85.0);
-      expect(subject.sortOrder, 3);
-    });
+        expect(subject.code, 'CS301');
+        expect(subject.icon, 'computer');
+        expect(subject.targetPercentage, 85.0);
+        expect(subject.sortOrder, 3);
+      },
+    );
 
     test('isDeleted returns true when deletedAt is set', () {
       final subject = SubjectEntity(

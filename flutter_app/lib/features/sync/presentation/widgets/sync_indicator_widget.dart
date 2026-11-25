@@ -14,15 +14,18 @@ class SyncIndicatorWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = overrideState ??
+    final state =
+        overrideState ??
         ref.watch(syncStateStreamProvider).valueOrNull ??
         const SyncState(status: SyncStatus.idle);
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor =
-        isDark ? AppColors.surfaceHoverDark : AppColors.surfaceHoverLight;
-    final borderColor =
-        isDark ? AppColors.ruleBrightDark : AppColors.ruleBrightLight;
+    final surfaceColor = isDark
+        ? AppColors.surfaceHoverDark
+        : AppColors.surfaceHoverLight;
+    final borderColor = isDark
+        ? AppColors.ruleBrightDark
+        : AppColors.ruleBrightLight;
 
     Widget iconWidget;
     String tooltip;

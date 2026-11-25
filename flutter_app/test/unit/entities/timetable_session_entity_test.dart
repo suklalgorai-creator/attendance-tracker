@@ -56,31 +56,34 @@ void main() {
       expect(session.isDeleted, isTrue);
     });
 
-    test('copyWith updates specified fields and preserves unmodified fields', () {
-      final session = TimetableSessionEntity(
-        id: 'schedule-4',
-        subjectId: 'sub-bio',
-        label: 'Biology',
-        dayOfWeek: 4,
-        active: true,
-        createdAt: now,
-        updatedAt: now,
-      );
+    test(
+      'copyWith updates specified fields and preserves unmodified fields',
+      () {
+        final session = TimetableSessionEntity(
+          id: 'schedule-4',
+          subjectId: 'sub-bio',
+          label: 'Biology',
+          dayOfWeek: 4,
+          active: true,
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      final updated = session.copyWith(
-        label: 'Advanced Biology',
-        dayOfWeek: 5,
-        active: false,
-      );
+        final updated = session.copyWith(
+          label: 'Advanced Biology',
+          dayOfWeek: 5,
+          active: false,
+        );
 
-      expect(updated.id, 'schedule-4');
-      expect(updated.subjectId, 'sub-bio');
-      expect(updated.label, 'Advanced Biology');
-      expect(updated.dayOfWeek, 5);
-      expect(updated.active, isFalse);
-      expect(updated.createdAt, now);
-      expect(updated.updatedAt, now);
-    });
+        expect(updated.id, 'schedule-4');
+        expect(updated.subjectId, 'sub-bio');
+        expect(updated.label, 'Advanced Biology');
+        expect(updated.dayOfWeek, 5);
+        expect(updated.active, isFalse);
+        expect(updated.createdAt, now);
+        expect(updated.updatedAt, now);
+      },
+    );
 
     test('copyWith with clearDeletedAt clears deletedAt', () {
       final deletedSession = TimetableSessionEntity(

@@ -48,43 +48,48 @@ void main() {
         myRankProvider.overrideWithValue(myRank),
         streakCountProvider.overrideWithValue(AsyncValue.data(streak)),
       ],
-      child: const MaterialApp(
-        home: Scaffold(
-          body: LeaderboardPage(),
-        ),
-      ),
+      child: const MaterialApp(home: Scaffold(body: LeaderboardPage())),
     );
   }
 
   group('LeaderboardPage Widget Tests', () {
-    testWidgets('Renders header card, title, hint, and your rank', (tester) async {
+    testWidgets('Renders header card, title, hint, and your rank', (
+      tester,
+    ) async {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
       expect(find.text('Attendance Leaderboard'), findsOneWidget);
       expect(
-        find.text('Display names and calculated attendance percentages are shown.'),
+        find.text(
+          'Display names and calculated attendance percentages are shown.',
+        ),
         findsOneWidget,
       );
       expect(find.text('Your Rank'), findsOneWidget);
       expect(find.text('#2'), findsOneWidget);
     });
 
-    testWidgets('Renders rankings list and highlights current user with You badge', (tester) async {
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Renders rankings list and highlights current user with You badge',
+      (tester) async {
+        await tester.pumpWidget(createWidget());
+        await tester.pumpAndSettle();
 
-      expect(find.text('Class Rankings'), findsOneWidget);
-      expect(find.text('Top Student'), findsOneWidget);
-      expect(find.text('Local User'), findsOneWidget);
-      expect(find.text('You'), findsOneWidget);
+        expect(find.text('Class Rankings'), findsOneWidget);
+        expect(find.text('Top Student'), findsOneWidget);
+        expect(find.text('Local User'), findsOneWidget);
+        expect(find.text('You'), findsOneWidget);
 
-      expect(find.text('98.0%'), findsOneWidget);
-      expect(find.text('92.5%'), findsOneWidget);
-      expect(find.text('80.0%'), findsOneWidget);
-    });
+        expect(find.text('98.0%'), findsOneWidget);
+        expect(find.text('92.5%'), findsOneWidget);
+        expect(find.text('80.0%'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Renders cleanly on 320px narrow width without overflow', (tester) async {
+    testWidgets('Renders cleanly on 320px narrow width without overflow', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(320 * 2, 700 * 2);
       tester.view.devicePixelRatio = 2.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -96,14 +101,18 @@ void main() {
       expect(find.text('Attendance Leaderboard'), findsOneWidget);
     });
 
-    testWidgets('Renders empty state message when no entries exist', (tester) async {
+    testWidgets('Renders empty state message when no entries exist', (
+      tester,
+    ) async {
       await tester.pumpWidget(createWidget(entries: []));
       await tester.pumpAndSettle();
 
       expect(find.text('No students have opted in yet.'), findsOneWidget);
     });
 
-    testWidgets('Renders error message when leaderboard provider fails', (tester) async {
+    testWidgets('Renders error message when leaderboard provider fails', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -113,16 +122,15 @@ void main() {
             myRankProvider.overrideWithValue(0),
             streakCountProvider.overrideWithValue(const AsyncValue.data(0)),
           ],
-          child: const MaterialApp(
-            home: Scaffold(
-              body: LeaderboardPage(),
-            ),
-          ),
+          child: const MaterialApp(home: Scaffold(body: LeaderboardPage())),
         ),
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Leaderboard is temporarily unavailable.'), findsOneWidget);
+      expect(
+        find.text('Leaderboard is temporarily unavailable.'),
+        findsOneWidget,
+      );
     });
   });
 }

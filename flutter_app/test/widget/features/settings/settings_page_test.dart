@@ -40,8 +40,11 @@ class _FakeAuthRepository implements AuthRepository {
   Future<AuthUserEntity?> getCurrentUser() async => user;
 
   @override
-  Future<AuthUserEntity> signInWithGoogle() async =>
-      const AuthUserEntity(id: 'u1', email: 'test@student.edu', displayName: 'Student User');
+  Future<AuthUserEntity> signInWithGoogle() async => const AuthUserEntity(
+    id: 'u1',
+    email: 'test@student.edu',
+    displayName: 'Student User',
+  );
 
   @override
   Future<AuthUserEntity> signInAsGuest() async => AuthUserEntity.guest();
@@ -78,7 +81,8 @@ class _FakeSettingsRepo extends Fake implements SettingsRepository {
 
 class _FakeBackupService extends Fake implements BackupService {
   @override
-  BackupParseResult parseBackup(dynamic input) => const BackupParseResult(isValid: true);
+  BackupParseResult parseBackup(dynamic input) =>
+      const BackupParseResult(isValid: true);
 
   @override
   Future<BackupRestoreResult> restoreBackup(Map<String, dynamic> data) async =>
@@ -128,11 +132,7 @@ void main() {
         authRepositoryProvider.overrideWithValue(fakeAuth),
         authNotifierProvider.overrideWith((ref) => AuthNotifier(fakeAuth)),
       ],
-      child: const MaterialApp(
-        home: Scaffold(
-          body: SettingsPage(),
-        ),
-      ),
+      child: const MaterialApp(home: Scaffold(body: SettingsPage())),
     );
   }
 
@@ -154,7 +154,9 @@ void main() {
       expect(find.byType(DangerZoneCard), findsOneWidget);
     });
 
-    testWidgets('ProfileCard displays user display name and email', (tester) async {
+    testWidgets('ProfileCard displays user display name and email', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(400, 2400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -168,23 +170,29 @@ void main() {
       expect(find.text('Profile'), findsOneWidget);
     });
 
-    testWidgets('ProfileCard displays guest info when user is not logged in', (tester) async {
+    testWidgets('ProfileCard displays guest info when user is not logged in', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(400, 2400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(createWidget(
-        settings: const UserSettingsEntity(name: ''),
-        user: null,
-      ));
+      await tester.pumpWidget(
+        createWidget(settings: const UserSettingsEntity(name: ''), user: null),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('Guest User'), findsOneWidget);
-      expect(find.text('Not logged in — stored on this device only'), findsOneWidget);
+      expect(
+        find.text('Not logged in — stored on this device only'),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('PersonalizationCard displays form labels and initial values', (tester) async {
+    testWidgets('PersonalizationCard displays form labels and initial values', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(400, 2400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -199,21 +207,26 @@ void main() {
       expect(find.text('Semester name'), findsOneWidget);
     });
 
-    testWidgets('AttendanceRulesCard displays minimum criteria and class days', (tester) async {
-      tester.view.physicalSize = const Size(400, 2400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets(
+      'AttendanceRulesCard displays minimum criteria and class days',
+      (tester) async {
+        tester.view.physicalSize = const Size(400, 2400);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(createWidget());
+        await tester.pumpAndSettle();
 
-      expect(find.text('Attendance Rules'), findsOneWidget);
-      expect(find.text('MINIMUM ATTENDANCE REQUIRED'), findsOneWidget);
-      expect(find.text('WHICH DAYS DO YOU HAVE CLASS?'), findsOneWidget);
-    });
+        expect(find.text('Attendance Rules'), findsOneWidget);
+        expect(find.text('MINIMUM ATTENDANCE REQUIRED'), findsOneWidget);
+        expect(find.text('WHICH DAYS DO YOU HAVE CLASS?'), findsOneWidget);
+      },
+    );
 
-    testWidgets('BackupRestoreCard renders Export and Choose Backup buttons', (tester) async {
+    testWidgets('BackupRestoreCard renders Export and Choose Backup buttons', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(400, 2400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -227,55 +240,61 @@ void main() {
       expect(find.text('Choose backup to restore'), findsOneWidget);
     });
 
-    testWidgets('DangerZoneCard renders Clear attendance history and triggers confirm dialog', (tester) async {
-      tester.view.physicalSize = const Size(400, 2400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets(
+      'DangerZoneCard renders Clear attendance history and triggers confirm dialog',
+      (tester) async {
+        tester.view.physicalSize = const Size(400, 2400);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(createWidget());
+        await tester.pumpAndSettle();
 
-      expect(find.text('Danger Zone'), findsOneWidget);
-      final clearBtn = find.text('Clear attendance history');
-      expect(clearBtn, findsOneWidget);
+        expect(find.text('Danger Zone'), findsOneWidget);
+        final clearBtn = find.text('Clear attendance history');
+        expect(clearBtn, findsOneWidget);
 
-      await tester.tap(clearBtn);
-      await tester.pumpAndSettle();
+        await tester.tap(clearBtn);
+        await tester.pumpAndSettle();
 
-      // Verify confirmation dialog opened
-      expect(find.text('Clear Attendance History?'), findsOneWidget);
-      expect(find.text('Cancel'), findsOneWidget);
-      expect(find.text('Clear History'), findsOneWidget);
+        // Verify confirmation dialog opened
+        expect(find.text('Clear Attendance History?'), findsOneWidget);
+        expect(find.text('Cancel'), findsOneWidget);
+        expect(find.text('Clear History'), findsOneWidget);
 
-      // Dismiss dialog
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
+        // Dismiss dialog
+        await tester.tap(find.text('Cancel'));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Clear Attendance History?'), findsNothing);
-    });
+        expect(find.text('Clear Attendance History?'), findsNothing);
+      },
+    );
 
-    testWidgets('Renders cleanly on compact 320x568 mobile viewport without overflow', (tester) async {
-      tester.view.physicalSize = const Size(320, 568);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets(
+      'Renders cleanly on compact 320x568 mobile viewport without overflow',
+      (tester) async {
+        tester.view.physicalSize = const Size(320, 568);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(createWidget());
+        await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-      expect(find.text('Profile'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        expect(find.text('Profile'), findsOneWidget);
 
-      // Scroll through the entire page
-      await tester.drag(find.byType(ListView), const Offset(0, -1200));
-      await tester.pumpAndSettle();
-      await tester.drag(find.byType(ListView), const Offset(0, -1200));
-      await tester.pumpAndSettle();
-      await tester.drag(find.byType(ListView), const Offset(0, -1200));
-      await tester.pumpAndSettle();
-      expect(tester.takeException(), isNull);
-      expect(find.text('Danger Zone'), findsOneWidget);
-    });
+        // Scroll through the entire page
+        await tester.drag(find.byType(ListView), const Offset(0, -1200));
+        await tester.pumpAndSettle();
+        await tester.drag(find.byType(ListView), const Offset(0, -1200));
+        await tester.pumpAndSettle();
+        await tester.drag(find.byType(ListView), const Offset(0, -1200));
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        expect(find.text('Danger Zone'), findsOneWidget);
+      },
+    );
   });
 }

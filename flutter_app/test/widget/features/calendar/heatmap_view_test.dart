@@ -25,19 +25,19 @@ void main() {
   }) {
     return ProviderScope(
       overrides: [
-        attendanceRecordsStreamProvider.overrideWith((ref) => Stream.value(records)),
-        legacyAttendanceStreamProvider.overrideWith((ref) => Stream.value(legacy)),
+        attendanceRecordsStreamProvider.overrideWith(
+          (ref) => Stream.value(records),
+        ),
+        legacyAttendanceStreamProvider.overrideWith(
+          (ref) => Stream.value(legacy),
+        ),
         settingsStreamProvider.overrideWith(
           (ref) => Stream.value(settings ?? const UserSettingsEntity()),
         ),
       ],
       child: MaterialApp(
         theme: ThemeData(brightness: brightness),
-        home: const Scaffold(
-          body: SingleChildScrollView(
-            child: HeatmapView(),
-          ),
-        ),
+        home: const Scaffold(body: SingleChildScrollView(child: HeatmapView())),
       ),
     );
   }
@@ -54,7 +54,9 @@ void main() {
       expect(find.text('More'), findsOneWidget);
     });
 
-    testWidgets('Renders attendance colors and today paper border correctly', (tester) async {
+    testWidgets('Renders attendance colors and today paper border correctly', (
+      tester,
+    ) async {
       final todayStrVal = formatDateKey(DateTime.now());
       final records = [
         AttendanceRecordEntity(
@@ -69,44 +71,58 @@ void main() {
       ];
 
       // Test dark mode
-      await tester.pumpWidget(createWidget(records: records, brightness: Brightness.dark));
+      await tester.pumpWidget(
+        createWidget(records: records, brightness: Brightness.dark),
+      );
       await tester.pumpAndSettle();
 
       // Find the today cell which has a 2px Border with paperDark
-      final todayContainers = tester.widgetList<Container>(find.byType(Container)).where((c) {
-        final dec = c.decoration;
-        if (dec is BoxDecoration && dec.border != null) {
-          return dec.border!.top.color == AppColors.paperDark && dec.border!.top.width == 2.0;
-        }
-        return false;
-      });
+      final todayContainers = tester
+          .widgetList<Container>(find.byType(Container))
+          .where((c) {
+            final dec = c.decoration;
+            if (dec is BoxDecoration && dec.border != null) {
+              return dec.border!.top.color == AppColors.paperDark &&
+                  dec.border!.top.width == 2.0;
+            }
+            return false;
+          });
       expect(todayContainers.isNotEmpty, isTrue);
 
       // Verify inkGreen cell for 100% attendance
-      final greenContainers = tester.widgetList<Container>(find.byType(Container)).where((c) {
-        final dec = c.decoration;
-        if (dec is BoxDecoration) {
-          return dec.color == AppColors.inkGreen;
-        }
-        return false;
-      });
+      final greenContainers = tester
+          .widgetList<Container>(find.byType(Container))
+          .where((c) {
+            final dec = c.decoration;
+            if (dec is BoxDecoration) {
+              return dec.color == AppColors.inkGreen;
+            }
+            return false;
+          });
       expect(greenContainers.isNotEmpty, isTrue);
 
       // Test light mode respects paperLight
-      await tester.pumpWidget(createWidget(records: records, brightness: Brightness.light));
+      await tester.pumpWidget(
+        createWidget(records: records, brightness: Brightness.light),
+      );
       await tester.pumpAndSettle();
 
-      final lightTodayContainers = tester.widgetList<Container>(find.byType(Container)).where((c) {
-        final dec = c.decoration;
-        if (dec is BoxDecoration && dec.border != null) {
-          return dec.border!.top.color == AppColors.paperLight && dec.border!.top.width == 2.0;
-        }
-        return false;
-      });
+      final lightTodayContainers = tester
+          .widgetList<Container>(find.byType(Container))
+          .where((c) {
+            final dec = c.decoration;
+            if (dec is BoxDecoration && dec.border != null) {
+              return dec.border!.top.color == AppColors.paperLight &&
+                  dec.border!.top.width == 2.0;
+            }
+            return false;
+          });
       expect(lightTodayContainers.isNotEmpty, isTrue);
     });
 
-    testWidgets('Renders cleanly on 320px narrow width without overflow', (tester) async {
+    testWidgets('Renders cleanly on 320px narrow width without overflow', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(320 * 2, 700 * 2);
       tester.view.devicePixelRatio = 2.0;
       addTearDown(() => tester.view.resetPhysicalSize());

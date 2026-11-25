@@ -7,7 +7,15 @@ import '../../../../shared/widgets/app_button.dart';
 import '../../../subjects/domain/entities/subject_entity.dart';
 import '../../domain/entities/timetable_session_entity.dart';
 
-const List<String> _kDayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const List<String> _kDayNames = [
+  'Sun',
+  'Mon',
+  'Tue',
+  'Wed',
+  'Thu',
+  'Fri',
+  'Sat',
+];
 
 /// Interactive weekly timetable editor matching React `TimetableEditor.jsx` with
 /// responsive adaptation down to 320px screen width.
@@ -40,9 +48,13 @@ class _TimetableEditorState extends State<TimetableEditor> {
     final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
     final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
     final inputBg = isDark ? AppColors.inputBgDark : AppColors.inputBgLight;
-    final borderColor = isDark ? AppColors.ruleBrightDark : AppColors.ruleBrightLight;
+    final borderColor = isDark
+        ? AppColors.ruleBrightDark
+        : AppColors.ruleBrightLight;
 
-    final activeSubjects = widget.subjects.where((s) => s.active && !s.isDeleted).toList();
+    final activeSubjects = widget.subjects
+        .where((s) => s.active && !s.isDeleted)
+        .toList();
     final subjectById = {for (final s in widget.subjects) s.id: s};
 
     final sortedDays = widget.classDays.toList()..sort();
@@ -98,7 +110,8 @@ class _TimetableEditorState extends State<TimetableEditor> {
         .where((s) => !s.isDeleted)
         .toList();
 
-    final selectedValue = _selectedSubjectByDay[day] ??
+    final selectedValue =
+        _selectedSubjectByDay[day] ??
         (activeSubjects.isNotEmpty ? activeSubjects.first.id : '');
 
     // Ensure valid selection if active subjects list changed
@@ -115,7 +128,10 @@ class _TimetableEditorState extends State<TimetableEditor> {
           child: Padding(
             padding: const EdgeInsets.only(top: 8.0),
             child: Text(
-              (day >= 0 && day < _kDayNames.length ? _kDayNames[day] : 'Day $day').toUpperCase(),
+              (day >= 0 && day < _kDayNames.length
+                      ? _kDayNames[day]
+                      : 'Day $day')
+                  .toUpperCase(),
               style: GoogleFonts.outfit(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
@@ -136,7 +152,10 @@ class _TimetableEditorState extends State<TimetableEditor> {
               for (final session in sessions) ...[
                 Container(
                   margin: const EdgeInsets.only(bottom: 8.0),
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12.0,
+                    vertical: 8.0,
+                  ),
                   decoration: BoxDecoration(
                     color: inputBg,
                     borderRadius: BorderRadius.circular(AppRadius.md),
@@ -146,7 +165,9 @@ class _TimetableEditorState extends State<TimetableEditor> {
                       Expanded(
                         child: Text(
                           subjectById[session.subjectId]?.name ??
-                              (session.label.isNotEmpty ? session.label : 'Unknown subject'),
+                              (session.label.isNotEmpty
+                                  ? session.label
+                                  : 'Unknown subject'),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.outfit(
@@ -158,7 +179,8 @@ class _TimetableEditorState extends State<TimetableEditor> {
                       ),
                       const SizedBox(width: 8),
                       Semantics(
-                        label: 'Remove ${session.label.isNotEmpty ? session.label : "session"}',
+                        label:
+                            'Remove ${session.label.isNotEmpty ? session.label : "session"}',
                         button: true,
                         child: InkWell(
                           onTap: () => widget.onRemoveSession(day, session.id),
@@ -167,7 +189,9 @@ class _TimetableEditorState extends State<TimetableEditor> {
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
-                              color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+                              color: isDark
+                                  ? AppColors.surfaceDark
+                                  : AppColors.surfaceLight,
                               border: Border.all(color: borderColor),
                               borderRadius: BorderRadius.circular(AppRadius.sm),
                             ),
@@ -201,10 +225,17 @@ class _TimetableEditorState extends State<TimetableEditor> {
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
-                          value: effectiveValue.isNotEmpty ? effectiveValue : null,
+                          value: effectiveValue.isNotEmpty
+                              ? effectiveValue
+                              : null,
                           isExpanded: true,
-                          dropdownColor: isDark ? AppColors.surfaceSolidDark : AppColors.paperDark,
-                          icon: Icon(Icons.arrow_drop_down_rounded, color: paperColor),
+                          dropdownColor: isDark
+                              ? AppColors.surfaceSolidDark
+                              : AppColors.paperDark,
+                          icon: Icon(
+                            Icons.arrow_drop_down_rounded,
+                            color: paperColor,
+                          ),
                           style: GoogleFonts.outfit(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -239,7 +270,10 @@ class _TimetableEditorState extends State<TimetableEditor> {
                     final addButton = AppButton.present(
                       label: 'Add session',
                       isWide: isNarrow,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
                       fontSize: 13,
                       onPressed: effectiveValue.isNotEmpty
                           ? () => widget.onAddSession(day, effectiveValue)

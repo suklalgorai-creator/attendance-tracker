@@ -9,11 +9,7 @@ class AdvisorBanner extends StatelessWidget {
   final DashboardStats stats;
   final VoidCallback? onReviewUnmarked;
 
-  const AdvisorBanner({
-    super.key,
-    required this.stats,
-    this.onReviewUnmarked,
-  });
+  const AdvisorBanner({super.key, required this.stats, this.onReviewUnmarked});
 
   @override
   Widget build(BuildContext context) {

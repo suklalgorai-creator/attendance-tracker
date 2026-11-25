@@ -87,7 +87,7 @@ void main() {
             'active': true,
             'createdAt': now.toIso8601String(),
             'updatedAt': now.toIso8601String(),
-          }
+          },
         ],
         3: [
           {
@@ -98,13 +98,13 @@ void main() {
             'active': true,
             'createdAt': now.toIso8601String(),
             'updatedAt': now.toIso8601String(),
-          }
+          },
         ],
         'invalid_key': [
-          {'id': 's3'}
+          {'id': 's3'},
         ],
         '7': [
-          {'id': 's4'} // Out of bounds day 7
+          {'id': 's4'}, // Out of bounds day 7
         ],
       };
 

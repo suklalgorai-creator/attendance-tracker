@@ -29,22 +29,20 @@ void main() {
 
   group('StepperWidget', () {
     testWidgets('renders initial value and buttons', (tester) async {
-      await tester.pumpWidget(buildTestableWidget(
-        value: 5,
-        onChanged: (_) {},
-      ));
+      await tester.pumpWidget(buildTestableWidget(value: 5, onChanged: (_) {}));
 
       expect(find.text('5'), findsOneWidget);
       expect(find.text('−'), findsOneWidget);
       expect(find.text('+'), findsOneWidget);
     });
 
-    testWidgets('tapping increase calls onChanged with value + 1', (tester) async {
+    testWidgets('tapping increase calls onChanged with value + 1', (
+      tester,
+    ) async {
       int? updatedValue;
-      await tester.pumpWidget(buildTestableWidget(
-        value: 5,
-        onChanged: (val) => updatedValue = val,
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(value: 5, onChanged: (val) => updatedValue = val),
+      );
 
       await tester.tap(find.text('+'));
       await tester.pump();
@@ -52,12 +50,13 @@ void main() {
       expect(updatedValue, equals(6));
     });
 
-    testWidgets('tapping decrease calls onChanged with value - 1', (tester) async {
+    testWidgets('tapping decrease calls onChanged with value - 1', (
+      tester,
+    ) async {
       int? updatedValue;
-      await tester.pumpWidget(buildTestableWidget(
-        value: 5,
-        onChanged: (val) => updatedValue = val,
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(value: 5, onChanged: (val) => updatedValue = val),
+      );
 
       await tester.tap(find.text('−'));
       await tester.pump();
@@ -65,13 +64,17 @@ void main() {
       expect(updatedValue, equals(4));
     });
 
-    testWidgets('tapping decrease at min does not decrease below min', (tester) async {
+    testWidgets('tapping decrease at min does not decrease below min', (
+      tester,
+    ) async {
       int? updatedValue;
-      await tester.pumpWidget(buildTestableWidget(
-        value: 0,
-        min: 0,
-        onChanged: (val) => updatedValue = val,
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(
+          value: 0,
+          min: 0,
+          onChanged: (val) => updatedValue = val,
+        ),
+      );
 
       await tester.tap(find.text('−'));
       await tester.pump();
@@ -79,13 +82,17 @@ void main() {
       expect(updatedValue, anyOf(isNull, equals(0)));
     });
 
-    testWidgets('tapping increase at max does not increase above max', (tester) async {
+    testWidgets('tapping increase at max does not increase above max', (
+      tester,
+    ) async {
       int? updatedValue;
-      await tester.pumpWidget(buildTestableWidget(
-        value: 99,
-        max: 99,
-        onChanged: (val) => updatedValue = val,
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(
+          value: 99,
+          max: 99,
+          onChanged: (val) => updatedValue = val,
+        ),
+      );
 
       await tester.tap(find.text('+'));
       await tester.pump();
@@ -93,13 +100,17 @@ void main() {
       expect(updatedValue, anyOf(isNull, equals(99)));
     });
 
-    testWidgets('when enabled=false, buttons do not fire callbacks', (tester) async {
+    testWidgets('when enabled=false, buttons do not fire callbacks', (
+      tester,
+    ) async {
       int? updatedValue;
-      await tester.pumpWidget(buildTestableWidget(
-        value: 5,
-        enabled: false,
-        onChanged: (val) => updatedValue = val,
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(
+          value: 5,
+          enabled: false,
+          onChanged: (val) => updatedValue = val,
+        ),
+      );
 
       await tester.tap(find.text('+'));
       await tester.pump();
@@ -110,19 +121,25 @@ void main() {
       expect(updatedValue, isNull);
     });
 
-    testWidgets('renders correctly in light and dark themes without error', (tester) async {
-      await tester.pumpWidget(buildTestableWidget(
-        value: 12,
-        onChanged: (_) {},
-        brightness: Brightness.light,
-      ));
+    testWidgets('renders correctly in light and dark themes without error', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestableWidget(
+          value: 12,
+          onChanged: (_) {},
+          brightness: Brightness.light,
+        ),
+      );
       expect(find.text('12'), findsOneWidget);
 
-      await tester.pumpWidget(buildTestableWidget(
-        value: 12,
-        onChanged: (_) {},
-        brightness: Brightness.dark,
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(
+          value: 12,
+          onChanged: (_) {},
+          brightness: Brightness.dark,
+        ),
+      );
       expect(find.text('12'), findsOneWidget);
     });
 
@@ -132,10 +149,9 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(buildTestableWidget(
-        value: 42,
-        onChanged: (_) {},
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(value: 42, onChanged: (_) {}),
+      );
 
       expect(tester.takeException(), isNull);
       expect(find.text('42'), findsOneWidget);

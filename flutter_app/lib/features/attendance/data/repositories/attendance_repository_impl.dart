@@ -9,10 +9,12 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   final AttendanceLocalDataSource _localDataSource;
 
   AttendanceRepositoryImpl({AttendanceLocalDataSource? localDataSource})
-      : _localDataSource = localDataSource ?? AttendanceLocalDataSourceImpl();
+    : _localDataSource = localDataSource ?? AttendanceLocalDataSourceImpl();
 
   @override
-  Future<List<AttendanceRecordEntity>> getAttendanceRecords({bool includeDeleted = false}) async {
+  Future<List<AttendanceRecordEntity>> getAttendanceRecords({
+    bool includeDeleted = false,
+  }) async {
     final models = await _localDataSource.getAttendanceRecords();
     if (includeDeleted) {
       return models;
@@ -21,7 +23,9 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   }
 
   @override
-  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({bool includeDeleted = false}) {
+  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({
+    bool includeDeleted = false,
+  }) {
     return _localDataSource.watchAttendanceRecords().map((list) {
       if (includeDeleted) {
         return list;
@@ -31,13 +35,19 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   }
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForDate(String date, {bool includeDeleted = false}) async {
+  Future<List<AttendanceRecordEntity>> getRecordsForDate(
+    String date, {
+    bool includeDeleted = false,
+  }) async {
     final records = await getAttendanceRecords(includeDeleted: includeDeleted);
     return records.where((r) => r.date == date).toList();
   }
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForSubject(String subjectId, {bool includeDeleted = false}) async {
+  Future<List<AttendanceRecordEntity>> getRecordsForSubject(
+    String subjectId, {
+    bool includeDeleted = false,
+  }) async {
     final records = await getAttendanceRecords(includeDeleted: includeDeleted);
     return records.where((r) => r.subjectId == subjectId).toList();
   }
@@ -49,7 +59,9 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   }
 
   @override
-  Future<void> saveAttendanceRecords(List<AttendanceRecordEntity> records) async {
+  Future<void> saveAttendanceRecords(
+    List<AttendanceRecordEntity> records,
+  ) async {
     final models = records.map(AttendanceRecordModel.fromEntity).toList();
     await _localDataSource.saveAttendanceRecords(models);
   }
@@ -60,11 +72,10 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
     final record = await _localDataSource.getRecordById(id);
     if (record != null) {
       final now = DateTime.now();
-      final updated = record.copyWith(
-        deletedAt: now,
-        updatedAt: now,
+      final updated = record.copyWith(deletedAt: now, updatedAt: now);
+      await _localDataSource.saveAttendanceRecord(
+        AttendanceRecordModel.fromEntity(updated),
       );
-      await _localDataSource.saveAttendanceRecord(AttendanceRecordModel.fromEntity(updated));
     }
   }
 
@@ -76,7 +87,9 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
         clearDeletedAt: true,
         updatedAt: DateTime.now(),
       );
-      await _localDataSource.saveAttendanceRecord(AttendanceRecordModel.fromEntity(updated));
+      await _localDataSource.saveAttendanceRecord(
+        AttendanceRecordModel.fromEntity(updated),
+      );
     }
   }
 
@@ -86,7 +99,9 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   }
 
   @override
-  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({bool includeDeleted = false}) async {
+  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({
+    bool includeDeleted = false,
+  }) async {
     final models = await _localDataSource.getLegacyAttendance();
     if (includeDeleted) {
       return models;
@@ -95,7 +110,9 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   }
 
   @override
-  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({bool includeDeleted = false}) {
+  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({
+    bool includeDeleted = false,
+  }) {
     return _localDataSource.watchLegacyAttendance().map((list) {
       if (includeDeleted) {
         return list;
@@ -111,7 +128,9 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   }
 
   @override
-  Future<void> saveLegacyAttendances(List<LegacyAttendanceEntity> records) async {
+  Future<void> saveLegacyAttendances(
+    List<LegacyAttendanceEntity> records,
+  ) async {
     final models = records.map(LegacyAttendanceModel.fromEntity).toList();
     await _localDataSource.saveLegacyAttendances(models);
   }
@@ -122,11 +141,10 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
     final record = await _localDataSource.getLegacyRecordById(id);
     if (record != null) {
       final now = DateTime.now();
-      final updated = record.copyWith(
-        deletedAt: now,
-        updatedAt: now,
+      final updated = record.copyWith(deletedAt: now, updatedAt: now);
+      await _localDataSource.saveLegacyAttendance(
+        LegacyAttendanceModel.fromEntity(updated),
       );
-      await _localDataSource.saveLegacyAttendance(LegacyAttendanceModel.fromEntity(updated));
     }
   }
 
@@ -138,7 +156,9 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
         clearDeletedAt: true,
         updatedAt: DateTime.now(),
       );
-      await _localDataSource.saveLegacyAttendance(LegacyAttendanceModel.fromEntity(updated));
+      await _localDataSource.saveLegacyAttendance(
+        LegacyAttendanceModel.fromEntity(updated),
+      );
     }
   }
 

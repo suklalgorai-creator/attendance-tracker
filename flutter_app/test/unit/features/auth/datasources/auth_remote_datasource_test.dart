@@ -19,22 +19,31 @@ void main() {
       expect(user, isNull);
     });
 
-    test('signInWithGoogle signs in offline user and emits to stream', () async {
-      final streamExpectation = expectLater(
-        remoteDataSource.watchRemoteAuthState(),
-        emits(isA<AuthUserModel>().having((u) => u.email, 'email', 'student@college.edu')),
-      );
+    test(
+      'signInWithGoogle signs in offline user and emits to stream',
+      () async {
+        final streamExpectation = expectLater(
+          remoteDataSource.watchRemoteAuthState(),
+          emits(
+            isA<AuthUserModel>().having(
+              (u) => u.email,
+              'email',
+              'student@college.edu',
+            ),
+          ),
+        );
 
-      final user = await remoteDataSource.signInWithGoogle();
-      expect(user.id, 'google_user_demo_101');
-      expect(user.email, 'student@college.edu');
-      expect(user.displayName, 'College Student');
+        final user = await remoteDataSource.signInWithGoogle();
+        expect(user.id, 'google_user_demo_101');
+        expect(user.email, 'student@college.edu');
+        expect(user.displayName, 'College Student');
 
-      final current = await remoteDataSource.getCurrentRemoteUser();
-      expect(current, equals(user));
+        final current = await remoteDataSource.getCurrentRemoteUser();
+        expect(current, equals(user));
 
-      await streamExpectation;
-    });
+        await streamExpectation;
+      },
+    );
 
     test('signOut clears current remote user and emits null', () async {
       await remoteDataSource.signInWithGoogle();

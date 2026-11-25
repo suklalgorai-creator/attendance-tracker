@@ -30,17 +30,19 @@ void main() {
           calendarDateProvider.overrideWith(
             (ref) => CalendarDateNotifier()..setDate(initialDate),
           ),
-        attendanceRecordsStreamProvider.overrideWith((ref) => Stream.value(records)),
-        legacyAttendanceStreamProvider.overrideWith((ref) => Stream.value(legacy)),
+        attendanceRecordsStreamProvider.overrideWith(
+          (ref) => Stream.value(records),
+        ),
+        legacyAttendanceStreamProvider.overrideWith(
+          (ref) => Stream.value(legacy),
+        ),
         settingsStreamProvider.overrideWith(
           (ref) => Stream.value(settings ?? const UserSettingsEntity()),
         ),
       ],
       child: const MaterialApp(
         home: Scaffold(
-          body: SingleChildScrollView(
-            child: CalendarViewWidget(),
-          ),
+          body: SingleChildScrollView(child: CalendarViewWidget()),
         ),
       ),
     );
@@ -66,7 +68,9 @@ void main() {
       }
     });
 
-    testWidgets('Clicking previous and next month buttons changes title', (tester) async {
+    testWidgets('Clicking previous and next month buttons changes title', (
+      tester,
+    ) async {
       final fixedDate = DateTime(2026, 11, 1);
       await tester.pumpWidget(createWidget(initialDate: fixedDate));
       await tester.pumpAndSettle();
@@ -88,7 +92,9 @@ void main() {
       expect(find.text('October 2026'), findsOneWidget);
     });
 
-    testWidgets('Renders monthly summary footer stats correctly', (tester) async {
+    testWidgets('Renders monthly summary footer stats correctly', (
+      tester,
+    ) async {
       final fixedDate = DateTime(2026, 11, 1);
       final records = [
         AttendanceRecordEntity(
@@ -126,7 +132,9 @@ void main() {
       expect(find.text('0'), findsWidgets);
     });
 
-    testWidgets('Renders cleanly on 320px narrow width without overflow', (tester) async {
+    testWidgets('Renders cleanly on 320px narrow width without overflow', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(320 * 2, 700 * 2);
       tester.view.devicePixelRatio = 2.0;
       addTearDown(() => tester.view.resetPhysicalSize());

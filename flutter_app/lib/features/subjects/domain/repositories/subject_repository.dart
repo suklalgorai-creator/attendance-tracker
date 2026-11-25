@@ -8,7 +8,11 @@ abstract class SubjectRepository {
   Future<void> saveSubject(SubjectEntity subject);
   Future<void> saveSubjects(List<SubjectEntity> subjects);
   Future<void> reorderSubjects(List<String> orderedIds);
-  Future<void> deleteSubject(String id); // Soft delete: sets deletedAt = now, updates updatedAt
-  Future<void> restoreSubject(String id); // Resets deletedAt = null, updates updatedAt
+  Future<void> deleteSubject(
+    String id,
+  ); // Soft delete: sets deletedAt = now, updates updatedAt
+  Future<void> restoreSubject(
+    String id,
+  ); // Resets deletedAt = null, updates updatedAt
   Future<void> hardDeleteSubject(String id); // Permanently removes from storage
 }

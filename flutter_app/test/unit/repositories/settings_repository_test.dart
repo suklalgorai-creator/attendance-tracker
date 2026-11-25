@@ -75,10 +75,9 @@ void main() {
     });
 
     test('resetSettings restores default configuration', () async {
-      await repository.saveSettings(const UserSettingsEntity(
-        name: 'Custom User',
-        minPercent: 90.0,
-      ));
+      await repository.saveSettings(
+        const UserSettingsEntity(name: 'Custom User', minPercent: 90.0),
+      );
 
       expect((await repository.getSettings()).name, 'Custom User');
 
@@ -94,10 +93,7 @@ void main() {
 
       expectLater(
         repository.watchSettings(),
-        emitsInOrder([
-          const UserSettingsEntity(),
-          updated,
-        ]),
+        emitsInOrder([const UserSettingsEntity(), updated]),
       );
 
       await pumpEventQueue();

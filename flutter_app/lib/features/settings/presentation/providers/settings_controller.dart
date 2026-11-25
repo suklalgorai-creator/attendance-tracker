@@ -34,10 +34,10 @@ class SettingsState {
   }) {
     return SettingsState(
       isLoading: isLoading ?? this.isLoading,
-      pendingRestore:
-          clearPendingRestore ? null : (pendingRestore ?? this.pendingRestore),
-      backupError:
-          clearBackupError ? null : (backupError ?? this.backupError),
+      pendingRestore: clearPendingRestore
+          ? null
+          : (pendingRestore ?? this.pendingRestore),
+      backupError: clearBackupError ? null : (backupError ?? this.backupError),
       successMessage: clearSuccessMessage
           ? null
           : (successMessage ?? this.successMessage),
@@ -63,7 +63,7 @@ class SettingsController extends StateNotifier<SettingsState> {
   final BackupService _backupService;
 
   SettingsController(this._ref, this._backupService)
-      : super(const SettingsState());
+    : super(const SettingsState());
 
   /// Title-cases a string on focus loss matching React `toTitleCase`.
   static String toTitleCase(String value) {
@@ -72,12 +72,18 @@ class SettingsController extends StateNotifier<SettingsState> {
     return trimmed
         .split(RegExp(r'\s+'))
         .where((word) => word.isNotEmpty)
-        .map((word) => word[0].toUpperCase() + (word.length > 1 ? word.substring(1) : ''))
+        .map(
+          (word) =>
+              word[0].toUpperCase() +
+              (word.length > 1 ? word.substring(1) : ''),
+        )
         .join(' ');
   }
 
   /// Updates settings partially while preserving unspecified properties.
-  Future<void> updateSettings(UserSettingsEntity Function(UserSettingsEntity current) updateFn) async {
+  Future<void> updateSettings(
+    UserSettingsEntity Function(UserSettingsEntity current) updateFn,
+  ) async {
     final settingsRepo = _ref.read(settingsRepositoryProvider);
     final current = await settingsRepo.getSettings();
     final updated = updateFn(current);
@@ -115,9 +121,9 @@ class SettingsController extends StateNotifier<SettingsState> {
   }
 
   Future<void> togglePushNotifications() async {
-    await updateSettings((c) => c.copyWith(
-          pushNotificationsEnabled: !c.pushNotificationsEnabled,
-        ));
+    await updateSettings(
+      (c) => c.copyWith(pushNotificationsEnabled: !c.pushNotificationsEnabled),
+    );
   }
 
   // ==========================================
@@ -150,6 +156,69 @@ class SettingsController extends StateNotifier<SettingsState> {
       state = state.copyWith(
         isLoading: false,
         backupError: 'Unable to export backup: $e',
+      );
+    }
+  }
+
+  /// Exports the same compact CSV shape as the React desktop/drawer action.
+  Future<void> exportCsv() async {
+    state = state.copyWith(isLoading: true, clearBackupError: true);
+    try {
+      final attendance = await _ref
+          .read(attendanceRepositoryProvider)
+          .getAttendanceRecords();
+      final legacy = await _ref
+          .read(attendanceRepositoryProvider)
+          .getLegacyAttendance();
+      final rows = <List<String>>[
+        for (final record in attendance.where((item) => !item.isDeleted))
+          [
+            record.date,
+            record.subjectId,
+            record.sessionId,
+            record.status.value,
+          ],
+        for (final record in legacy.where((item) => !item.isDeleted))
+          [
+            record.date,
+            'legacy',
+            record.id,
+            '${record.attended}/${record.held}',
+          ],
+      ]..sort((a, b) => a.first.compareTo(b.first));
+
+      if (rows.isEmpty) {
+        state = state.copyWith(
+          isLoading: false,
+          backupError: 'No attendance data available to export.',
+        );
+        return;
+      }
+
+      String quote(String value) => '"${value.replaceAll('"', '""')}"';
+      final csv = StringBuffer('Date,Subject ID,Session ID,Status\n');
+      for (final row in rows) {
+        csv.writeln(row.map(quote).join(','));
+      }
+      final date = DateTime.now().toIso8601String().substring(0, 10);
+      await SharePlus.instance.share(
+        ShareParams(
+          text: csv.toString(),
+          subject: 'Attendance export',
+          files: [
+            XFile.fromData(
+              utf8.encode(csv.toString()),
+              mimeType: 'text/csv',
+              name: 'attendance_export_$date.csv',
+            ),
+          ],
+        ),
+      );
+      state = state.copyWith(isLoading: false);
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        backupError: 'Unable to export attendance data: $e',
       );
     }
   }
@@ -240,7 +309,8 @@ class SettingsController extends StateNotifier<SettingsState> {
     } else {
       state = state.copyWith(
         isLoading: false,
-        backupError: result.error ?? 'Restore failed; existing data was not changed.',
+        backupError:
+            result.error ?? 'Restore failed; existing data was not changed.',
       );
       return false;
     }
@@ -248,10 +318,7 @@ class SettingsController extends StateNotifier<SettingsState> {
 
   /// Cancels the pending restore preview.
   void cancelRestore() {
-    state = state.copyWith(
-      clearPendingRestore: true,
-      clearBackupError: true,
-    );
+    state = state.copyWith(clearPendingRestore: true, clearBackupError: true);
   }
 
   // ==========================================
@@ -284,6 +351,6 @@ class SettingsController extends StateNotifier<SettingsState> {
 /// Riverpod StateNotifierProvider for [SettingsController].
 final settingsControllerProvider =
     StateNotifierProvider<SettingsController, SettingsState>((ref) {
-  final backupService = ref.watch(backupServiceProvider);
-  return SettingsController(ref, backupService);
-});
+      final backupService = ref.watch(backupServiceProvider);
+      return SettingsController(ref, backupService);
+    });

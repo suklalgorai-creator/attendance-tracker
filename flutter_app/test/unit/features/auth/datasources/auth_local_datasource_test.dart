@@ -31,26 +31,29 @@ void main() {
       expect(dataSource.getSavedUserSync(), isNull);
     });
 
-    test('saveUser persists auth model and getSavedUser retrieves it', () async {
-      const user = AuthUserModel(
-        id: 'u_123',
-        email: 'user123@college.edu',
-        displayName: 'John College',
-        isAdmin: true,
-      );
+    test(
+      'saveUser persists auth model and getSavedUser retrieves it',
+      () async {
+        const user = AuthUserModel(
+          id: 'u_123',
+          email: 'user123@college.edu',
+          displayName: 'John College',
+          isAdmin: true,
+        );
 
-      await dataSource.saveUser(user);
+        await dataSource.saveUser(user);
 
-      final retrieved = await dataSource.getSavedUser();
-      expect(retrieved, isNotNull);
-      expect(retrieved!.id, 'u_123');
-      expect(retrieved.email, 'user123@college.edu');
-      expect(retrieved.displayName, 'John College');
-      expect(retrieved.isAdmin, isTrue);
+        final retrieved = await dataSource.getSavedUser();
+        expect(retrieved, isNotNull);
+        expect(retrieved!.id, 'u_123');
+        expect(retrieved.email, 'user123@college.edu');
+        expect(retrieved.displayName, 'John College');
+        expect(retrieved.isAdmin, isTrue);
 
-      final syncRetrieved = dataSource.getSavedUserSync();
-      expect(syncRetrieved, equals(retrieved));
-    });
+        final syncRetrieved = dataSource.getSavedUserSync();
+        expect(syncRetrieved, equals(retrieved));
+      },
+    );
 
     test('clearUser deletes auth_user and resets guest mode', () async {
       const user = AuthUserModel(id: 'u_999', email: 'test@mail.com');
@@ -87,41 +90,50 @@ void main() {
       expect(await dataSource.isOnboardingComplete(), isFalse);
     });
 
-    test('isOnboardingComplete falls back to user_settings startDate', () async {
-      expect(await dataSource.isOnboardingComplete(), isFalse);
+    test(
+      'isOnboardingComplete falls back to user_settings startDate',
+      () async {
+        expect(await dataSource.isOnboardingComplete(), isFalse);
 
-      // Store user_settings with startDate
-      await settingsBox.put('user_settings', {
-        'startDate': '2026-01-15',
-        'programName': 'B.Tech CSE',
-      });
+        // Store user_settings with startDate
+        await settingsBox.put('user_settings', {
+          'startDate': '2026-01-15',
+          'programName': 'B.Tech CSE',
+        });
 
-      expect(await dataSource.isOnboardingComplete(), isTrue);
-      expect(dataSource.isOnboardingCompleteSync(), isTrue);
-    });
+        expect(await dataSource.isOnboardingComplete(), isTrue);
+        expect(dataSource.isOnboardingCompleteSync(), isTrue);
+      },
+    );
 
-    test('isOnboardingComplete falls back to user_settings startDate even if explicitFlag is false', () async {
-      await dataSource.setOnboardingComplete(false);
-      expect(await dataSource.isOnboardingComplete(), isFalse);
+    test(
+      'isOnboardingComplete falls back to user_settings startDate even if explicitFlag is false',
+      () async {
+        await dataSource.setOnboardingComplete(false);
+        expect(await dataSource.isOnboardingComplete(), isFalse);
 
-      await settingsBox.put('user_settings', {
-        'startDate': '2026-01-15',
-        'programName': 'B.Tech CSE',
-      });
+        await settingsBox.put('user_settings', {
+          'startDate': '2026-01-15',
+          'programName': 'B.Tech CSE',
+        });
 
-      expect(await dataSource.isOnboardingComplete(), isTrue);
-      expect(dataSource.isOnboardingCompleteSync(), isTrue);
-    });
+        expect(await dataSource.isOnboardingComplete(), isTrue);
+        expect(dataSource.isOnboardingCompleteSync(), isTrue);
+      },
+    );
 
-    test('isOnboardingComplete returns false if user_settings has empty or whitespace startDate', () async {
-      await dataSource.setOnboardingComplete(false);
-      await settingsBox.put('user_settings', {
-        'startDate': '   ',
-        'programName': 'B.Tech CSE',
-      });
+    test(
+      'isOnboardingComplete returns false if user_settings has empty or whitespace startDate',
+      () async {
+        await dataSource.setOnboardingComplete(false);
+        await settingsBox.put('user_settings', {
+          'startDate': '   ',
+          'programName': 'B.Tech CSE',
+        });
 
-      expect(await dataSource.isOnboardingComplete(), isFalse);
-      expect(dataSource.isOnboardingCompleteSync(), isFalse);
-    });
+        expect(await dataSource.isOnboardingComplete(), isFalse);
+        expect(dataSource.isOnboardingCompleteSync(), isFalse);
+      },
+    );
   });
 }

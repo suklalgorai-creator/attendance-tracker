@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../../../core/services/database_service.dart';
@@ -16,28 +17,41 @@ import '../../../subjects/domain/entities/subject_entity.dart';
 import '../../../subjects/domain/repositories/subject_repository.dart';
 import '../../../timetable/domain/entities/timetable_session_entity.dart';
 import '../../../timetable/domain/repositories/timetable_repository.dart';
+import '../../data/datasources/firestore_remote_sync_datasource.dart';
 import '../../data/datasources/remote_sync_datasource_impl.dart';
 import '../../domain/datasources/remote_sync_datasource.dart';
 import '../../domain/models/sync_state.dart';
 import '../../domain/services/cloud_sync_service.dart';
 
-/// Provider for [RemoteSyncDataSource], defaulting to the offline-safe implementation.
+/// Provider for [RemoteSyncDataSource], using Cloud Firestore when Firebase
+/// is initialized and falling back to [DefaultRemoteSyncDataSource] in tests/offline builds.
 final remoteSyncDataSourceProvider = Provider<RemoteSyncDataSource>((ref) {
+  if (Firebase.apps.isNotEmpty) {
+    return FirestoreRemoteSyncDataSource();
+  }
   return DefaultRemoteSyncDataSource();
 });
 
-/// Provider for [NetworkConnectivityService].
-final networkConnectivityServiceProvider =
-    Provider<NetworkConnectivityService>((ref) {
-  final service = NetworkConnectivityServiceImpl();
-  ref.onDispose(() => service.dispose());
-  return service;
+/// Global settings used by screens that need the React `globalSettings` shape.
+final globalSettingsProvider = FutureProvider<Map<String, dynamic>>((ref) {
+  return ref.watch(remoteSyncDataSourceProvider).fetchGlobalSettings();
 });
+
+/// Provider for [NetworkConnectivityService].
+final networkConnectivityServiceProvider = Provider<NetworkConnectivityService>(
+  (ref) {
+    final service = NetworkConnectivityServiceImpl();
+    ref.onDispose(() => service.dispose());
+    return service;
+  },
+);
 
 /// Provider for [CloudSyncService], automatically observing current auth state.
 /// Safely falls back to an in-memory stub if local Hive boxes are not initialized (e.g. in widget tests).
 final cloudSyncServiceProvider = Provider<CloudSyncService>((ref) {
-  final hasHiveBoxes = DatabaseService.isBoxOpen(DatabaseService.settingsBoxName);
+  final hasHiveBoxes = DatabaseService.isBoxOpen(
+    DatabaseService.settingsBoxName,
+  );
 
   final BackupService backupService;
   if (hasHiveBoxes) {
@@ -59,10 +73,6 @@ final cloudSyncServiceProvider = Provider<CloudSyncService>((ref) {
     connectivityService: ref.watch(networkConnectivityServiceProvider),
   );
 
-  // Synchronize active user
-  final authUser = ref.watch(authNotifierProvider).user;
-  service.updateUser(authUser);
-
   ref.onDispose(() => service.dispose());
   return service;
 });
@@ -70,6 +80,8 @@ final cloudSyncServiceProvider = Provider<CloudSyncService>((ref) {
 /// Reactive stream of sync state changes.
 final syncStateStreamProvider = StreamProvider<SyncState>((ref) {
   final service = ref.watch(cloudSyncServiceProvider);
+  final authUser = ref.watch(authNotifierProvider).user;
+  service.updateUser(authUser);
   return service.syncStateStream;
 });
 
@@ -88,9 +100,12 @@ class _FallbackSettingsRepo implements SettingsRepository {
 
 class _FallbackSubjectRepo implements SubjectRepository {
   @override
-  Future<List<SubjectEntity>> getSubjects({bool includeDeleted = false}) async => [];
+  Future<List<SubjectEntity>> getSubjects({
+    bool includeDeleted = false,
+  }) async => [];
   @override
-  Stream<List<SubjectEntity>> watchSubjects({bool includeDeleted = false}) => Stream.value([]);
+  Stream<List<SubjectEntity>> watchSubjects({bool includeDeleted = false}) =>
+      Stream.value([]);
   @override
   Future<SubjectEntity?> getSubjectById(String id) async => null;
   @override
@@ -109,32 +124,54 @@ class _FallbackSubjectRepo implements SubjectRepository {
 
 class _FallbackTimetableRepo implements TimetableRepository {
   @override
-  Future<Map<int, List<TimetableSessionEntity>>> getTimetable({bool includeDeleted = false}) async => {};
+  Future<Map<int, List<TimetableSessionEntity>>> getTimetable({
+    bool includeDeleted = false,
+  }) async => {};
   @override
-  Stream<Map<int, List<TimetableSessionEntity>>> watchTimetable({bool includeDeleted = false}) => Stream.value({});
+  Stream<Map<int, List<TimetableSessionEntity>>> watchTimetable({
+    bool includeDeleted = false,
+  }) => Stream.value({});
   @override
-  Future<void> addSession(int dayOfWeek, String subjectId, {String? label}) async {}
+  Future<void> addSession(
+    int dayOfWeek,
+    String subjectId, {
+    String? label,
+  }) async {}
   @override
   Future<void> removeSession(int dayOfWeek, String sessionId) async {}
   @override
   Future<void> clearTimetable() async {}
   @override
-  Future<void> saveTimetable(Map<int, List<TimetableSessionEntity>> timetable) async {}
+  Future<void> saveTimetable(
+    Map<int, List<TimetableSessionEntity>> timetable,
+  ) async {}
 }
 
 class _FallbackAttendanceRepo implements AttendanceRepository {
   @override
-  Future<List<AttendanceRecordEntity>> getAttendanceRecords({bool includeDeleted = false}) async => [];
+  Future<List<AttendanceRecordEntity>> getAttendanceRecords({
+    bool includeDeleted = false,
+  }) async => [];
   @override
-  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({bool includeDeleted = false}) => Stream.value([]);
+  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({
+    bool includeDeleted = false,
+  }) => Stream.value([]);
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForDate(String date, {bool includeDeleted = false}) async => [];
+  Future<List<AttendanceRecordEntity>> getRecordsForDate(
+    String date, {
+    bool includeDeleted = false,
+  }) async => [];
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForSubject(String subjectId, {bool includeDeleted = false}) async => [];
+  Future<List<AttendanceRecordEntity>> getRecordsForSubject(
+    String subjectId, {
+    bool includeDeleted = false,
+  }) async => [];
   @override
   Future<void> saveAttendanceRecord(AttendanceRecordEntity record) async {}
   @override
-  Future<void> saveAttendanceRecords(List<AttendanceRecordEntity> records) async {}
+  Future<void> saveAttendanceRecords(
+    List<AttendanceRecordEntity> records,
+  ) async {}
   @override
   Future<void> deleteAttendanceRecord(String id) async {}
   @override
@@ -142,13 +179,19 @@ class _FallbackAttendanceRepo implements AttendanceRepository {
   @override
   Future<void> hardDeleteAttendanceRecord(String id) async {}
   @override
-  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({bool includeDeleted = false}) async => [];
+  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({
+    bool includeDeleted = false,
+  }) async => [];
   @override
-  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({bool includeDeleted = false}) => Stream.value([]);
+  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({
+    bool includeDeleted = false,
+  }) => Stream.value([]);
   @override
   Future<void> saveLegacyAttendance(LegacyAttendanceEntity record) async {}
   @override
-  Future<void> saveLegacyAttendances(List<LegacyAttendanceEntity> records) async {}
+  Future<void> saveLegacyAttendances(
+    List<LegacyAttendanceEntity> records,
+  ) async {}
   @override
   Future<void> deleteLegacyAttendance(String id) async {}
   @override
@@ -179,7 +222,8 @@ class _FallbackNotesRepo implements NotesRepository {
 class _FallbackBox implements Box {
   final Map<dynamic, dynamic> _storage = {};
   @override
-  dynamic get(key, {defaultValue}) => _storage.containsKey(key) ? _storage[key] : defaultValue;
+  dynamic get(key, {defaultValue}) =>
+      _storage.containsKey(key) ? _storage[key] : defaultValue;
   @override
   Future<void> put(key, value) async => _storage[key] = value;
   @override
@@ -190,6 +234,7 @@ class _FallbackBox implements Box {
     _storage.clear();
     return c;
   }
+
   @override
   bool containsKey(key) => _storage.containsKey(key);
   @override

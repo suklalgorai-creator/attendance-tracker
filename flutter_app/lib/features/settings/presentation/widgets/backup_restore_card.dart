@@ -30,10 +30,7 @@ class BackupRestoreCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Backup & Restore',
-            style: AppTypography.cardTitle(paperColor),
-          ),
+          Text('Backup & Restore', style: AppTypography.cardTitle(paperColor)),
           const SizedBox(height: 8),
           Text(
             'JSON backup includes daily attendance, settings, holidays, and notes. CSV exports are not complete backups.',
@@ -61,11 +58,7 @@ class BackupRestoreCard extends ConsumerWidget {
 
               if (isNarrow) {
                 return Column(
-                  children: [
-                    exportBtn,
-                    const SizedBox(height: 10),
-                    chooseBtn,
-                  ],
+                  children: [exportBtn, const SizedBox(height: 10), chooseBtn],
                 );
               }
 
@@ -152,7 +145,10 @@ class BackupRestoreCard extends ConsumerWidget {
                     const SizedBox(height: 2),
                     Text(
                       '\u2022 ${summary.notesCount} sticky notes will be restored',
-                      style: GoogleFonts.outfit(fontSize: 13, color: paperColor),
+                      style: GoogleFonts.outfit(
+                        fontSize: 13,
+                        color: paperColor,
+                      ),
                     ),
                   ],
                   if (summary.quarantinedCount > 0) ...[

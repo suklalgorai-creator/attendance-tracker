@@ -61,15 +61,15 @@ class TimetableSessionEntity {
 
   @override
   int get hashCode => Object.hash(
-        id,
-        subjectId,
-        label,
-        dayOfWeek,
-        active,
-        createdAt,
-        updatedAt,
-        deletedAt,
-      );
+    id,
+    subjectId,
+    label,
+    dayOfWeek,
+    active,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
 
   @override
   String toString() =>

@@ -21,11 +21,7 @@ class TodaysScheduleCard extends ConsumerWidget {
   final DateTime? now;
   final VoidCallback? onReviewIndividually;
 
-  const TodaysScheduleCard({
-    super.key,
-    this.now,
-    this.onReviewIndividually,
-  });
+  const TodaysScheduleCard({super.key, this.now, this.onReviewIndividually});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -91,101 +87,111 @@ class TodaysScheduleCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          // Header Row
-          Row(
-            children: [
-              const Text('⏰', style: TextStyle(fontSize: 18)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  "Mark Today's Scheduled Sessions",
-                  style: AppTypography.cardTitle(paperColor).copyWith(
-                    fontSize: 16,
+            // Header Row
+            Row(
+              children: [
+                const Text('⏰', style: TextStyle(fontSize: 18)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    "Mark Today's Scheduled Sessions",
+                    style: AppTypography.cardTitle(
+                      paperColor,
+                    ).copyWith(fontSize: 16),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '${unmarkedSessions.length} ${unmarkedSessions.length == 1 ? "session" : "sessions"} waiting to be recorded for today.',
-            style: GoogleFonts.outfit(
-              fontSize: 13,
-              fontWeight: FontWeight.w400,
-              color: mutedColor,
+              ],
             ),
-          ),
-          const SizedBox(height: 12),
+            const SizedBox(height: 6),
+            Text(
+              '${unmarkedSessions.length} ${unmarkedSessions.length == 1 ? "session" : "sessions"} waiting to be recorded for today.',
+              style: GoogleFonts.outfit(
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+                color: mutedColor,
+              ),
+            ),
+            const SizedBox(height: 12),
 
-          // Period Pills / Chips
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final session in daySessions) ...[
-                _buildSessionChip(
-                  session: session,
-                  record: todayRecordsBySession[session.id],
-                  subjectName: subjectById[session.subjectId]?.name ??
-                      (session.label.isNotEmpty ? session.label : 'Subject'),
-                  isDark: isDark,
-                  paperColor: paperColor,
-                  mutedColor: mutedColor,
+            // Period Pills / Chips
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final session in daySessions) ...[
+                  _buildSessionChip(
+                    session: session,
+                    record: todayRecordsBySession[session.id],
+                    subjectName:
+                        subjectById[session.subjectId]?.name ??
+                        (session.label.isNotEmpty ? session.label : 'Subject'),
+                    isDark: isDark,
+                    paperColor: paperColor,
+                    mutedColor: mutedColor,
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Quick Action Buttons
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: WrapAlignment.start,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                AppButton.present(
+                  label: 'Mark all present',
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  fontSize: 13,
+                  onPressed: () => _markAll(
+                    context,
+                    ref,
+                    unmarkedSessions,
+                    todayStr,
+                    AttendanceStatus.present,
+                  ),
+                ),
+                AppButton.absent(
+                  label: 'Mark all absent',
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  fontSize: 13,
+                  onPressed: () => _markAll(
+                    context,
+                    ref,
+                    unmarkedSessions,
+                    todayStr,
+                    AttendanceStatus.absent,
+                  ),
+                ),
+                AppButton.ghost(
+                  label: 'Review individually',
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  fontSize: 13,
+                  onPressed: () {
+                    if (onReviewIndividually != null) {
+                      onReviewIndividually!();
+                    } else {
+                      context.go('/register');
+                    }
+                  },
                 ),
               ],
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Quick Action Buttons
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            alignment: WrapAlignment.start,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              AppButton.present(
-                label: 'Mark all present',
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                fontSize: 13,
-                onPressed: () => _markAll(
-                  context,
-                  ref,
-                  unmarkedSessions,
-                  todayStr,
-                  AttendanceStatus.present,
-                ),
-              ),
-              AppButton.absent(
-                label: 'Mark all absent',
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                fontSize: 13,
-                onPressed: () => _markAll(
-                  context,
-                  ref,
-                  unmarkedSessions,
-                  todayStr,
-                  AttendanceStatus.absent,
-                ),
-              ),
-              AppButton.ghost(
-                label: 'Review individually',
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                fontSize: 13,
-                onPressed: () {
-                  if (onReviewIndividually != null) {
-                    onReviewIndividually!();
-                  } else {
-                    context.go('/register');
-                  }
-                },
-              ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
   }
 
   Widget _buildSessionChip({
@@ -217,7 +223,9 @@ class TodaysScheduleCard extends ConsumerWidget {
         break;
       default:
         chipBg = isDark ? AppColors.ruleBrightDark : AppColors.ruleBrightLight;
-        chipBorder = isDark ? AppColors.glassBorderDark : AppColors.glassBorderLight;
+        chipBorder = isDark
+            ? AppColors.glassBorderDark
+            : AppColors.glassBorderLight;
         textColor = paperColor;
         break;
     }
@@ -262,7 +270,9 @@ class TodaysScheduleCard extends ConsumerWidget {
     }).toList();
 
     try {
-      await ref.read(attendanceRepositoryProvider).saveAttendanceRecords(newRecords);
+      await ref
+          .read(attendanceRepositoryProvider)
+          .saveAttendanceRecords(newRecords);
       if (context.mounted) {
         final label = status == AttendanceStatus.present ? 'Present' : 'Absent';
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -275,9 +285,9 @@ class TodaysScheduleCard extends ConsumerWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to mark sessions: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to mark sessions: $e')));
       }
     }
   }

@@ -23,24 +23,26 @@ void main() {
   }) {
     return ProviderScope(
       overrides: [
-        attendanceRecordsStreamProvider.overrideWith((ref) => Stream.value(records)),
-        legacyAttendanceStreamProvider.overrideWith((ref) => Stream.value(legacy)),
+        attendanceRecordsStreamProvider.overrideWith(
+          (ref) => Stream.value(records),
+        ),
+        legacyAttendanceStreamProvider.overrideWith(
+          (ref) => Stream.value(legacy),
+        ),
         settingsStreamProvider.overrideWith(
           (ref) => Stream.value(settings ?? const UserSettingsEntity()),
         ),
       ],
       child: const MaterialApp(
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: ActivityCard(),
-          ),
-        ),
+        home: Scaffold(body: SingleChildScrollView(child: ActivityCard())),
       ),
     );
   }
 
   group('ActivityCard Tests', () {
-    testWidgets('Renders Activity title and Month/Heatmap toggle buttons', (tester) async {
+    testWidgets('Renders Activity title and Month/Heatmap toggle buttons', (
+      tester,
+    ) async {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
@@ -72,7 +74,9 @@ void main() {
       expect(find.byType(HeatmapView), findsNothing);
     });
 
-    testWidgets('Renders cleanly on 320px narrow width without overflow', (tester) async {
+    testWidgets('Renders cleanly on 320px narrow width without overflow', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(320 * 2, 700 * 2);
       tester.view.devicePixelRatio = 2.0;
       addTearDown(() => tester.view.resetPhysicalSize());

@@ -198,26 +198,29 @@ void main() {
       expect(summary.attended, 3); // 1 session + 2 legacy
     });
 
-    test('Returns holiday if all classes on date were cancelled with 0 held', () {
-      final records = [
-        makeRecord(
-          id: 'rec-1',
+    test(
+      'Returns holiday if all classes on date were cancelled with 0 held',
+      () {
+        final records = [
+          makeRecord(
+            id: 'rec-1',
+            date: '2026-11-20',
+            status: AttendanceStatus.cancelled,
+          ),
+        ];
+
+        final summary = service.computeDaySummary(
           date: '2026-11-20',
-          status: AttendanceStatus.cancelled,
-        ),
-      ];
+          records: records,
+          legacyByDate: {},
+          holidays: {},
+        );
 
-      final summary = service.computeDaySummary(
-        date: '2026-11-20',
-        records: records,
-        legacyByDate: {},
-        holidays: {},
-      );
-
-      expect(summary.type, CalendarDayType.holiday);
-      expect(summary.held, 0);
-      expect(summary.attended, 0);
-    });
+        expect(summary.type, CalendarDayType.holiday);
+        expect(summary.held, 0);
+        expect(summary.attended, 0);
+      },
+    );
   });
 
   group('CalendarAnalyticsService - computeMonthSummary', () {
@@ -268,25 +271,28 @@ void main() {
   });
 
   group('CalendarAnalyticsService - computeDaysInMonth', () {
-    test('Generates correct number of days for February in leap year and non-leap year', () {
-      final leapDays = service.computeDaysInMonth(
-        year: 2024, // Leap year
-        month: 2,
-        records: [],
-        legacyByDate: {},
-        holidays: {},
-      );
-      expect(leapDays.length, 29);
+    test(
+      'Generates correct number of days for February in leap year and non-leap year',
+      () {
+        final leapDays = service.computeDaysInMonth(
+          year: 2024, // Leap year
+          month: 2,
+          records: [],
+          legacyByDate: {},
+          holidays: {},
+        );
+        expect(leapDays.length, 29);
 
-      final nonLeapDays = service.computeDaysInMonth(
-        year: 2025, // Non-leap year
-        month: 2,
-        records: [],
-        legacyByDate: {},
-        holidays: {},
-      );
-      expect(nonLeapDays.length, 28);
-    });
+        final nonLeapDays = service.computeDaysInMonth(
+          year: 2025, // Non-leap year
+          month: 2,
+          records: [],
+          legacyByDate: {},
+          holidays: {},
+        );
+        expect(nonLeapDays.length, 28);
+      },
+    );
 
     test('Generates 30 days for November', () {
       final novDays = service.computeDaysInMonth(
@@ -312,12 +318,7 @@ void main() {
         ),
       ];
       final legacy = [
-        makeLegacy(
-          id: 'l1',
-          date: '2026-11-16',
-          held: 2,
-          attended: 0,
-        ),
+        makeLegacy(id: 'l1', date: '2026-11-16', held: 2, attended: 0),
       ];
       final holidays = {'2026-11-17': true};
 
@@ -344,8 +345,11 @@ void main() {
         final start = service.computeHeatmapStartDate(anchor, 26);
 
         // In Dart, Sunday is weekday 7 (7 % 7 == 0)
-        expect(start.weekday % 7, 0,
-            reason: 'Failed for anchor ${anchor.toIso8601String()}');
+        expect(
+          start.weekday % 7,
+          0,
+          reason: 'Failed for anchor ${anchor.toIso8601String()}',
+        );
 
         // Total days between start and current week Saturday is 26 * 7 - 1 = 181
         final currentWeekSaturday = anchor.add(

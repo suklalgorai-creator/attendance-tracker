@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../shared/widgets/glass_card.dart';
 import '../providers/calendar_providers.dart';
 import 'calendar_view.dart';
 import 'heatmap_view.dart';
@@ -19,23 +20,11 @@ class ActivityCard extends ConsumerWidget {
     final viewMode = ref.watch(calendarViewModeProvider);
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor =
-        isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
     final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
     final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
-    final ruleBrightColor =
-        isDark ? AppColors.ruleBrightDark : AppColors.ruleBrightLight;
 
-    return Container(
-      padding: const EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        color: surfaceColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: ruleBrightColor,
-          width: 1.0,
-        ),
-      ),
+    return GlassCard(
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -50,8 +39,8 @@ class ActivityCard extends ConsumerWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.outfit(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
                     color: paperColor,
                   ),
                 ),

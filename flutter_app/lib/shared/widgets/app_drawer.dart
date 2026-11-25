@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../app/theme/theme_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_radius.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_typography.dart';
+import '../../features/settings/presentation/providers/settings_controller.dart';
 
 /// Navigation drawer matching react_app/src/components/DrawerMenu.jsx:
 /// - ADDITIONAL FEATURES: Leaderboard, Sticky Notes, Export Data (CSV)
@@ -28,13 +30,18 @@ class AppDrawer extends ConsumerWidget {
           children: [
             // Drawer Header
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.md,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'Menu',
-                    style: AppTypography.cardTitle(paperColor).copyWith(fontSize: 20),
+                    style: AppTypography.cardTitle(
+                      paperColor,
+                    ).copyWith(fontSize: 20),
                   ),
                   IconButton(
                     icon: Icon(Icons.close_rounded, color: paperColor),
@@ -48,7 +55,18 @@ class AppDrawer extends ConsumerWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                 children: [
-                  _SectionHeader(title: 'ADDITIONAL FEATURES', color: mutedColor),
+                  _SectionHeader(
+                    title: 'ADDITIONAL FEATURES',
+                    color: mutedColor,
+                  ),
+                  _DrawerItem(
+                    emoji: '⚡',
+                    label: 'DailyFlow',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push('/dailyflow');
+                    },
+                  ),
                   _DrawerItem(
                     emoji: '📅',
                     label: 'Timetable',
@@ -78,16 +96,16 @@ class AppDrawer extends ConsumerWidget {
                     label: 'Export Data (CSV)',
                     onTap: () {
                       Navigator.of(context).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Export feature will be available in Phase 4')),
-                      );
+                      ref.read(settingsControllerProvider.notifier).exportCsv();
                     },
                   ),
                   const Divider(),
                   _SectionHeader(title: 'APP & SETTINGS', color: mutedColor),
                   _DrawerItem(
                     emoji: isDark ? '☀️' : '🌙',
-                    label: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+                    label: isDark
+                        ? 'Switch to Light Mode'
+                        : 'Switch to Dark Mode',
                     onTap: () {
                       ref.read(themeModeProvider.notifier).toggleTheme();
                     },
@@ -102,11 +120,11 @@ class AppDrawer extends ConsumerWidget {
                         builder: (ctx) => AlertDialog(
                           title: const Text("What's New in v2.0"),
                           content: const Text(
-                            "👑 Modern Clean Architecture\n"
-                            "📅 Integrated Attendance Register\n"
-                            "🔔 Smart Reminders & Streaks\n"
-                            "📊 CSV Export & Analytics\n"
-                            "✨ Full 1:1 Flutter Experience",
+                            "⚡ DailyFlow Planning, Focus Timer & Reminders\n"
+                            "🔐 Google Sign-In & Cloud Firestore Sync\n"
+                            "📅 Integrated Attendance Register (Holiday-aware)\n"
+                            "🎨 React-Parity Glassmorphism & Mesh Themes\n"
+                            "📝 Markdown Sticky Notes & CSV Export",
                           ),
                           actions: [
                             TextButton(
@@ -125,7 +143,8 @@ class AppDrawer extends ConsumerWidget {
                       Navigator.of(context).pop();
                       SharePlus.instance.share(
                         ShareParams(
-                          text: 'I am tracking my college attendance easily with this app!',
+                          text:
+                              'I am tracking my college attendance easily with this app!',
                           subject: 'College Attendance Tracker',
                         ),
                       );
@@ -142,7 +161,9 @@ class AppDrawer extends ConsumerWidget {
                         context: context,
                         builder: (ctx) => AlertDialog(
                           title: const Text('Support Developer'),
-                          content: const Text('Thank you for using College Attendance Tracker!'),
+                          content: const Text(
+                            'Thank you for using College Attendance Tracker!',
+                          ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.of(ctx).pop(),
@@ -156,8 +177,37 @@ class AppDrawer extends ConsumerWidget {
                   _DrawerItem(
                     emoji: '✉️',
                     label: 'Send Feedback',
-                    onTap: () {
+                    onTap: () async {
+                      final messenger = ScaffoldMessenger.maybeOf(context);
                       Navigator.of(context).pop();
+                      final uri = Uri(
+                        scheme: 'mailto',
+                        path: 'codecraftdigital.in@gmail.com',
+                        queryParameters: {'subject': 'Attendance App Feedback'},
+                      );
+                      try {
+                        final launched = await launchUrl(
+                          uri,
+                          mode: LaunchMode.externalApplication,
+                        );
+                        if (!launched) {
+                          messenger?.showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Send feedback to codecraftdigital.in@gmail.com',
+                              ),
+                            ),
+                          );
+                        }
+                      } catch (_) {
+                        messenger?.showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Send feedback to codecraftdigital.in@gmail.com',
+                            ),
+                          ),
+                        );
+                      }
                     },
                   ),
                 ],
@@ -179,7 +229,10 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.xs,
+      ),
       child: Text(
         title,
         style: TextStyle(
@@ -214,7 +267,9 @@ class _DrawerItem extends StatelessWidget {
       ),
       onTap: onTap,
       dense: true,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+      ),
     );
   }
 }

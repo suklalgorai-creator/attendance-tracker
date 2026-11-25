@@ -19,15 +19,17 @@ void main() {
 
   group('HeroCardWidget Tests', () {
     testWidgets('Renders AttendanceRing and StatRow widgets', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const HeroCardWidget(
-          percent: 85.0,
-          minPercent: 75.0,
-          conducted: 20,
-          present: 17,
-          canMiss: 2,
+      await tester.pumpWidget(
+        _wrap(
+          const HeroCardWidget(
+            percent: 85.0,
+            minPercent: 75.0,
+            conducted: 20,
+            present: 17,
+            canMiss: 2,
+          ),
         ),
-      ));
+      );
       await tester.pump();
 
       expect(find.byType(AttendanceRing), findsOneWidget);
@@ -40,45 +42,58 @@ void main() {
       expect(find.text('Can miss 2 classes'), findsOneWidget);
     });
 
-    testWidgets('Displays none status text when percent is null', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const HeroCardWidget(
-          percent: null,
-          minPercent: 75.0,
-          conducted: 0,
-          present: 0,
+    testWidgets('Displays none status text when percent is null', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          const HeroCardWidget(
+            percent: null,
+            minPercent: 75.0,
+            conducted: 0,
+            present: 0,
+          ),
         ),
-      ));
+      );
       await tester.pump();
 
       expect(find.text('No attendance recorded'), findsOneWidget);
     });
 
-    testWidgets('Displays danger status recovery message when percent < minPercent', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const HeroCardWidget(
-          percent: 60.0,
-          minPercent: 75.0,
-          conducted: 20,
-          present: 12,
-          needToAttend: 4,
-        ),
-      ));
-      await tester.pump();
+    testWidgets(
+      'Displays danger status recovery message when percent < minPercent',
+      (tester) async {
+        await tester.pumpWidget(
+          _wrap(
+            const HeroCardWidget(
+              percent: 60.0,
+              minPercent: 75.0,
+              conducted: 20,
+              present: 12,
+              needToAttend: 4,
+            ),
+          ),
+        );
+        await tester.pump();
 
-      expect(find.text('Need 4 attended classes'), findsOneWidget);
-    });
+        expect(find.text('Need 4 attended classes'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Displays unreachable message when impossible is true', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const HeroCardWidget(
-          percent: 95.0,
-          minPercent: 100.0,
-          conducted: 20,
-          present: 19,
-          isImpossible: true,
+    testWidgets('Displays unreachable message when impossible is true', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          const HeroCardWidget(
+            percent: 95.0,
+            minPercent: 100.0,
+            conducted: 20,
+            present: 19,
+            isImpossible: true,
+          ),
         ),
-      ));
+      );
       await tester.pump();
 
       expect(find.text('100% target is unreachable'), findsOneWidget);
@@ -86,14 +101,16 @@ void main() {
 
     testWidgets('Tapping HeroCard invokes onTap callback', (tester) async {
       bool tapped = false;
-      await tester.pumpWidget(_wrap(
-        HeroCardWidget(
-          percent: 80.0,
-          conducted: 10,
-          present: 8,
-          onTap: () => tapped = true,
+      await tester.pumpWidget(
+        _wrap(
+          HeroCardWidget(
+            percent: 80.0,
+            conducted: 10,
+            present: 8,
+            onTap: () => tapped = true,
+          ),
         ),
-      ));
+      );
       await tester.pump();
 
       await tester.tap(find.byType(InkWell));
@@ -101,34 +118,39 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('Renders cleanly under 280px narrow width constraint without overflow', (tester) async {
-      tester.view.physicalSize = const Size(280, 800);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
+    testWidgets(
+      'Renders cleanly under 280px narrow width constraint without overflow',
+      (tester) async {
+        tester.view.physicalSize = const Size(280, 800);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() {
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
 
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: HeroCardWidget(
-            conducted: 24,
-            present: 20,
-            minPercent: 75.0,
-            statusText: 'Can miss 2 classes',
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: HeroCardWidget(
+                conducted: 24,
+                present: 20,
+                minPercent: 75.0,
+                statusText: 'Can miss 2 classes',
+              ),
+            ),
           ),
-        ),
-      ));
-      await tester.pump();
+        );
+        await tester.pump();
 
-      expect(tester.takeException(), isNull);
-      expect(find.byType(HeroCardWidget), findsOneWidget);
-      expect(find.text('CONDUCTED'), findsOneWidget);
-      expect(find.text('24'), findsOneWidget);
-      expect(find.text('PRESENT'), findsOneWidget);
-      expect(find.text('20'), findsOneWidget);
-      expect(find.text('STATUS'), findsOneWidget);
-      expect(find.text('Can miss 2 classes'), findsOneWidget);
-    });
+        expect(tester.takeException(), isNull);
+        expect(find.byType(HeroCardWidget), findsOneWidget);
+        expect(find.text('CONDUCTED'), findsOneWidget);
+        expect(find.text('24'), findsOneWidget);
+        expect(find.text('PRESENT'), findsOneWidget);
+        expect(find.text('20'), findsOneWidget);
+        expect(find.text('STATUS'), findsOneWidget);
+        expect(find.text('Can miss 2 classes'), findsOneWidget);
+      },
+    );
   });
 }

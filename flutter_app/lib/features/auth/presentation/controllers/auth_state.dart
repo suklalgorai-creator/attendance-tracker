@@ -24,8 +24,10 @@ class AuthState {
     this.errorMessage,
   });
 
-  bool get isLoading => status == AuthStatus.loading || status == AuthStatus.initial;
-  bool get isAuthenticated => status == AuthStatus.authenticated && user != null;
+  bool get isLoading =>
+      status == AuthStatus.loading || status == AuthStatus.initial;
+  bool get isAuthenticated =>
+      status == AuthStatus.authenticated && user != null;
   bool get isGuest => status == AuthStatus.guest || (user?.isGuest ?? false);
   bool get isLoggedIn => isAuthenticated || isGuest;
 
@@ -55,12 +57,8 @@ class AuthState {
           errorMessage == other.errorMessage;
 
   @override
-  int get hashCode => Object.hash(
-        status,
-        user,
-        isOnboardingComplete,
-        errorMessage,
-      );
+  int get hashCode =>
+      Object.hash(status, user, isOnboardingComplete, errorMessage);
 
   @override
   String toString() {

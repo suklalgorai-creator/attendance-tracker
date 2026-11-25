@@ -85,157 +85,188 @@ void main() {
       expect(find.text('Skip for now (Use as Guest)'), findsOneWidget);
     });
 
-    testWidgets('Authenticated or guest user with incomplete onboarding is redirected to /onboarding', (tester) async {
-      final mockRepo = RouterTestAuthRepository(
-        user: AuthUserEntity.guest(),
-        onboarded: false,
-      );
+    testWidgets(
+      'Authenticated or guest user with incomplete onboarding is redirected to /onboarding',
+      (tester) async {
+        final mockRepo = RouterTestAuthRepository(
+          user: AuthUserEntity.guest(),
+          onboarded: false,
+        );
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            authRepositoryProvider.overrideWithValue(mockRepo),
-            authNotifierProvider.overrideWith((ref) => AuthNotifier(mockRepo)),
-          ],
-          child: const AttendanceApp(),
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              authRepositoryProvider.overrideWithValue(mockRepo),
+              authNotifierProvider.overrideWith(
+                (ref) => AuthNotifier(mockRepo),
+              ),
+            ],
+            child: const AttendanceApp(),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Displays OnboardingPage
-      expect(find.text('Set up your register'), findsOneWidget);
-      expect(find.text('Start tracking'), findsOneWidget);
-    });
+        // Displays OnboardingPage
+        expect(find.text('Set up your register'), findsOneWidget);
+        expect(find.text('Start tracking'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Onboarded authenticated user accesses DashboardPage and AppShell', (tester) async {
-      final mockRepo = RouterTestAuthRepository(
-        user: const AuthUserEntity(id: 'student_1', displayName: 'Student'),
-        onboarded: true,
-      );
+    testWidgets(
+      'Onboarded authenticated user accesses DashboardPage and AppShell',
+      (tester) async {
+        final mockRepo = RouterTestAuthRepository(
+          user: const AuthUserEntity(id: 'student_1', displayName: 'Student'),
+          onboarded: true,
+        );
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            authRepositoryProvider.overrideWithValue(mockRepo),
-            authNotifierProvider.overrideWith((ref) => AuthNotifier(mockRepo)),
-          ],
-          child: const AttendanceApp(),
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              authRepositoryProvider.overrideWithValue(mockRepo),
+              authNotifierProvider.overrideWith(
+                (ref) => AuthNotifier(mockRepo),
+              ),
+            ],
+            child: const AttendanceApp(),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('My Attendance'), findsOneWidget);
-      expect(find.text('Dashboard'), findsOneWidget);
-      expect(find.text('Home'), findsOneWidget);
-      expect(find.text('Register'), findsOneWidget);
-      expect(find.text('Leaderboard'), findsOneWidget);
-      expect(find.text('Settings'), findsOneWidget);
-      // No guest warning banner for authenticated Google user
-      expect(find.textContaining('Data not backed up!'), findsNothing);
-    });
+        expect(find.text('My Attendance'), findsOneWidget);
+        expect(find.text('Dashboard'), findsOneWidget);
+        expect(find.text('Home'), findsOneWidget);
+        expect(find.text('Register'), findsOneWidget);
+        expect(find.text('Leaderboard'), findsOneWidget);
+        expect(find.text('Settings'), findsOneWidget);
+        // No guest warning banner for authenticated Google user
+        expect(find.textContaining('Data not backed up!'), findsNothing);
+      },
+    );
 
-    testWidgets('AppShell bottom navigation bar renders cleanly on compact viewport Size(320, 568)', (tester) async {
-      tester.view.physicalSize = const Size(320, 568);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets(
+      'AppShell bottom navigation bar renders cleanly on compact viewport Size(320, 568)',
+      (tester) async {
+        tester.view.physicalSize = const Size(320, 568);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-      final mockRepo = RouterTestAuthRepository(
-        user: const AuthUserEntity(id: 'student_1', displayName: 'Student'),
-        onboarded: true,
-      );
+        final mockRepo = RouterTestAuthRepository(
+          user: const AuthUserEntity(id: 'student_1', displayName: 'Student'),
+          onboarded: true,
+        );
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            authRepositoryProvider.overrideWithValue(mockRepo),
-            authNotifierProvider.overrideWith((ref) => AuthNotifier(mockRepo)),
-          ],
-          child: const AttendanceApp(),
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              authRepositoryProvider.overrideWithValue(mockRepo),
+              authNotifierProvider.overrideWith(
+                (ref) => AuthNotifier(mockRepo),
+              ),
+            ],
+            child: const AttendanceApp(),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-      expect(find.text('Home'), findsOneWidget);
-      expect(find.text('Register'), findsOneWidget);
-      expect(find.text('Leaderboard'), findsOneWidget);
-      expect(find.text('Settings'), findsOneWidget);
-    });
+        expect(tester.takeException(), isNull);
+        expect(find.text('Home'), findsOneWidget);
+        expect(find.text('Register'), findsOneWidget);
+        expect(find.text('Leaderboard'), findsOneWidget);
+        expect(find.text('Settings'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Guest mode renders top Amber warning banner in AppShell and tapping signs out', (tester) async {
-      final mockRepo = RouterTestAuthRepository(
-        user: AuthUserEntity.guest(),
-        onboarded: true,
-      );
+    testWidgets(
+      'Guest mode renders top Amber warning banner in AppShell and tapping signs out',
+      (tester) async {
+        final mockRepo = RouterTestAuthRepository(
+          user: AuthUserEntity.guest(),
+          onboarded: true,
+        );
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            authRepositoryProvider.overrideWithValue(mockRepo),
-            authNotifierProvider.overrideWith((ref) => AuthNotifier(mockRepo)),
-          ],
-          child: const AttendanceApp(),
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              authRepositoryProvider.overrideWithValue(mockRepo),
+              authNotifierProvider.overrideWith(
+                (ref) => AuthNotifier(mockRepo),
+              ),
+            ],
+            child: const AttendanceApp(),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Guest banner is visible in shell
-      expect(
-        find.text('⚠️ Data not backed up! Tap here to Sign in and save your attendance in the cloud.'),
-        findsOneWidget,
-      );
+        // Guest banner is visible in shell
+        expect(
+          find.text(
+            '⚠️ Data not backed up! Tap here to Sign in and save your attendance in the cloud.',
+          ),
+          findsOneWidget,
+        );
 
-      // Tapping the banner triggers sign out and redirects to /auth
-      await tester.tap(
-        find.text('⚠️ Data not backed up! Tap here to Sign in and save your attendance in the cloud.'),
-      );
-      await tester.pumpAndSettle();
+        // Tapping the banner triggers sign out and redirects to /auth
+        await tester.tap(
+          find.text(
+            '⚠️ Data not backed up! Tap here to Sign in and save your attendance in the cloud.',
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // User is redirected to AuthPage
-      expect(find.text('Attendance Tracker'), findsOneWidget);
-      expect(find.text('Sign in to track your attendance'), findsOneWidget);
-    });
+        // User is redirected to AuthPage
+        expect(find.text('Attendance Tracker'), findsOneWidget);
+        expect(find.text('Sign in to track your attendance'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Tapping bottom tabs switches branches preserving state for onboarded user', (tester) async {
-      final mockRepo = RouterTestAuthRepository(
-        user: const AuthUserEntity(id: 'student_1', displayName: 'Student'),
-        onboarded: true,
-      );
+    testWidgets(
+      'Tapping bottom tabs switches branches preserving state for onboarded user',
+      (tester) async {
+        final mockRepo = RouterTestAuthRepository(
+          user: const AuthUserEntity(id: 'student_1', displayName: 'Student'),
+          onboarded: true,
+        );
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            authRepositoryProvider.overrideWithValue(mockRepo),
-            authNotifierProvider.overrideWith((ref) => AuthNotifier(mockRepo)),
-          ],
-          child: const AttendanceApp(),
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              authRepositoryProvider.overrideWithValue(mockRepo),
+              authNotifierProvider.overrideWith(
+                (ref) => AuthNotifier(mockRepo),
+              ),
+            ],
+            child: const AttendanceApp(),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Tap Register Tab
-      await tester.tap(find.text('Register'));
-      await tester.pumpAndSettle();
-      expect(find.text('Session Register'), findsOneWidget);
+        // Tap Register Tab
+        await tester.tap(find.text('Register'));
+        await tester.pumpAndSettle();
+        expect(find.text('Session Register'), findsOneWidget);
 
-      // Tap Leaderboard Tab
-      await tester.tap(find.byIcon(Icons.emoji_events_rounded));
-      await tester.pumpAndSettle();
-      expect(find.text('Attendance Leaderboard'), findsOneWidget);
+        // Tap Leaderboard Tab
+        await tester.tap(find.byIcon(Icons.emoji_events_rounded));
+        await tester.pumpAndSettle();
+        expect(find.text('Attendance Leaderboard'), findsOneWidget);
 
-      // Tap Settings Tab
-      await tester.tap(find.text('Settings'));
-      await tester.pumpAndSettle();
-      expect(find.text('Profile'), findsOneWidget);
+        // Tap Settings Tab
+        await tester.tap(find.text('Settings'));
+        await tester.pumpAndSettle();
+        expect(find.text('Profile'), findsOneWidget);
 
-      // Return to Home Tab
-      await tester.tap(find.text('Home'));
-      await tester.pumpAndSettle();
-      expect(find.text('Dashboard'), findsOneWidget);
-    });
+        // Return to Home Tab
+        await tester.tap(find.text('Home'));
+        await tester.pumpAndSettle();
+        expect(find.text('Dashboard'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Opening Drawer and selecting Sticky Notes pushes /notes', (tester) async {
+    testWidgets('Opening Drawer and selecting Sticky Notes pushes /notes', (
+      tester,
+    ) async {
       final mockRepo = RouterTestAuthRepository(
         user: const AuthUserEntity(id: 'student_1', displayName: 'Student'),
         onboarded: true,
@@ -266,7 +297,9 @@ void main() {
       expect(find.text('Sticky Notes Page'), findsOneWidget);
     });
 
-    testWidgets('Header theme toggle reacts immediately in MaterialApp', (tester) async {
+    testWidgets('Header theme toggle reacts immediately in MaterialApp', (
+      tester,
+    ) async {
       final mockRepo = RouterTestAuthRepository(
         user: const AuthUserEntity(id: 'student_1', displayName: 'Student'),
         onboarded: true,
@@ -294,37 +327,46 @@ void main() {
       expect(find.text('🌙'), findsOneWidget);
     });
 
-    testWidgets('Navigating to /subject/:id renders SubjectAnalyticsScreen (Not Found for missing ID)', (tester) async {
-      final mockRepo = RouterTestAuthRepository(
-        user: const AuthUserEntity(id: 'student_1', displayName: 'Student'),
-        onboarded: true,
-      );
+    testWidgets(
+      'Navigating to /subject/:id renders SubjectAnalyticsScreen (Not Found for missing ID)',
+      (tester) async {
+        final mockRepo = RouterTestAuthRepository(
+          user: const AuthUserEntity(id: 'student_1', displayName: 'Student'),
+          onboarded: true,
+        );
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            authRepositoryProvider.overrideWithValue(mockRepo),
-            authNotifierProvider.overrideWith((ref) => AuthNotifier(mockRepo)),
-            subjectsStreamProvider.overrideWith((ref) => Stream.value([])),
-            attendanceRecordsStreamProvider.overrideWith((ref) => Stream.value([])),
-          ],
-          child: const AttendanceApp(),
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              authRepositoryProvider.overrideWithValue(mockRepo),
+              authNotifierProvider.overrideWith(
+                (ref) => AuthNotifier(mockRepo),
+              ),
+              subjectsStreamProvider.overrideWith((ref) => Stream.value([])),
+              attendanceRecordsStreamProvider.overrideWith(
+                (ref) => Stream.value([]),
+              ),
+            ],
+            child: const AttendanceApp(),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      final container = ProviderScope.containerOf(tester.element(find.byType(AttendanceApp)));
-      container.read(appRouterProvider).push('/subject/sub_missing_999');
-      await tester.pumpAndSettle();
+        final container = ProviderScope.containerOf(
+          tester.element(find.byType(AttendanceApp)),
+        );
+        container.read(appRouterProvider).push('/subject/sub_missing_999');
+        await tester.pumpAndSettle();
 
-      expect(find.text('Subject Not Found'), findsOneWidget);
-      expect(find.byKey(const Key('not_found_back_button')), findsOneWidget);
+        expect(find.text('Subject Not Found'), findsOneWidget);
+        expect(find.byKey(const Key('not_found_back_button')), findsOneWidget);
 
-      // Tapping Return to Dashboard pops back to DashboardPage
-      await tester.tap(find.byKey(const Key('not_found_back_button')));
-      await tester.pumpAndSettle();
+        // Tapping Return to Dashboard pops back to DashboardPage
+        await tester.tap(find.byKey(const Key('not_found_back_button')));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Dashboard'), findsOneWidget);
-    });
+        expect(find.text('Dashboard'), findsOneWidget);
+      },
+    );
   });
 }

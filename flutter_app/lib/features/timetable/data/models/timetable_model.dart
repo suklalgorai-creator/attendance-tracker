@@ -70,7 +70,9 @@ class TimetableModel extends TimetableSessionEntity {
   }
 
   /// Deserializes the full weekly timetable map from a raw Hive map.
-  static Map<int, List<TimetableModel>> timetableFromMap(Map<dynamic, dynamic>? rawMap) {
+  static Map<int, List<TimetableModel>> timetableFromMap(
+    Map<dynamic, dynamic>? rawMap,
+  ) {
     if (rawMap == null) return {};
     final result = <int, List<TimetableModel>>{};
     rawMap.forEach((key, value) {
@@ -80,7 +82,9 @@ class TimetableModel extends TimetableSessionEntity {
         final sessions = <TimetableModel>[];
         for (final item in value) {
           if (item is Map) {
-            sessions.add(TimetableModel.fromMap(Map<dynamic, dynamic>.from(item), day));
+            sessions.add(
+              TimetableModel.fromMap(Map<dynamic, dynamic>.from(item), day),
+            );
           }
         }
         result[day] = sessions;
@@ -91,7 +95,9 @@ class TimetableModel extends TimetableSessionEntity {
 
   /// Serializes the full weekly timetable map to a Map with string day keys ("0".."6")
   /// for Schema Version 2 parity.
-  static Map<String, dynamic> timetableToMap(Map<int, List<TimetableSessionEntity>> timetable) {
+  static Map<String, dynamic> timetableToMap(
+    Map<int, List<TimetableSessionEntity>> timetable,
+  ) {
     final result = <String, dynamic>{};
     timetable.forEach((day, sessions) {
       result[day.toString()] = sessions.map((s) {

@@ -28,10 +28,10 @@ class CloudSyncService {
     required BackupService backupService,
     required NetworkConnectivityService connectivityService,
     Duration? debounceDuration,
-  })  : _remoteDataSource = remoteDataSource,
-        _backupService = backupService,
-        _connectivityService = connectivityService,
-        debounceDuration = debounceDuration ?? const Duration(seconds: 5) {
+  }) : _remoteDataSource = remoteDataSource,
+       _backupService = backupService,
+       _connectivityService = connectivityService,
+       debounceDuration = debounceDuration ?? const Duration(seconds: 5) {
     _initConnectivityListener();
   }
 
@@ -47,7 +47,9 @@ class CloudSyncService {
   }
 
   void _initConnectivityListener() {
-    _connectivitySub = _connectivityService.onConnectivityChanged.listen((isOnline) {
+    _connectivitySub = _connectivityService.onConnectivityChanged.listen((
+      isOnline,
+    ) {
       if (isOnline && _currentState.hasPendingChanges && !_isSyncing) {
         // Automatic sync retry on re-established connection
         flushToCloud();
@@ -86,10 +88,12 @@ class CloudSyncService {
 
     final user = _currentUser;
     if (user == null || user.isGuest || user.id == 'guest') {
-      _updateState(_currentState.copyWith(
-        status: SyncStatus.idle,
-        hasPendingChanges: false,
-      ));
+      _updateState(
+        _currentState.copyWith(
+          status: SyncStatus.idle,
+          hasPendingChanges: false,
+        ),
+      );
       return SyncResult.success(skippedGuest: true);
     }
 
@@ -129,20 +133,24 @@ class CloudSyncService {
       }
 
       final now = DateTime.now();
-      _updateState(SyncState(
-        status: SyncStatus.synced,
-        lastSyncedAt: now,
-        hasPendingChanges: false,
-      ));
+      _updateState(
+        SyncState(
+          status: SyncStatus.synced,
+          lastSyncedAt: now,
+          hasPendingChanges: false,
+        ),
+      );
 
       return SyncResult.success();
     } catch (error) {
       // Offline fallback: Queue pending changes and notify UI
-      _updateState(_currentState.copyWith(
-        status: SyncStatus.offlineWarning,
-        message: 'Cloud sync unavailable; offline changes queued.',
-        hasPendingChanges: true,
-      ));
+      _updateState(
+        _currentState.copyWith(
+          status: SyncStatus.offlineWarning,
+          message: 'Cloud sync unavailable; offline changes queued.',
+          hasPendingChanges: true,
+        ),
+      );
       return SyncResult.offlineQueued(error.toString());
     } finally {
       _isSyncing = false;
@@ -196,22 +204,28 @@ class CloudSyncService {
         scheduleDebouncedSync();
       }
 
-      _updateState(SyncState(
-        status: SyncStatus.synced,
-        lastSyncedAt: DateTime.now(),
-        hasPendingChanges: needsSync,
-      ));
+      _updateState(
+        SyncState(
+          status: SyncStatus.synced,
+          lastSyncedAt: DateTime.now(),
+          hasPendingChanges: needsSync,
+        ),
+      );
 
       return SyncLoadResult.success(warnings: []);
     } catch (error) {
       // Cloud unavailable; fallback to local data with warning matching React
-      _updateState(_currentState.copyWith(
-        status: SyncStatus.offlineWarning,
-        message: 'Cloud data is currently unavailable; using local data.',
-        hasPendingChanges: true,
-      ));
+      _updateState(
+        _currentState.copyWith(
+          status: SyncStatus.offlineWarning,
+          message: 'Cloud data is currently unavailable; using local data.',
+          hasPendingChanges: true,
+        ),
+      );
       return SyncLoadResult.offlineFallback(
-        warnings: const ['Cloud data is currently unavailable; using local data.'],
+        warnings: const [
+          'Cloud data is currently unavailable; using local data.',
+        ],
       );
     }
   }

@@ -23,7 +23,8 @@ class UserDataAttendanceRecord {
   String get date => raw['date']?.toString() ?? '';
   String get subjectId => raw['subjectId']?.toString() ?? dailySubjectId;
   String get sessionId => raw['sessionId']?.toString() ?? '';
-  String get status => raw['status']?.toString() ?? AttendanceStatusConstants.unmarked;
+  String get status =>
+      raw['status']?.toString() ?? AttendanceStatusConstants.unmarked;
   String? get createdAt => raw['createdAt']?.toString();
   String? get updatedAt => raw['updatedAt']?.toString();
   String? get deletedAt => raw['deletedAt']?.toString();
@@ -206,7 +207,9 @@ Map<String, dynamic>? _normalizeSubject(dynamic value, String receivedAt) {
     'active': m['active'] != false,
     'createdAt': _validTimestamp(m['createdAt'], receivedAt),
     'updatedAt': _validTimestamp(m['updatedAt'], receivedAt),
-    'deletedAt': m['deletedAt'] != null ? _validTimestamp(m['deletedAt'], receivedAt) : null,
+    'deletedAt': m['deletedAt'] != null
+        ? _validTimestamp(m['deletedAt'], receivedAt)
+        : null,
   };
 }
 
@@ -219,7 +222,9 @@ Map<String, dynamic>? _normalizeSession(
   final m = value as Map;
   final id = _safeString(m['id']);
   final subjectId = m['subjectId']?.toString();
-  if (id.isEmpty || subjectId == null || !subjectIds.contains(subjectId)) return null;
+  if (id.isEmpty || subjectId == null || !subjectIds.contains(subjectId)) {
+    return null;
+  }
 
   final label = _safeString(m['label']);
   return {
@@ -229,7 +234,9 @@ Map<String, dynamic>? _normalizeSession(
     'active': m['active'] != false,
     'createdAt': _validTimestamp(m['createdAt'], receivedAt),
     'updatedAt': _validTimestamp(m['updatedAt'], receivedAt),
-    'deletedAt': m['deletedAt'] != null ? _validTimestamp(m['deletedAt'], receivedAt) : null,
+    'deletedAt': m['deletedAt'] != null
+        ? _validTimestamp(m['deletedAt'], receivedAt)
+        : null,
   };
 }
 
@@ -272,9 +279,11 @@ Map<String, dynamic> _normalizeAttendanceRecord(
       'status': status,
       'createdAt': _validTimestamp(m['createdAt'], receivedAt),
       'updatedAt': _validTimestamp(m['updatedAt'], receivedAt),
-      'deletedAt': m['deletedAt'] != null ? _validTimestamp(m['deletedAt'], receivedAt) : null,
+      'deletedAt': m['deletedAt'] != null
+          ? _validTimestamp(m['deletedAt'], receivedAt)
+          : null,
       'source': m['source'] == 'manual' ? 'manual' : 'schedule',
-    }
+    },
   };
 }
 
@@ -287,7 +296,11 @@ Map<String, dynamic>? _normalizeLegacyRecord(dynamic value, String receivedAt) {
 
   final held = _integer(m['held']);
   final attended = _integer(m['attended']);
-  if (held == null || attended == null || held < 0 || attended < 0 || attended > held) {
+  if (held == null ||
+      attended == null ||
+      held < 0 ||
+      attended < 0 ||
+      attended > held) {
     return null;
   }
 
@@ -299,7 +312,9 @@ Map<String, dynamic>? _normalizeLegacyRecord(dynamic value, String receivedAt) {
     'attended': attended,
     'createdAt': _validTimestamp(m['createdAt'], receivedAt),
     'updatedAt': _validTimestamp(m['updatedAt'], receivedAt),
-    'deletedAt': m['deletedAt'] != null ? _validTimestamp(m['deletedAt'], receivedAt) : null,
+    'deletedAt': m['deletedAt'] != null
+        ? _validTimestamp(m['deletedAt'], receivedAt)
+        : null,
     'note': note.length > 240 ? note.substring(0, 240) : note,
   };
 }
@@ -320,10 +335,24 @@ List<Map<String, dynamic>> _uniqueById(
       final existingUpdated = existing['updatedAt']?.toString() ?? '';
       final valueUpdated = value['updatedAt']?.toString() ?? '';
       if (existingUpdated.compareTo(valueUpdated) < 0) {
-        quarantine.add(_quarantineItem(kind, existing, 'Superseded duplicate id.', receivedAt));
+        quarantine.add(
+          _quarantineItem(
+            kind,
+            existing,
+            'Superseded duplicate id.',
+            receivedAt,
+          ),
+        );
         byId[id] = value;
       } else {
-        quarantine.add(_quarantineItem(kind, value, 'Duplicate id retained as quarantine.', receivedAt));
+        quarantine.add(
+          _quarantineItem(
+            kind,
+            value,
+            'Duplicate id retained as quarantine.',
+            receivedAt,
+          ),
+        );
       }
     }
   }
@@ -341,14 +370,32 @@ List<Map<String, dynamic>> _makeLegacyRecords(
   m.forEach((date, record) {
     final dateStr = date.toString();
     if (!AppDateUtils.isDateOnly(dateStr) || !_isObject(record)) {
-      quarantine.add(_quarantineItem('legacy-record', {'date': date, 'record': record}, 'Invalid legacy daily record.', receivedAt));
+      quarantine.add(
+        _quarantineItem(
+          'legacy-record',
+          {'date': date, 'record': record},
+          'Invalid legacy daily record.',
+          receivedAt,
+        ),
+      );
       return;
     }
     final rec = record as Map;
     final held = _integer(rec['held']);
     final attended = _integer(rec['attended']);
-    if (held == null || attended == null || held < 0 || attended < 0 || attended > held) {
-      quarantine.add(_quarantineItem('legacy-record', {'date': date, 'record': record}, 'Invalid legacy attendance totals.', receivedAt));
+    if (held == null ||
+        attended == null ||
+        held < 0 ||
+        attended < 0 ||
+        attended > held) {
+      quarantine.add(
+        _quarantineItem(
+          'legacy-record',
+          {'date': date, 'record': record},
+          'Invalid legacy attendance totals.',
+          receivedAt,
+        ),
+      );
       return;
     }
     result.add({
@@ -359,7 +406,8 @@ List<Map<String, dynamic>> _makeLegacyRecords(
       'createdAt': receivedAt,
       'updatedAt': receivedAt,
       'deletedAt': null,
-      'note': 'Migrated from the v1 daily aggregate. Subject/session detail was not available.',
+      'note':
+          'Migrated from the v1 daily aggregate. Subject/session detail was not available.',
     });
   });
   return result;
@@ -406,7 +454,10 @@ Map<String, List<Map<String, dynamic>>> _migrateLegacyTimetable(
         subjectByName[name.toLowerCase()] = subject;
       }
       sessions.add({
-        'id': _stableLegacyId('legacy-schedule', '$dayStr:$index:${subject['id']}'),
+        'id': _stableLegacyId(
+          'legacy-schedule',
+          '$dayStr:$index:${subject['id']}',
+        ),
         'subjectId': subject['id'],
         'label': name.length > 120 ? name.substring(0, 120) : name,
         'active': true,
@@ -422,7 +473,9 @@ Map<String, List<Map<String, dynamic>>> _migrateLegacyTimetable(
 
 /// Migrates persisted v1/v2 data into a validated v2 model conforming 1:1 with React.
 UserMigrationResult migrateUserData(dynamic rawData) {
-  final raw = _isObject(rawData) ? Map<String, dynamic>.from(rawData as Map) : <String, dynamic>{};
+  final raw = _isObject(rawData)
+      ? Map<String, dynamic>.from(rawData as Map)
+      : <String, dynamic>{};
   final receivedAt = raw['schemaVersion'] == currentSchemaVersion
       ? _nowIso()
       : _validTimestamp(raw['updatedAt'], '2000-01-01T00:00:00.000Z');
@@ -435,17 +488,26 @@ UserMigrationResult migrateUserData(dynamic rawData) {
   }
 
   final warnings = <String>[];
-  final sourceSubjects = raw['subjects'] is List ? (raw['subjects'] as List) : [];
+  final sourceSubjects = raw['subjects'] is List
+      ? (raw['subjects'] as List)
+      : [];
   final normalizedSubjectList = <Map<String, dynamic>>[];
   for (final value in sourceSubjects) {
     final norm = _normalizeSubject(value, receivedAt);
     if (norm == null) {
-      quarantine.add(_quarantineItem('subject', value, 'Invalid subject.', receivedAt));
+      quarantine.add(
+        _quarantineItem('subject', value, 'Invalid subject.', receivedAt),
+      );
     } else {
       normalizedSubjectList.add(norm);
     }
   }
-  final subjects = _uniqueById(normalizedSubjectList, 'subject', quarantine, receivedAt);
+  final subjects = _uniqueById(
+    normalizedSubjectList,
+    'subject',
+    quarantine,
+    receivedAt,
+  );
 
   final timetableSource = raw['timetable'] ?? {};
   final legacyTimetable = raw['schemaVersion'] == currentSchemaVersion
@@ -461,25 +523,51 @@ UserMigrationResult migrateUserData(dynamic rawData) {
     for (final value in values) {
       final norm = _normalizeSession(value, subjectIds, receivedAt);
       if (norm == null) {
-        quarantine.add(_quarantineItem('schedule-session', value, 'Invalid timetable session.', receivedAt));
+        quarantine.add(
+          _quarantineItem(
+            'schedule-session',
+            value,
+            'Invalid timetable session.',
+            receivedAt,
+          ),
+        );
       } else {
         sessionList.add(norm);
       }
     }
-    timetable[dayStr] = _uniqueById(sessionList, 'schedule-session', quarantine, receivedAt);
+    timetable[dayStr] = _uniqueById(
+      sessionList,
+      'schedule-session',
+      quarantine,
+      receivedAt,
+    );
   });
 
-  final rawRecords = raw['attendanceRecords'] is List ? (raw['attendanceRecords'] as List) : [];
+  final rawRecords = raw['attendanceRecords'] is List
+      ? (raw['attendanceRecords'] as List)
+      : [];
   final normalizedRecordList = <Map<String, dynamic>>[];
   for (final value in rawRecords) {
     final norm = _normalizeAttendanceRecord(value, subjectIds, receivedAt);
     if (norm.containsKey('error')) {
-      quarantine.add(_quarantineItem('attendance-record', value, norm['error'] as String, receivedAt));
+      quarantine.add(
+        _quarantineItem(
+          'attendance-record',
+          value,
+          norm['error'] as String,
+          receivedAt,
+        ),
+      );
     } else {
       normalizedRecordList.add(norm['value'] as Map<String, dynamic>);
     }
   }
-  final attendanceRecords = _uniqueById(normalizedRecordList, 'attendance-record', quarantine, receivedAt);
+  final attendanceRecords = _uniqueById(
+    normalizedRecordList,
+    'attendance-record',
+    quarantine,
+    receivedAt,
+  );
 
   final sourceLegacy = raw['legacyAttendance'] is List
       ? (raw['legacyAttendance'] as List)
@@ -488,26 +576,44 @@ UserMigrationResult migrateUserData(dynamic rawData) {
   for (final value in sourceLegacy) {
     final norm = _normalizeLegacyRecord(value, receivedAt);
     if (norm == null) {
-      quarantine.add(_quarantineItem('legacy-record', value, 'Invalid legacy aggregate.', receivedAt));
+      quarantine.add(
+        _quarantineItem(
+          'legacy-record',
+          value,
+          'Invalid legacy aggregate.',
+          receivedAt,
+        ),
+      );
     } else {
       normalizedLegacyList.add(norm);
     }
   }
-  final legacyAttendance = _uniqueById(normalizedLegacyList, 'legacy-record', quarantine, receivedAt);
+  final legacyAttendance = _uniqueById(
+    normalizedLegacyList,
+    'legacy-record',
+    quarantine,
+    receivedAt,
+  );
 
-  final minPercentNum = raw['minPercent'] is num ? (raw['minPercent'] as num).toDouble() : double.tryParse(raw['minPercent']?.toString() ?? '');
-  final normalizedMin = (minPercentNum != null && minPercentNum > 0 && minPercentNum <= 100) ? minPercentNum : 75.0;
+  final minPercentNum = raw['minPercent'] is num
+      ? (raw['minPercent'] as num).toDouble()
+      : double.tryParse(raw['minPercent']?.toString() ?? '');
+  final normalizedMin =
+      (minPercentNum != null && minPercentNum > 0 && minPercentNum <= 100)
+      ? minPercentNum
+      : 75.0;
   if (minPercentNum != null && normalizedMin != minPercentNum) {
     warnings.add('Invalid attendance threshold was reset to the default.');
   }
 
   final classDays = raw['classDays'] is List
       ? ((raw['classDays'] as List)
-          .whereType<num>()
-          .map((n) => n.toInt())
-          .where((d) => d >= 0 && d <= 6)
-          .toSet()
-          .toList()..sort())
+            .whereType<num>()
+            .map((n) => n.toInt())
+            .where((d) => d >= 0 && d <= 6)
+            .toSet()
+            .toList()
+          ..sort())
       : [1, 2, 3, 4, 5];
 
   final effectiveClassDays = classDays.isNotEmpty ? classDays : [1, 2, 3, 4, 5];
@@ -518,7 +624,10 @@ UserMigrationResult migrateUserData(dynamic rawData) {
   });
 
   final notes = raw['notes'] is List
-      ? (raw['notes'] as List).whereType<Map>().map((m) => Map<String, dynamic>.from(m)).toList()
+      ? (raw['notes'] as List)
+            .whereType<Map>()
+            .map((m) => Map<String, dynamic>.from(m))
+            .toList()
       : <Map<String, dynamic>>[];
 
   final finalDataMap = <String, dynamic>{
@@ -526,22 +635,31 @@ UserMigrationResult migrateUserData(dynamic rawData) {
     'programName': _safeString(raw['programName']),
     'courseName': _safeString(raw['courseName']),
     'name': _safeString(raw['name']),
-    'startDate': AppDateUtils.isDateOnly(raw['startDate']?.toString()) ? raw['startDate'].toString() : '',
+    'startDate': AppDateUtils.isDateOnly(raw['startDate']?.toString())
+        ? raw['startDate'].toString()
+        : '',
     'minPercent': normalizedMin,
     'classDays': effectiveClassDays,
     'timetable': timetableRaw,
     'subjects': subjects,
     'attendanceRecords': attendanceRecords,
     'legacyAttendance': legacyAttendance,
-    'quarantine': quarantine.length > 100 ? quarantine.sublist(quarantine.length - 100) : quarantine,
+    'quarantine': quarantine.length > 100
+        ? quarantine.sublist(quarantine.length - 100)
+        : quarantine,
     'notes': notes.length > 500 ? notes.sublist(notes.length - 500) : notes,
     'theme': raw['theme'] == 'light' ? 'light' : 'dark',
-    'reminderTime': RegExp(r'^\d{2}:\d{2}$').hasMatch(raw['reminderTime']?.toString() ?? '') ? raw['reminderTime'].toString() : '18:00',
+    'reminderTime':
+        RegExp(r'^\d{2}:\d{2}$').hasMatch(raw['reminderTime']?.toString() ?? '')
+        ? raw['reminderTime'].toString()
+        : '18:00',
     'pushNotificationsEnabled': raw['pushNotificationsEnabled'] == true,
     'leaderboardOptIn': true,
     'fcmToken': raw['fcmToken'] is String ? raw['fcmToken'] : null,
     'adminRequestedPush': raw['adminRequestedPush'] == true,
-    'lastNotified': AppDateUtils.isDateOnly(raw['lastNotified']?.toString()) ? raw['lastNotified'].toString() : null,
+    'lastNotified': AppDateUtils.isDateOnly(raw['lastNotified']?.toString())
+        ? raw['lastNotified'].toString()
+        : null,
     'settingsUpdatedAt': _validTimestamp(raw['settingsUpdatedAt'], receivedAt),
     'updatedAt': _validTimestamp(raw['updatedAt'], receivedAt),
   };
@@ -549,7 +667,9 @@ UserMigrationResult migrateUserData(dynamic rawData) {
   final dataModel = UserDataModel(
     raw: finalDataMap,
     subjects: subjects.map((s) => UserDataSubject(s)).toList(),
-    attendanceRecords: attendanceRecords.map((r) => UserDataAttendanceRecord(r)).toList(),
+    attendanceRecords: attendanceRecords
+        .map((r) => UserDataAttendanceRecord(r))
+        .toList(),
     legacyAttendance: legacyAttendance,
     timetable: timetable,
     quarantine: finalDataMap['quarantine'] as List<Map<String, dynamic>>,
@@ -558,7 +678,8 @@ UserMigrationResult migrateUserData(dynamic rawData) {
     classDays: effectiveClassDays,
   );
 
-  final migrated = raw['schemaVersion'] != currentSchemaVersion || raw['records'] != null;
+  final migrated =
+      raw['schemaVersion'] != currentSchemaVersion || raw['records'] != null;
   if (migrated) {
     warnings.insert(
       0,
@@ -585,7 +706,9 @@ int _timestampOf(dynamic value) {
     timeStr = value.updatedAt ?? value.deletedAt;
   } else {
     try {
-      timeStr = (value as dynamic).updatedAt?.toString() ?? (value as dynamic).deletedAt?.toString();
+      timeStr =
+          (value as dynamic).updatedAt?.toString() ??
+          (value as dynamic).deletedAt?.toString();
     } catch (_) {}
   }
   if (timeStr == null || timeStr.isEmpty) return 0;
@@ -615,8 +738,10 @@ List<Map<String, dynamic>> _mergeEntities(
     final map = entity is Map
         ? Map<String, dynamic>.from(entity)
         : (entity is UserDataAttendanceRecord
-            ? entity.toMap()
-            : (entity is UserDataSubject ? entity.toMap() : <String, dynamic>{}));
+              ? entity.toMap()
+              : (entity is UserDataSubject
+                    ? entity.toMap()
+                    : <String, dynamic>{}));
     final id = map['id']?.toString() ?? '';
     if (id.isEmpty) continue;
 
@@ -629,7 +754,8 @@ List<Map<String, dynamic>> _mergeEntities(
     final incomingTime = _timestampOf(map);
     final currentTime = _timestampOf(current);
     if (incomingTime > currentTime ||
-        (incomingTime == currentTime && _stableValue(map).compareTo(_stableValue(current)) > 0)) {
+        (incomingTime == currentTime &&
+            _stableValue(map).compareTo(_stableValue(current)) > 0)) {
       merged[id] = map;
     }
   }
@@ -640,12 +766,23 @@ List<Map<String, dynamic>> _mergeEntities(
 UserDataModel mergeUserData(dynamic localRaw, dynamic cloudRaw) {
   final local = migrateUserData(localRaw).data;
   final cloud = migrateUserData(cloudRaw).data;
-  final settings = _timestampOf(local.raw) >= _timestampOf(cloud.raw) ? local.raw : cloud.raw;
+  final settings = _timestampOf(local.raw) >= _timestampOf(cloud.raw)
+      ? local.raw
+      : cloud.raw;
 
   final merged = Map<String, dynamic>.from(settings);
-  merged['subjects'] = _mergeEntities(local.subjects.map((s) => s.toMap()).toList(), cloud.subjects.map((s) => s.toMap()).toList());
-  merged['attendanceRecords'] = _mergeEntities(local.attendanceRecords.map((r) => r.toMap()).toList(), cloud.attendanceRecords.map((r) => r.toMap()).toList());
-  merged['legacyAttendance'] = _mergeEntities(local.legacyAttendance, cloud.legacyAttendance);
+  merged['subjects'] = _mergeEntities(
+    local.subjects.map((s) => s.toMap()).toList(),
+    cloud.subjects.map((s) => s.toMap()).toList(),
+  );
+  merged['attendanceRecords'] = _mergeEntities(
+    local.attendanceRecords.map((r) => r.toMap()).toList(),
+    cloud.attendanceRecords.map((r) => r.toMap()).toList(),
+  );
+  merged['legacyAttendance'] = _mergeEntities(
+    local.legacyAttendance,
+    cloud.legacyAttendance,
+  );
   merged['quarantine'] = _mergeEntities(local.quarantine, cloud.quarantine);
   merged['notes'] = _mergeEntities(local.notes, cloud.notes);
 
@@ -654,7 +791,10 @@ UserDataModel mergeUserData(dynamic localRaw, dynamic cloudRaw) {
   final allDays = {...localTimetable.keys, ...cloudTimetable.keys};
   final mergedTimetable = <String, dynamic>{};
   for (final day in allDays) {
-    mergedTimetable[day] = _mergeEntities(localTimetable[day] ?? [], cloudTimetable[day] ?? []);
+    mergedTimetable[day] = _mergeEntities(
+      localTimetable[day] ?? [],
+      cloudTimetable[day] ?? [],
+    );
   }
   merged['timetable'] = mergedTimetable;
 
@@ -685,11 +825,17 @@ ParsedBackup parseBackup(String text) {
   try {
     parsed = jsonDecode(text);
   } catch (_) {
-    throw Exception('This file is not valid JSON. Existing data was not changed.');
+    throw Exception(
+      'This file is not valid JSON. Existing data was not changed.',
+    );
   }
 
-  if (parsed is! Map || parsed['format'] != backupFormat || parsed['data'] == null) {
-    throw Exception('This is not a College Attendance Tracker backup. Existing data was not changed.');
+  if (parsed is! Map ||
+      parsed['format'] != backupFormat ||
+      parsed['data'] == null) {
+    throw Exception(
+      'This is not a College Attendance Tracker backup. Existing data was not changed.',
+    );
   }
 
   final schemaVersion = (parsed['schemaVersion'] is num)
@@ -697,7 +843,9 @@ ParsedBackup parseBackup(String text) {
       : int.tryParse(parsed['schemaVersion']?.toString() ?? '1') ?? 1;
 
   if (schemaVersion > currentSchemaVersion) {
-    throw Exception('This backup is from a newer app version and cannot be restored safely.');
+    throw Exception(
+      'This backup is from a newer app version and cannot be restored safely.',
+    );
   }
 
   final migration = migrateUserData(parsed['data']);

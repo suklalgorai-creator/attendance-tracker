@@ -12,7 +12,9 @@ enum HeroAttendanceStatus {
 
   static HeroAttendanceStatus evaluate(double? percent, double minPercent) {
     if (percent == null) return HeroAttendanceStatus.none;
-    return percent >= minPercent ? HeroAttendanceStatus.safe : HeroAttendanceStatus.danger;
+    return percent >= minPercent
+        ? HeroAttendanceStatus.safe
+        : HeroAttendanceStatus.danger;
   }
 }
 
@@ -52,7 +54,9 @@ class HeroCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
+    final surfaceColor = isDark
+        ? AppColors.surfaceDark
+        : AppColors.surfaceLight;
 
     final double? currentPercent = effectivePercent;
     final status = HeroAttendanceStatus.evaluate(currentPercent, minPercent);
@@ -85,7 +89,9 @@ class HeroCardWidget extends StatelessWidget {
           effectiveStatusText = 'No attendance recorded';
           break;
         case HeroAttendanceStatus.safe:
-          effectiveStatusText = canMiss == 0 ? 'At the target' : 'Can miss $canMiss classes';
+          effectiveStatusText = canMiss == 0
+              ? 'At the target'
+              : 'Can miss $canMiss classes';
           break;
         case HeroAttendanceStatus.danger:
           effectiveStatusText = isImpossible
@@ -107,11 +113,18 @@ class HeroCardWidget extends StatelessWidget {
         final EdgeInsets cardPadding = isUltraCompact
             ? const EdgeInsets.symmetric(horizontal: 10.0, vertical: 14.0)
             : (isCompact
-                ? const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0)
-                : const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0));
+                  ? const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0)
+                  : const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 20.0,
+                    ));
         final double gap = isUltraCompact ? 8.0 : 10.0;
-        final double statsLeftPadding = isUltraCompact ? 4.0 : (isCompact ? 6.0 : 10.0);
-        final double statSpacing = isUltraCompact ? 8.0 : (isCompact ? 12.0 : 16.0);
+        final double statsLeftPadding = isUltraCompact
+            ? 4.0
+            : (isCompact ? 6.0 : 10.0);
+        final double statSpacing = isUltraCompact
+            ? 8.0
+            : (isCompact ? 12.0 : 16.0);
 
         return ClipRRect(
           borderRadius: BorderRadius.circular(AppRadius.card),

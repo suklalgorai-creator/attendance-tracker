@@ -20,7 +20,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 // In-memory fake repositories for test isolation
 class FakeSettingsRepo implements SettingsRepository {
-  UserSettingsEntity settings = const UserSettingsEntity(name: 'Initial Student');
+  UserSettingsEntity settings = const UserSettingsEntity(
+    name: 'Initial Student',
+  );
 
   @override
   Future<UserSettingsEntity> getSettings() async => settings;
@@ -43,16 +45,23 @@ class FakeSubjectRepo implements SubjectRepository {
   List<SubjectEntity> subjects = [];
 
   @override
-  Future<List<SubjectEntity>> getSubjects({bool includeDeleted = false}) async =>
+  Future<List<SubjectEntity>> getSubjects({
+    bool includeDeleted = false,
+  }) async =>
       includeDeleted ? subjects : subjects.where((s) => !s.isDeleted).toList();
 
   @override
   Stream<List<SubjectEntity>> watchSubjects({bool includeDeleted = false}) =>
-      Stream.value(includeDeleted ? subjects : subjects.where((s) => !s.isDeleted).toList());
+      Stream.value(
+        includeDeleted
+            ? subjects
+            : subjects.where((s) => !s.isDeleted).toList(),
+      );
 
   @override
-  Future<SubjectEntity?> getSubjectById(String id) async =>
-      subjects.cast<SubjectEntity?>().firstWhere((s) => s?.id == id, orElse: () => null);
+  Future<SubjectEntity?> getSubjectById(String id) async => subjects
+      .cast<SubjectEntity?>()
+      .firstWhere((s) => s?.id == id, orElse: () => null);
 
   @override
   Future<void> saveSubject(SubjectEntity subject) async {
@@ -92,15 +101,21 @@ class FakeTimetableRepo implements TimetableRepository {
   Map<int, List<TimetableSessionEntity>> timetable = {};
 
   @override
-  Future<Map<int, List<TimetableSessionEntity>>> getTimetable({bool includeDeleted = false}) async =>
-      timetable;
+  Future<Map<int, List<TimetableSessionEntity>>> getTimetable({
+    bool includeDeleted = false,
+  }) async => timetable;
 
   @override
-  Stream<Map<int, List<TimetableSessionEntity>>> watchTimetable({bool includeDeleted = false}) =>
-      Stream.value(timetable);
+  Stream<Map<int, List<TimetableSessionEntity>>> watchTimetable({
+    bool includeDeleted = false,
+  }) => Stream.value(timetable);
 
   @override
-  Future<void> addSession(int dayOfWeek, String subjectId, {String? label}) async {}
+  Future<void> addSession(
+    int dayOfWeek,
+    String subjectId, {
+    String? label,
+  }) async {}
 
   @override
   Future<void> removeSession(int dayOfWeek, String sessionId) async {}
@@ -111,7 +126,9 @@ class FakeTimetableRepo implements TimetableRepository {
   }
 
   @override
-  Future<void> saveTimetable(Map<int, List<TimetableSessionEntity>> newTimetable) async {
+  Future<void> saveTimetable(
+    Map<int, List<TimetableSessionEntity>> newTimetable,
+  ) async {
     timetable = Map.from(newTimetable);
   }
 }
@@ -121,20 +138,29 @@ class FakeAttendanceRepo implements AttendanceRepository {
   List<LegacyAttendanceEntity> legacy = [];
 
   @override
-  Future<List<AttendanceRecordEntity>> getAttendanceRecords({bool includeDeleted = false}) async =>
+  Future<List<AttendanceRecordEntity>> getAttendanceRecords({
+    bool includeDeleted = false,
+  }) async =>
       includeDeleted ? records : records.where((r) => !r.isDeleted).toList();
 
   @override
-  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({bool includeDeleted = false}) =>
-      Stream.value(includeDeleted ? records : records.where((r) => !r.isDeleted).toList());
+  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({
+    bool includeDeleted = false,
+  }) => Stream.value(
+    includeDeleted ? records : records.where((r) => !r.isDeleted).toList(),
+  );
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForDate(String date, {bool includeDeleted = false}) async =>
-      records.where((r) => r.date == date).toList();
+  Future<List<AttendanceRecordEntity>> getRecordsForDate(
+    String date, {
+    bool includeDeleted = false,
+  }) async => records.where((r) => r.date == date).toList();
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForSubject(String subjectId, {bool includeDeleted = false}) async =>
-      records.where((r) => r.subjectId == subjectId).toList();
+  Future<List<AttendanceRecordEntity>> getRecordsForSubject(
+    String subjectId, {
+    bool includeDeleted = false,
+  }) async => records.where((r) => r.subjectId == subjectId).toList();
 
   @override
   Future<void> saveAttendanceRecord(AttendanceRecordEntity record) async {
@@ -143,7 +169,9 @@ class FakeAttendanceRepo implements AttendanceRepository {
   }
 
   @override
-  Future<void> saveAttendanceRecords(List<AttendanceRecordEntity> newRecords) async {
+  Future<void> saveAttendanceRecords(
+    List<AttendanceRecordEntity> newRecords,
+  ) async {
     for (final r in newRecords) {
       records.removeWhere((existing) => existing.id == r.id);
       records.add(r);
@@ -167,12 +195,17 @@ class FakeAttendanceRepo implements AttendanceRepository {
   }
 
   @override
-  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({bool includeDeleted = false}) async =>
+  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({
+    bool includeDeleted = false,
+  }) async =>
       includeDeleted ? legacy : legacy.where((l) => !l.isDeleted).toList();
 
   @override
-  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({bool includeDeleted = false}) =>
-      Stream.value(includeDeleted ? legacy : legacy.where((l) => !l.isDeleted).toList());
+  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({
+    bool includeDeleted = false,
+  }) => Stream.value(
+    includeDeleted ? legacy : legacy.where((l) => !l.isDeleted).toList(),
+  );
 
   @override
   Future<void> saveLegacyAttendance(LegacyAttendanceEntity record) async {
@@ -181,7 +214,9 @@ class FakeAttendanceRepo implements AttendanceRepository {
   }
 
   @override
-  Future<void> saveLegacyAttendances(List<LegacyAttendanceEntity> newRecords) async {
+  Future<void> saveLegacyAttendances(
+    List<LegacyAttendanceEntity> newRecords,
+  ) async {
     for (final l in newRecords) {
       legacy.removeWhere((existing) => existing.id == l.id);
       legacy.add(l);
@@ -206,7 +241,9 @@ class FakeAttendanceRepo implements AttendanceRepository {
 
   @override
   Future<void> clearAllAttendanceHistory() async {
-    records = records.map((r) => r.copyWith(deletedAt: DateTime.now())).toList();
+    records = records
+        .map((r) => r.copyWith(deletedAt: DateTime.now()))
+        .toList();
     legacy = legacy.map((l) => l.copyWith(deletedAt: DateTime.now())).toList();
   }
 }
@@ -221,8 +258,9 @@ class FakeNotesRepo implements NotesRepository {
   Stream<List<NoteEntity>> watchNotes() => Stream.value(notes);
 
   @override
-  Future<NoteEntity?> getNoteById(String id) async =>
-      notes.cast<NoteEntity?>().firstWhere((n) => n?.id == id, orElse: () => null);
+  Future<NoteEntity?> getNoteById(String id) async => notes
+      .cast<NoteEntity?>()
+      .firstWhere((n) => n?.id == id, orElse: () => null);
 
   @override
   Future<void> saveNote(NoteEntity note) async {
@@ -253,7 +291,8 @@ class FakeBox implements Box {
   final Map<dynamic, dynamic> storage = {};
 
   @override
-  dynamic get(key, {defaultValue}) => storage.containsKey(key) ? storage[key] : defaultValue;
+  dynamic get(key, {defaultValue}) =>
+      storage.containsKey(key) ? storage[key] : defaultValue;
 
   @override
   Future<void> put(key, value) async {
@@ -351,95 +390,115 @@ void main() {
       expect(syncService.currentState.hasPendingChanges, isFalse);
     });
 
-    test('flushToCloud synchronizes local state to remote and updates status to synced', () async {
-      syncService.updateUser(authenticatedUser);
+    test(
+      'flushToCloud synchronizes local state to remote and updates status to synced',
+      () async {
+        syncService.updateUser(authenticatedUser);
 
-      // Add a subject locally
-      await subjectRepo.saveSubject(SubjectEntity(
-        id: 'sub-math',
-        name: 'Mathematics',
-        createdAt: DateTime.parse('2026-11-20T10:00:00Z'),
-        updatedAt: DateTime.parse('2026-11-20T10:00:00Z'),
-      ));
+        // Add a subject locally
+        await subjectRepo.saveSubject(
+          SubjectEntity(
+            id: 'sub-math',
+            name: 'Mathematics',
+            createdAt: DateTime.parse('2026-11-20T10:00:00Z'),
+            updatedAt: DateTime.parse('2026-11-20T10:00:00Z'),
+          ),
+        );
 
-      final result = await syncService.flushToCloud();
-      expect(result.isSuccess, isTrue);
-      expect(syncService.currentState.status, SyncStatus.synced);
-      expect(syncService.currentState.lastSyncedAt, isNotNull);
-      expect(syncService.currentState.hasPendingChanges, isFalse);
+        final result = await syncService.flushToCloud();
+        expect(result.isSuccess, isTrue);
+        expect(syncService.currentState.status, SyncStatus.synced);
+        expect(syncService.currentState.lastSyncedAt, isNotNull);
+        expect(syncService.currentState.hasPendingChanges, isFalse);
 
-      // Verify remote document has subject and metadata
-      final cloudDoc = remoteDataSource.getRawRemoteUser('student_123');
-      expect(cloudDoc, isNotNull);
-      expect(cloudDoc!['email'], 'student@college.edu');
-      expect(cloudDoc['displayName'], 'Alice Student');
-      final cloudSubjects = (cloudDoc['subjects'] as List).cast<Map>();
-      expect(cloudSubjects.any((s) => s['id'] == 'sub-math'), isTrue);
-    });
+        // Verify remote document has subject and metadata
+        final cloudDoc = remoteDataSource.getRawRemoteUser('student_123');
+        expect(cloudDoc, isNotNull);
+        expect(cloudDoc!['email'], 'student@college.edu');
+        expect(cloudDoc['displayName'], 'Alice Student');
+        final cloudSubjects = (cloudDoc['subjects'] as List).cast<Map>();
+        expect(cloudSubjects.any((s) => s['id'] == 'sub-math'), isTrue);
+      },
+    );
 
-    test('loadUserData performs LWW merge and restores cloud entities locally', () async {
-      syncService.updateUser(authenticatedUser);
+    test(
+      'loadUserData performs LWW merge and restores cloud entities locally',
+      () async {
+        syncService.updateUser(authenticatedUser);
 
-      // Seed cloud with a Physics subject
-      remoteDataSource.seedRemoteUser('student_123', {
-        'schemaVersion': 2,
-        'name': 'Cloud Name',
-        'subjects': [
-          {
-            'id': 'sub-physics',
-            'name': 'Physics 101',
-            'color': '#0000FF',
-            'active': true,
-            'createdAt': '2026-11-21T10:00:00Z',
-            'updatedAt': '2026-11-21T10:00:00Z',
-          }
-        ],
-        'updatedAt': '2026-11-21T10:00:00Z',
-      });
+        // Seed cloud with a Physics subject
+        remoteDataSource.seedRemoteUser('student_123', {
+          'schemaVersion': 2,
+          'name': 'Cloud Name',
+          'subjects': [
+            {
+              'id': 'sub-physics',
+              'name': 'Physics 101',
+              'color': '#0000FF',
+              'active': true,
+              'createdAt': '2026-11-21T10:00:00Z',
+              'updatedAt': '2026-11-21T10:00:00Z',
+            },
+          ],
+          'updatedAt': '2026-11-21T10:00:00Z',
+        });
 
-      final loadResult = await syncService.loadUserData('student_123');
-      expect(loadResult.isSuccess, isTrue);
-      expect(loadResult.warnings, isEmpty);
+        final loadResult = await syncService.loadUserData('student_123');
+        expect(loadResult.isSuccess, isTrue);
+        expect(loadResult.warnings, isEmpty);
 
-      // Verify subject is now present in local repository
-      final localSubjects = await subjectRepo.getSubjects();
-      expect(localSubjects.any((s) => s.id == 'sub-physics'), isTrue);
-      expect(localSubjects.firstWhere((s) => s.id == 'sub-physics').name, 'Physics 101');
-    });
+        // Verify subject is now present in local repository
+        final localSubjects = await subjectRepo.getSubjects();
+        expect(localSubjects.any((s) => s.id == 'sub-physics'), isTrue);
+        expect(
+          localSubjects.firstWhere((s) => s.id == 'sub-physics').name,
+          'Physics 101',
+        );
+      },
+    );
 
-    test('Offline error queues pending changes and reports warning status', () async {
-      syncService.updateUser(authenticatedUser);
-      connectivityService.setOnline(false);
+    test(
+      'Offline error queues pending changes and reports warning status',
+      () async {
+        syncService.updateUser(authenticatedUser);
+        connectivityService.setOnline(false);
 
-      final result = await syncService.flushToCloud();
-      expect(result.isSuccess, isFalse);
-      expect(result.isOffline, isTrue);
-      expect(syncService.currentState.status, SyncStatus.offlineWarning);
-      expect(syncService.currentState.hasPendingChanges, isTrue);
+        final result = await syncService.flushToCloud();
+        expect(result.isSuccess, isFalse);
+        expect(result.isOffline, isTrue);
+        expect(syncService.currentState.status, SyncStatus.offlineWarning);
+        expect(syncService.currentState.hasPendingChanges, isTrue);
 
-      // loadUserData during offline returns local data with warning
-      final loadResult = await syncService.loadUserData('student_123');
-      expect(loadResult.isSuccess, isTrue);
-      expect(loadResult.isOfflineFallback, isTrue);
-      expect(loadResult.warnings, contains('Cloud data is currently unavailable; using local data.'));
-    });
+        // loadUserData during offline returns local data with warning
+        final loadResult = await syncService.loadUserData('student_123');
+        expect(loadResult.isSuccess, isTrue);
+        expect(loadResult.isOfflineFallback, isTrue);
+        expect(
+          loadResult.warnings,
+          contains('Cloud data is currently unavailable; using local data.'),
+        );
+      },
+    );
 
-    test('Reconnection automatically triggers flush for queued changes', () async {
-      syncService.updateUser(authenticatedUser);
+    test(
+      'Reconnection automatically triggers flush for queued changes',
+      () async {
+        syncService.updateUser(authenticatedUser);
 
-      // Start offline and attempt flush -> queue changes
-      connectivityService.setOnline(false);
-      await syncService.flushToCloud();
-      expect(syncService.currentState.hasPendingChanges, isTrue);
+        // Start offline and attempt flush -> queue changes
+        connectivityService.setOnline(false);
+        await syncService.flushToCloud();
+        expect(syncService.currentState.hasPendingChanges, isTrue);
 
-      // Transition connection to online
-      connectivityService.setOnline(true);
-      await Future.delayed(const Duration(milliseconds: 50));
+        // Transition connection to online
+        connectivityService.setOnline(true);
+        await Future.delayed(const Duration(milliseconds: 50));
 
-      // Automatic sync should have completed
-      expect(syncService.currentState.status, SyncStatus.synced);
-      expect(syncService.currentState.hasPendingChanges, isFalse);
-    });
+        // Automatic sync should have completed
+        expect(syncService.currentState.status, SyncStatus.synced);
+        expect(syncService.currentState.hasPendingChanges, isFalse);
+      },
+    );
 
     test('LWW Conflict Resolution preserves soft-deleted tombstones', () async {
       syncService.updateUser(authenticatedUser);
@@ -455,40 +514,45 @@ void main() {
             'createdAt': '2026-11-19T10:00:00Z',
             'updatedAt': '2026-11-19T10:00:00Z',
             'deletedAt': null,
-          }
+          },
         ],
         'updatedAt': '2026-11-19T10:00:00Z',
       });
 
       // Local has tombstone with newer updatedAt
-      await subjectRepo.saveSubject(SubjectEntity(
-        id: 'sub-chemistry',
-        name: 'Chemistry',
-        createdAt: DateTime.parse('2026-11-19T10:00:00Z'),
-        updatedAt: DateTime.parse('2026-11-22T10:00:00Z'),
-        deletedAt: DateTime.parse('2026-11-22T10:00:00Z'),
-      ));
+      await subjectRepo.saveSubject(
+        SubjectEntity(
+          id: 'sub-chemistry',
+          name: 'Chemistry',
+          createdAt: DateTime.parse('2026-11-19T10:00:00Z'),
+          updatedAt: DateTime.parse('2026-11-22T10:00:00Z'),
+          deletedAt: DateTime.parse('2026-11-22T10:00:00Z'),
+        ),
+      );
 
       await syncService.flushToCloud();
 
       // Cloud document must now contain the tombstone (deletedAt != null)
       final cloudDoc = remoteDataSource.getRawRemoteUser('student_123');
-      final cloudSub = (cloudDoc!['subjects'] as List)
-          .cast<Map>()
-          .firstWhere((s) => s['id'] == 'sub-chemistry');
+      final cloudSub = (cloudDoc!['subjects'] as List).cast<Map>().firstWhere(
+        (s) => s['id'] == 'sub-chemistry',
+      );
       expect(cloudSub['deletedAt'], isNotNull);
     });
 
-    test('scheduleDebouncedSync sets hasPendingChanges and can be cancelled by flushToCloud', () async {
-      syncService.updateUser(authenticatedUser);
+    test(
+      'scheduleDebouncedSync sets hasPendingChanges and can be cancelled by flushToCloud',
+      () async {
+        syncService.updateUser(authenticatedUser);
 
-      syncService.scheduleDebouncedSync();
-      expect(syncService.currentState.hasPendingChanges, isTrue);
+        syncService.scheduleDebouncedSync();
+        expect(syncService.currentState.hasPendingChanges, isTrue);
 
-      // Immediate flush executes and clears pending
-      final flushResult = await syncService.flushToCloud();
-      expect(flushResult.isSuccess, isTrue);
-      expect(syncService.currentState.hasPendingChanges, isFalse);
-    });
+        // Immediate flush executes and clears pending
+        final flushResult = await syncService.flushToCloud();
+        expect(flushResult.isSuccess, isTrue);
+        expect(syncService.currentState.hasPendingChanges, isFalse);
+      },
+    );
   });
 }

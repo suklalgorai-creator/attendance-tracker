@@ -3,14 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 
-enum StatValueColor {
-  auto,
-  safe,
-  danger,
-  paper,
-  amber,
-  muted;
-}
+enum StatValueColor { auto, safe, danger, paper, amber, muted }
 
 typedef StatValueVariant = StatValueColor;
 
@@ -40,8 +33,8 @@ class StatRowWidget extends StatelessWidget {
     this.trailing,
     this.padding,
     StatValueColor? variant,
-  })  : isStatus = isStatusText ?? isStatus ?? false,
-        valueColor = variant ?? valueColor ?? StatValueColor.auto;
+  }) : isStatus = isStatusText ?? isStatus ?? false,
+       valueColor = variant ?? valueColor ?? StatValueColor.auto;
 
   const StatRowWidget.safe({
     super.key,
@@ -53,9 +46,9 @@ class StatRowWidget extends StatelessWidget {
     this.showDivider = true,
     this.trailing,
     this.padding,
-  })  : valueColor = StatValueColor.safe,
-        customValueColor = null,
-        isStatus = isStatusText ?? isStatus ?? false;
+  }) : valueColor = StatValueColor.safe,
+       customValueColor = null,
+       isStatus = isStatusText ?? isStatus ?? false;
 
   const StatRowWidget.danger({
     super.key,
@@ -67,9 +60,9 @@ class StatRowWidget extends StatelessWidget {
     this.showDivider = true,
     this.trailing,
     this.padding,
-  })  : valueColor = StatValueColor.danger,
-        customValueColor = null,
-        isStatus = isStatusText ?? isStatus ?? false;
+  }) : valueColor = StatValueColor.danger,
+       customValueColor = null,
+       isStatus = isStatusText ?? isStatus ?? false;
 
   bool get isStatusText => isStatus;
   StatValueVariant get variant => valueColor;
@@ -174,9 +167,7 @@ class _DashedLinePainter extends CustomPainter {
   static const double dashWidth = 4.0;
   static const double dashSpace = 4.0;
 
-  const _DashedLinePainter({
-    required this.color,
-  });
+  const _DashedLinePainter({required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {

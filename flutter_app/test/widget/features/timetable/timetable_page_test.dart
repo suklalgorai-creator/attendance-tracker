@@ -16,17 +16,24 @@ class FakeTimetableRepo implements TimetableRepository {
   int removeSessionCount = 0;
 
   FakeTimetableRepo({Map<int, List<TimetableSessionEntity>>? initial})
-      : data = initial != null ? Map.from(initial) : {};
+    : data = initial != null ? Map.from(initial) : {};
 
   @override
-  Future<Map<int, List<TimetableSessionEntity>>> getTimetable({bool includeDeleted = false}) async => data;
+  Future<Map<int, List<TimetableSessionEntity>>> getTimetable({
+    bool includeDeleted = false,
+  }) async => data;
 
   @override
-  Stream<Map<int, List<TimetableSessionEntity>>> watchTimetable({bool includeDeleted = false}) =>
-      Stream.value(data);
+  Stream<Map<int, List<TimetableSessionEntity>>> watchTimetable({
+    bool includeDeleted = false,
+  }) => Stream.value(data);
 
   @override
-  Future<void> addSession(int dayOfWeek, String subjectId, {String? label}) async {
+  Future<void> addSession(
+    int dayOfWeek,
+    String subjectId, {
+    String? label,
+  }) async {
     addSessionCount++;
   }
 
@@ -39,7 +46,9 @@ class FakeTimetableRepo implements TimetableRepository {
   Future<void> clearTimetable() async => data.clear();
 
   @override
-  Future<void> saveTimetable(Map<int, List<TimetableSessionEntity>> timetable) async {
+  Future<void> saveTimetable(
+    Map<int, List<TimetableSessionEntity>> timetable,
+  ) async {
     data.clear();
     data.addAll(timetable);
   }
@@ -73,18 +82,24 @@ void main() {
     return ProviderScope(
       overrides: [
         timetableRepositoryProvider.overrideWithValue(repo),
-        timetableStreamProvider.overrideWith((ref) => Stream.value(timetableData ?? repo.data)),
-        subjectsStreamProvider.overrideWith((ref) => Stream.value(mockSubjects)),
-        settingsStreamProvider.overrideWith((ref) => Stream.value(mockSettings)),
+        timetableStreamProvider.overrideWith(
+          (ref) => Stream.value(timetableData ?? repo.data),
+        ),
+        subjectsStreamProvider.overrideWith(
+          (ref) => Stream.value(mockSubjects),
+        ),
+        settingsStreamProvider.overrideWith(
+          (ref) => Stream.value(mockSettings),
+        ),
       ],
-      child: const MaterialApp(
-        home: TimetablePage(),
-      ),
+      child: const MaterialApp(home: TimetablePage()),
     );
   }
 
   group('TimetablePage Widget Tests', () {
-    testWidgets('renders page title, weekly schedule card, and class days', (tester) async {
+    testWidgets('renders page title, weekly schedule card, and class days', (
+      tester,
+    ) async {
       final repo = FakeTimetableRepo();
 
       await tester.pumpWidget(buildPage(repo: repo));
@@ -97,7 +112,9 @@ void main() {
       expect(find.text('Add session'), findsNWidgets(2));
     });
 
-    testWidgets('tapping Add session calls timetableRepository.addSession', (tester) async {
+    testWidgets('tapping Add session calls timetableRepository.addSession', (
+      tester,
+    ) async {
       final repo = FakeTimetableRepo();
 
       await tester.pumpWidget(buildPage(repo: repo));
@@ -110,31 +127,36 @@ void main() {
       expect(repo.addSessionCount, 1);
     });
 
-    testWidgets('tapping remove session calls timetableRepository.removeSession', (tester) async {
-      final initialData = {
-        1: [
-          TimetableSessionEntity(
-            id: 'sess-remove',
-            subjectId: 'sub-cs',
-            label: 'Computer Science',
-            dayOfWeek: 1,
-            createdAt: now,
-            updatedAt: now,
-          ),
-        ],
-      };
-      final repo = FakeTimetableRepo(initial: initialData);
+    testWidgets(
+      'tapping remove session calls timetableRepository.removeSession',
+      (tester) async {
+        final initialData = {
+          1: [
+            TimetableSessionEntity(
+              id: 'sess-remove',
+              subjectId: 'sub-cs',
+              label: 'Computer Science',
+              dayOfWeek: 1,
+              createdAt: now,
+              updatedAt: now,
+            ),
+          ],
+        };
+        final repo = FakeTimetableRepo(initial: initialData);
 
-      await tester.pumpWidget(buildPage(repo: repo, timetableData: initialData));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          buildPage(repo: repo, timetableData: initialData),
+        );
+        await tester.pumpAndSettle();
 
-      final removeBtn = find.bySemanticsLabel('Remove Computer Science');
-      expect(removeBtn, findsOneWidget);
+        final removeBtn = find.bySemanticsLabel('Remove Computer Science');
+        expect(removeBtn, findsOneWidget);
 
-      await tester.tap(removeBtn);
-      await tester.pumpAndSettle();
+        await tester.tap(removeBtn);
+        await tester.pumpAndSettle();
 
-      expect(repo.removeSessionCount, 1);
-    });
+        expect(repo.removeSessionCount, 1);
+      },
+    );
   });
 }

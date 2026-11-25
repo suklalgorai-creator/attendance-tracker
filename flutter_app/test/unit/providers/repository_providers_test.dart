@@ -22,10 +22,18 @@ void main() {
     setUp(() {
       container = ProviderContainer(
         overrides: [
-          subjectLocalDataSourceProvider.overrideWithValue(FakeSubjectLocalDataSource()),
-          attendanceLocalDataSourceProvider.overrideWithValue(FakeAttendanceLocalDataSource()),
-          notesLocalDataSourceProvider.overrideWithValue(FakeNotesLocalDataSource()),
-          settingsLocalDataSourceProvider.overrideWithValue(FakeSettingsLocalDataSource()),
+          subjectLocalDataSourceProvider.overrideWithValue(
+            FakeSubjectLocalDataSource(),
+          ),
+          attendanceLocalDataSourceProvider.overrideWithValue(
+            FakeAttendanceLocalDataSource(),
+          ),
+          notesLocalDataSourceProvider.overrideWithValue(
+            FakeNotesLocalDataSource(),
+          ),
+          settingsLocalDataSourceProvider.overrideWithValue(
+            FakeSettingsLocalDataSource(),
+          ),
         ],
       );
     });

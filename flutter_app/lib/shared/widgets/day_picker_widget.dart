@@ -5,7 +5,15 @@ import '../../core/constants/app_colors.dart';
 /// DayPicker widget replicating `DayPicker.jsx`
 /// Day chips for S M T W T F S where 0 = Sun ... 6 = Sat.
 class DayPickerWidget extends StatelessWidget {
-  static const List<String> defaultDayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  static const List<String> defaultDayLabels = [
+    'S',
+    'M',
+    'T',
+    'W',
+    'T',
+    'F',
+    'S',
+  ];
 
   final List<int> selectedDays;
   final ValueChanged<List<int>> onDaysChanged;
@@ -45,7 +53,9 @@ class DayPickerWidget extends StatelessWidget {
         children: List.generate(dayLabels.length, (i) {
           final isSelected = selectedDays.contains(i);
           return Padding(
-            padding: EdgeInsets.only(right: i < dayLabels.length - 1 ? 12.0 : 0.0),
+            padding: EdgeInsets.only(
+              right: i < dayLabels.length - 1 ? 12.0 : 0.0,
+            ),
             child: Material(
               color: Colors.transparent,
               child: InkWell(
@@ -58,12 +68,16 @@ class DayPickerWidget extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: isSelected
                         ? AppColors.inkGreen
-                        : (isDark ? AppColors.inputBgDark : AppColors.inputBgLight),
+                        : (isDark
+                              ? AppColors.inputBgDark
+                              : AppColors.inputBgLight),
                     borderRadius: BorderRadius.circular(14.0),
                     border: Border.all(
                       color: isSelected
                           ? Colors.transparent
-                          : (isDark ? AppColors.ruleBrightDark : AppColors.ruleBrightLight),
+                          : (isDark
+                                ? AppColors.ruleBrightDark
+                                : AppColors.ruleBrightLight),
                       width: 1.0,
                     ),
                     boxShadow: isSelected

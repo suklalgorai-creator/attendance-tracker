@@ -6,6 +6,7 @@ import '../../../../core/constants/app_typography.dart';
 import '../../../../shared/widgets/app_banner.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/glass_card.dart';
+import '../../../../shared/widgets/mesh_backdrop.dart';
 import '../controllers/auth_providers.dart';
 import '../widgets/google_logo_icon.dart';
 
@@ -22,14 +23,24 @@ class AuthPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: bgColor,
-      body: SafeArea(
-        child: Center(
+      body: Stack(
+        children: [
+          const Positioned.fill(child: MeshBackdrop()),
+          SafeArea(
+            child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 24.0,
+            ),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 420),
               child: GlassCard(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 36.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 22.0,
+                  vertical: 28.0,
+                ),
+                useBlur: true,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -38,8 +49,14 @@ class AuthPage extends ConsumerWidget {
                     ShaderMask(
                       shaderCallback: (bounds) => LinearGradient(
                         colors: isDark
-                            ? [AppColors.textGradientStartDark, AppColors.textGradientEndDark]
-                            : [AppColors.textGradientStartLight, AppColors.textGradientEndLight],
+                            ? [
+                                AppColors.textGradientStartDark,
+                                AppColors.textGradientEndDark,
+                              ]
+                            : [
+                                AppColors.textGradientStartLight,
+                                AppColors.textGradientEndLight,
+                              ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                       ).createShader(bounds),
@@ -55,18 +72,16 @@ class AuthPage extends ConsumerWidget {
                     Text(
                       'Sign in to track your attendance',
                       textAlign: TextAlign.center,
-                      style: AppTypography.inputText(mutedColor).copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: AppTypography.inputText(
+                        mutedColor,
+                      ).copyWith(fontSize: 15, fontWeight: FontWeight.w500),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
 
                     // Optional Error Banner
-                    if (authState.errorMessage != null && authState.errorMessage!.isNotEmpty) ...[
-                      AppBanner.danger(
-                        message: authState.errorMessage!,
-                      ),
+                    if (authState.errorMessage != null &&
+                        authState.errorMessage!.isNotEmpty) ...[
+                      AppBanner.danger(message: authState.errorMessage!),
                       const SizedBox(height: 24),
                     ],
 
@@ -76,7 +91,9 @@ class AuthPage extends ConsumerWidget {
                       onPressed: authState.isLoading
                           ? null
                           : () {
-                              ref.read(authNotifierProvider.notifier).signInWithGoogle();
+                              ref
+                                  .read(authNotifierProvider.notifier)
+                                  .signInWithGoogle();
                             },
                     ),
                     const SizedBox(height: 16),
@@ -91,7 +108,9 @@ class AuthPage extends ConsumerWidget {
                       onPressed: authState.isLoading
                           ? null
                           : () {
-                              ref.read(authNotifierProvider.notifier).signInAsGuest();
+                              ref
+                                  .read(authNotifierProvider.notifier)
+                                  .signInAsGuest();
                             },
                     ),
                   ],
@@ -100,6 +119,8 @@ class AuthPage extends ConsumerWidget {
             ),
           ),
         ),
+      ),
+        ],
       ),
     );
   }
@@ -110,10 +131,7 @@ class _GoogleSignInButton extends StatelessWidget {
   final bool isLoading;
   final VoidCallback? onPressed;
 
-  const _GoogleSignInButton({
-    required this.isLoading,
-    required this.onPressed,
-  });
+  const _GoogleSignInButton({required this.isLoading, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {

@@ -9,6 +9,7 @@ class DatabaseService {
   static const String legacyAttendanceBoxName = 'legacy_attendance_box';
   static const String notesBoxName = 'notes_box';
   static const String settingsBoxName = 'settings_box';
+  static const String dailyFlowTasksBoxName = 'dailyflow_tasks_box';
 
   static Future<void> init() async {
     await Hive.initFlutter();
@@ -19,6 +20,7 @@ class DatabaseService {
       Hive.openBox(legacyAttendanceBoxName),
       Hive.openBox(notesBoxName),
       Hive.openBox(settingsBoxName),
+      Hive.openBox(dailyFlowTasksBoxName),
     ]);
   }
 
@@ -26,7 +28,7 @@ class DatabaseService {
 
   static bool isBoxOpen(String name) => Hive.isBoxOpen(name);
 
-  /// Clears all stored data across all 6 boxes. Useful for tests and data resets.
+  /// Clears all stored data across all boxes. Useful for tests and data resets.
   static Future<void> clearAllBoxes() async {
     final boxesToClear = [
       subjectsBoxName,
@@ -35,6 +37,7 @@ class DatabaseService {
       legacyAttendanceBoxName,
       notesBoxName,
       settingsBoxName,
+      dailyFlowTasksBoxName,
     ];
     await Future.wait(
       boxesToClear
@@ -55,7 +58,9 @@ class DatabaseService {
     final rawData = _box.get('subjects', defaultValue: []);
     if (rawData is List) {
       return rawData
-          .map((item) => Subject.fromMap(Map<dynamic, dynamic>.from(item as Map)))
+          .map(
+            (item) => Subject.fromMap(Map<dynamic, dynamic>.from(item as Map)),
+          )
           .toList();
     }
     return [];

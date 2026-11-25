@@ -20,7 +20,10 @@ void main() {
       expect(r1, equals(r2));
       expect(r1.hashCode, equals(r2.hashCode));
       expect(r1, isNot(equals(r3)));
-      expect(r1.toString(), contains('DateRange(start: 2026-11-01, end: 2026-11-30)'));
+      expect(
+        r1.toString(),
+        contains('DateRange(start: 2026-11-01, end: 2026-11-30)'),
+      );
     });
   });
 
@@ -29,7 +32,10 @@ void main() {
       expect(formatDateKey(DateTime(2026, 11, 18)), equals('2026-11-18'));
       expect(formatDateKey(DateTime(2026, 5, 4)), equals('2026-05-04'));
       expect(formatDateKey(DateTime(2024, 2, 29)), equals('2024-02-29'));
-      expect(AppDateUtils.formatDateKey(DateTime(2026, 1, 1)), equals('2026-01-01'));
+      expect(
+        AppDateUtils.formatDateKey(DateTime(2026, 1, 1)),
+        equals('2026-01-01'),
+      );
     });
   });
 
@@ -120,7 +126,10 @@ void main() {
       expect(isClassDay('2026-11-18', monToFri), isTrue); // Wed = 3
       expect(isClassDay('2026-11-22', monToFri), isFalse); // Sun = 0
       expect(isClassDay('2026-11-21', monToFri), isFalse); // Sat = 6
-      expect(isClassDay('2026-11-22', [0, 6]), isTrue); // Sunday in weekend list
+      expect(
+        isClassDay('2026-11-22', [0, 6]),
+        isTrue,
+      ); // Sunday in weekend list
       expect(AppDateUtils.isClassDay('2026-11-18', monToFri), isTrue);
     });
 
@@ -133,7 +142,10 @@ void main() {
   group('dateRangeDesc', () {
     test('produces descending list from end to start', () {
       final range = dateRangeDesc('2026-11-15', '2026-11-18');
-      expect(range, equals(['2026-11-18', '2026-11-17', '2026-11-16', '2026-11-15']));
+      expect(
+        range,
+        equals(['2026-11-18', '2026-11-17', '2026-11-16', '2026-11-15']),
+      );
     });
 
     test('handles single day range (start == end)', () {
@@ -148,7 +160,10 @@ void main() {
 
     test('spans across month boundary in descending order', () {
       final range = dateRangeDesc('2026-10-30', '2026-11-02');
-      expect(range, equals(['2026-11-02', '2026-11-01', '2026-10-31', '2026-10-30']));
+      expect(
+        range,
+        equals(['2026-11-02', '2026-11-01', '2026-10-31', '2026-10-30']),
+      );
     });
 
     test('enforces 3000 safety limit', () {
@@ -217,9 +232,16 @@ void main() {
   group('classDayRangeDesc', () {
     test('filters descending range to include only class days', () {
       // 2026-11-16 (Mon), 17 (Tue), 18 (Wed), 19 (Thu), 20 (Fri), 21 (Sat), 22 (Sun)
-      final range = classDayRangeDesc('2026-11-16', '2026-11-22', [1, 3, 5]); // Mon, Wed, Fri
+      final range = classDayRangeDesc('2026-11-16', '2026-11-22', [
+        1,
+        3,
+        5,
+      ]); // Mon, Wed, Fri
       expect(range, equals(['2026-11-20', '2026-11-18', '2026-11-16']));
-      expect(AppDateUtils.classDayRangeDesc('2026-11-16', '2026-11-22', [1, 3, 5]), equals(['2026-11-20', '2026-11-18', '2026-11-16']));
+      expect(
+        AppDateUtils.classDayRangeDesc('2026-11-16', '2026-11-22', [1, 3, 5]),
+        equals(['2026-11-20', '2026-11-18', '2026-11-16']),
+      );
     });
 
     test('returns empty when no class days in range', () {
@@ -246,17 +268,32 @@ void main() {
     ];
 
     test('resolves sessions from map with int keys', () {
-      expect(getPeriodsForDate<String>('2026-11-18', timetableMapInt), equals(['Math', 'Physics']));
-      expect(AppDateUtils.getPeriodsForDate<String>('2026-11-18', timetableMapInt), equals(['Math', 'Physics']));
+      expect(
+        getPeriodsForDate<String>('2026-11-18', timetableMapInt),
+        equals(['Math', 'Physics']),
+      );
+      expect(
+        AppDateUtils.getPeriodsForDate<String>('2026-11-18', timetableMapInt),
+        equals(['Math', 'Physics']),
+      );
     });
 
     test('resolves sessions from map with String keys', () {
-      expect(getPeriodsForDate<String>('2026-11-18', timetableMapStr), equals(['Math', 'Physics']));
+      expect(
+        getPeriodsForDate<String>('2026-11-18', timetableMapStr),
+        equals(['Math', 'Physics']),
+      );
     });
 
     test('resolves sessions from list', () {
-      expect(getPeriodsForDate<String>('2026-11-18', timetableList), equals(['Math', 'Physics']));
-      expect(getPeriodsForDate<String>('2026-11-16', timetableList), equals(['CS']));
+      expect(
+        getPeriodsForDate<String>('2026-11-18', timetableList),
+        equals(['Math', 'Physics']),
+      );
+      expect(
+        getPeriodsForDate<String>('2026-11-16', timetableList),
+        equals(['CS']),
+      );
     });
 
     test('returns empty list for invalid date or missing sessions', () {
@@ -284,7 +321,10 @@ void main() {
     test('formats dates according to en_IN locale (d MMMM y)', () {
       expect(formatDateFull('2026-11-17'), equals('17 November 2026'));
       expect(formatDateFull('2026-05-04'), equals('4 May 2026'));
-      expect(AppDateUtils.formatDateFull('2026-11-17'), equals('17 November 2026'));
+      expect(
+        AppDateUtils.formatDateFull('2026-11-17'),
+        equals('17 November 2026'),
+      );
     });
 
     test('returns original string on invalid date', () {

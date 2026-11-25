@@ -1,12 +1,23 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/repository_providers.dart';
+import '../../../sync/presentation/providers/sync_providers.dart';
 import '../../domain/models/dashboard_stats.dart';
 import '../../domain/models/subject_attendance_stats.dart';
 import '../../domain/services/dashboard_analytics_service.dart';
 
+Set<String> _extractHolidays(AsyncValue<Map<String, dynamic>> globalAsync) {
+  final raw = globalAsync.valueOrNull?['holidays'];
+  if (raw is Map) {
+    return raw.keys.map((k) => k.toString()).toSet();
+  }
+  return const {};
+}
+
 /// Provider for the pure Dart analytics service.
-final dashboardAnalyticsServiceProvider = Provider<DashboardAnalyticsService>((ref) {
+final dashboardAnalyticsServiceProvider = Provider<DashboardAnalyticsService>((
+  ref,
+) {
   return const DashboardAnalyticsService();
 });
 
@@ -27,7 +38,9 @@ final dashboardStatsProvider = Provider<AsyncValue<DashboardStats>>((ref) {
     return AsyncValue.error(settingsAsync.error!, settingsAsync.stackTrace!);
   }
 
-  if (recordsAsync.isLoading || legacyAsync.isLoading || settingsAsync.isLoading) {
+  if (recordsAsync.isLoading ||
+      legacyAsync.isLoading ||
+      settingsAsync.isLoading) {
     return const AsyncValue.loading();
   }
 
@@ -35,50 +48,63 @@ final dashboardStatsProvider = Provider<AsyncValue<DashboardStats>>((ref) {
   final legacy = legacyAsync.value ?? [];
   final settings = settingsAsync.value;
   final minPercent = settings?.minPercent ?? 75.0;
+  final holidays = _extractHolidays(ref.watch(globalSettingsProvider));
 
   final stats = service.computeOverallStats(
     attendanceRecords: records,
     legacyAttendance: legacy,
     minPercent: minPercent,
+    holidays: holidays,
   );
 
   return AsyncValue.data(stats);
 });
 
 /// Reactive provider computing attendance stats for all active subjects.
-final subjectStatsListProvider = Provider<AsyncValue<List<SubjectAttendanceStats>>>((ref) {
-  final subjectsAsync = ref.watch(subjectsStreamProvider);
-  final recordsAsync = ref.watch(attendanceRecordsStreamProvider);
-  final settingsAsync = ref.watch(settingsStreamProvider);
-  final service = ref.watch(dashboardAnalyticsServiceProvider);
+final subjectStatsListProvider =
+    Provider<AsyncValue<List<SubjectAttendanceStats>>>((ref) {
+      final subjectsAsync = ref.watch(subjectsStreamProvider);
+      final recordsAsync = ref.watch(attendanceRecordsStreamProvider);
+      final settingsAsync = ref.watch(settingsStreamProvider);
+      final service = ref.watch(dashboardAnalyticsServiceProvider);
 
-  if (subjectsAsync.hasError) {
-    return AsyncValue.error(subjectsAsync.error!, subjectsAsync.stackTrace!);
-  }
-  if (recordsAsync.hasError) {
-    return AsyncValue.error(recordsAsync.error!, recordsAsync.stackTrace!);
-  }
-  if (settingsAsync.hasError) {
-    return AsyncValue.error(settingsAsync.error!, settingsAsync.stackTrace!);
-  }
+      if (subjectsAsync.hasError) {
+        return AsyncValue.error(
+          subjectsAsync.error!,
+          subjectsAsync.stackTrace!,
+        );
+      }
+      if (recordsAsync.hasError) {
+        return AsyncValue.error(recordsAsync.error!, recordsAsync.stackTrace!);
+      }
+      if (settingsAsync.hasError) {
+        return AsyncValue.error(
+          settingsAsync.error!,
+          settingsAsync.stackTrace!,
+        );
+      }
 
-  if (subjectsAsync.isLoading || recordsAsync.isLoading || settingsAsync.isLoading) {
-    return const AsyncValue.loading();
-  }
+      if (subjectsAsync.isLoading ||
+          recordsAsync.isLoading ||
+          settingsAsync.isLoading) {
+        return const AsyncValue.loading();
+      }
 
-  final subjects = subjectsAsync.value ?? [];
-  final records = recordsAsync.value ?? [];
-  final settings = settingsAsync.value;
-  final minPercent = settings?.minPercent ?? 75.0;
+      final subjects = subjectsAsync.value ?? [];
+      final records = recordsAsync.value ?? [];
+      final settings = settingsAsync.value;
+      final minPercent = settings?.minPercent ?? 75.0;
+      final holidays = _extractHolidays(ref.watch(globalSettingsProvider));
 
-  final statsList = service.computeAllSubjectStats(
-    subjects: subjects,
-    attendanceRecords: records,
-    minPercent: minPercent,
-  );
+      final statsList = service.computeAllSubjectStats(
+        subjects: subjects,
+        attendanceRecords: records,
+        minPercent: minPercent,
+        holidays: holidays,
+      );
 
-  return AsyncValue.data(statsList);
-});
+      return AsyncValue.data(statsList);
+    });
 
 /// Reactive provider computing consecutive class-day streak.
 final streakCountProvider = Provider<AsyncValue<int>>((ref) {
@@ -97,7 +123,9 @@ final streakCountProvider = Provider<AsyncValue<int>>((ref) {
     return AsyncValue.error(settingsAsync.error!, settingsAsync.stackTrace!);
   }
 
-  if (recordsAsync.isLoading || legacyAsync.isLoading || settingsAsync.isLoading) {
+  if (recordsAsync.isLoading ||
+      legacyAsync.isLoading ||
+      settingsAsync.isLoading) {
     return const AsyncValue.loading();
   }
 

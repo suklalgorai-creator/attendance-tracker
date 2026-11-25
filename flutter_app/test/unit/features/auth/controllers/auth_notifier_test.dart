@@ -104,7 +104,10 @@ void main() {
       await notifier.signInWithGoogle();
 
       expect(notifier.state.status, AuthStatus.error);
-      expect(notifier.state.errorMessage, contains('Network connection timed out'));
+      expect(
+        notifier.state.errorMessage,
+        contains('Network connection timed out'),
+      );
       expect(notifier.state.isAuthenticated, isFalse);
     });
 
@@ -142,74 +145,83 @@ void main() {
       expect(notifier.state.isLoggedIn, isFalse);
     });
 
-    test('calling signInWithGoogle followed immediately by signOut leaves final state as unauthenticated', () async {
-      fakeRepo.googleSignInCompleter = Completer<AuthUserEntity>();
+    test(
+      'calling signInWithGoogle followed immediately by signOut leaves final state as unauthenticated',
+      () async {
+        fakeRepo.googleSignInCompleter = Completer<AuthUserEntity>();
 
-      // 1. Initiate Google sign-in (in-flight)
-      final googleFuture = notifier.signInWithGoogle();
-      expect(notifier.state.status, AuthStatus.loading);
+        // 1. Initiate Google sign-in (in-flight)
+        final googleFuture = notifier.signInWithGoogle();
+        expect(notifier.state.status, AuthStatus.loading);
 
-      // 2. Immediate signOut
-      final signOutFuture = notifier.signOut();
-      await signOutFuture;
-      expect(notifier.state.status, AuthStatus.unauthenticated);
+        // 2. Immediate signOut
+        final signOutFuture = notifier.signOut();
+        await signOutFuture;
+        expect(notifier.state.status, AuthStatus.unauthenticated);
 
-      // 3. Complete the in-flight Google sign-in
-      const user = AuthUserEntity(
-        id: 'delayed_google_user',
-        email: 'delayed@college.edu',
-        displayName: 'Delayed User',
-      );
-      fakeRepo.googleSignInCompleter!.complete(user);
-      await googleFuture;
-
-      // 4. Verify epoch guard prevented clobbering back to authenticated
-      expect(notifier.state.status, AuthStatus.unauthenticated);
-      expect(notifier.state.user, isNull);
-    });
-
-    test('calling signInWithGoogle followed immediately by signInAsGuest leaves final state as guest', () async {
-      fakeRepo.googleSignInCompleter = Completer<AuthUserEntity>();
-
-      // 1. Initiate Google sign-in (in-flight)
-      final googleFuture = notifier.signInWithGoogle();
-      expect(notifier.state.status, AuthStatus.loading);
-
-      // 2. Immediate guest login
-      final guestFuture = notifier.signInAsGuest();
-      await guestFuture;
-      expect(notifier.state.status, AuthStatus.guest);
-      expect(notifier.state.user?.isGuest, isTrue);
-
-      // 3. Complete in-flight Google sign-in
-      const user = AuthUserEntity(
-        id: 'delayed_google_user',
-        email: 'delayed@college.edu',
-        displayName: 'Delayed User',
-      );
-      fakeRepo.googleSignInCompleter!.complete(user);
-      await googleFuture;
-
-      // 4. Verify epoch guard prevented clobbering to authenticated
-      expect(notifier.state.status, AuthStatus.guest);
-      expect(notifier.state.user?.isGuest, isTrue);
-    });
-
-    test('delayed error on signInWithGoogle does not overwrite state if subsequent action occurred', () async {
-      fakeRepo.googleSignInCompleter = Completer<AuthUserEntity>();
-
-      final googleFuture = notifier.signInWithGoogle();
-      await notifier.signInAsGuest();
-      expect(notifier.state.status, AuthStatus.guest);
-
-      // Complete with error
-      fakeRepo.googleSignInCompleter!.completeError(Exception('Late error'));
-      try {
+        // 3. Complete the in-flight Google sign-in
+        const user = AuthUserEntity(
+          id: 'delayed_google_user',
+          email: 'delayed@college.edu',
+          displayName: 'Delayed User',
+        );
+        fakeRepo.googleSignInCompleter!.complete(user);
         await googleFuture;
-      } catch (_) {}
 
-      // State remains guest, not error
-      expect(notifier.state.status, AuthStatus.guest);
-    });
+        // 4. Verify epoch guard prevented clobbering back to authenticated
+        expect(notifier.state.status, AuthStatus.unauthenticated);
+        expect(notifier.state.user, isNull);
+      },
+    );
+
+    test(
+      'calling signInWithGoogle followed immediately by signInAsGuest leaves final state as guest',
+      () async {
+        fakeRepo.googleSignInCompleter = Completer<AuthUserEntity>();
+
+        // 1. Initiate Google sign-in (in-flight)
+        final googleFuture = notifier.signInWithGoogle();
+        expect(notifier.state.status, AuthStatus.loading);
+
+        // 2. Immediate guest login
+        final guestFuture = notifier.signInAsGuest();
+        await guestFuture;
+        expect(notifier.state.status, AuthStatus.guest);
+        expect(notifier.state.user?.isGuest, isTrue);
+
+        // 3. Complete in-flight Google sign-in
+        const user = AuthUserEntity(
+          id: 'delayed_google_user',
+          email: 'delayed@college.edu',
+          displayName: 'Delayed User',
+        );
+        fakeRepo.googleSignInCompleter!.complete(user);
+        await googleFuture;
+
+        // 4. Verify epoch guard prevented clobbering to authenticated
+        expect(notifier.state.status, AuthStatus.guest);
+        expect(notifier.state.user?.isGuest, isTrue);
+      },
+    );
+
+    test(
+      'delayed error on signInWithGoogle does not overwrite state if subsequent action occurred',
+      () async {
+        fakeRepo.googleSignInCompleter = Completer<AuthUserEntity>();
+
+        final googleFuture = notifier.signInWithGoogle();
+        await notifier.signInAsGuest();
+        expect(notifier.state.status, AuthStatus.guest);
+
+        // Complete with error
+        fakeRepo.googleSignInCompleter!.completeError(Exception('Late error'));
+        try {
+          await googleFuture;
+        } catch (_) {}
+
+        // State remains guest, not error
+        expect(notifier.state.status, AuthStatus.guest);
+      },
+    );
   });
 }

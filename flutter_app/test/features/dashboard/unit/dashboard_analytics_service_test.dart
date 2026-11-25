@@ -22,10 +22,13 @@ void main() {
       expect(service.calculateAttendance(5, 0), isNull);
     });
 
-    test('Returns null on invalid constraints (present < 0 or present > conducted)', () {
-      expect(service.calculateAttendance(-1, 10), isNull);
-      expect(service.calculateAttendance(11, 10), isNull);
-    });
+    test(
+      'Returns null on invalid constraints (present < 0 or present > conducted)',
+      () {
+        expect(service.calculateAttendance(-1, 10), isNull);
+        expect(service.calculateAttendance(11, 10), isNull);
+      },
+    );
   });
 
   group('DashboardAnalyticsService - calculateMaximumAbsences (Safe Bunks)', () {
@@ -80,10 +83,13 @@ void main() {
       expect(service.calculateRequiredRecoveryClasses(5, 10, 75.0), 10);
     });
 
-    test('Returns -1 when threshold >= 100 and any class is missed (impossible)', () {
-      expect(service.calculateRequiredRecoveryClasses(9, 10, 100.0), -1);
-      expect(service.calculateRequiredRecoveryClasses(0, 1, 100.0), -1);
-    });
+    test(
+      'Returns -1 when threshold >= 100 and any class is missed (impossible)',
+      () {
+        expect(service.calculateRequiredRecoveryClasses(9, 10, 100.0), -1);
+        expect(service.calculateRequiredRecoveryClasses(0, 1, 100.0), -1);
+      },
+    );
 
     test('Returns 0 for conducted <= 0 or invalid threshold', () {
       expect(service.calculateRequiredRecoveryClasses(0, 0, 75.0), 0);
@@ -115,7 +121,10 @@ void main() {
         ),
       ];
 
-      expect(service.computeStreak(attendanceRecords: records, classDays: []), 0);
+      expect(
+        service.computeStreak(attendanceRecords: records, classDays: []),
+        0,
+      );
     });
 
     test('computeStreak counts consecutive class days backwards', () {
@@ -231,31 +240,34 @@ void main() {
       expect(streak, 2);
     });
 
-    test('computeStreak applies today grace period if today is un-attended', () {
-      // Today is Wednesday 2026-11-18 (class day). No class logged yet today.
-      // Tuesday 2026-11-17 was attended.
-      final ref = DateTime(2026, 11, 18);
-      final records = [
-        AttendanceRecordEntity(
-          id: '1',
-          date: '2026-11-17', // Tue
-          subjectId: 'sub_1',
-          sessionId: 's1',
-          status: AttendanceStatus.present,
-          createdAt: ref,
-          updatedAt: ref,
-        ),
-      ];
+    test(
+      'computeStreak applies today grace period if today is un-attended',
+      () {
+        // Today is Wednesday 2026-11-18 (class day). No class logged yet today.
+        // Tuesday 2026-11-17 was attended.
+        final ref = DateTime(2026, 11, 18);
+        final records = [
+          AttendanceRecordEntity(
+            id: '1',
+            date: '2026-11-17', // Tue
+            subjectId: 'sub_1',
+            sessionId: 's1',
+            status: AttendanceStatus.present,
+            createdAt: ref,
+            updatedAt: ref,
+          ),
+        ];
 
-      final streak = service.computeStreak(
-        attendanceRecords: records,
-        classDays: [1, 2, 3, 4, 5],
-        referenceDate: ref,
-      );
+        final streak = service.computeStreak(
+          attendanceRecords: records,
+          classDays: [1, 2, 3, 4, 5],
+          referenceDate: ref,
+        );
 
-      // Falls back to yesterday without breaking streak -> 1 day
-      expect(streak, 1);
-    });
+        // Falls back to yesterday without breaking streak -> 1 day
+        expect(streak, 1);
+      },
+    );
 
     test('computeStreak ignores soft-deleted records', () {
       final ref = DateTime(2026, 11, 18);
@@ -291,210 +303,287 @@ void main() {
       expect(streak, 1);
     });
 
-    test('computeStreak factors in legacy attendance where held == attended', () {
-      final ref = DateTime(2026, 11, 18);
-      final records = [
-        AttendanceRecordEntity(
-          id: '1',
-          date: '2026-11-18',
-          subjectId: 'sub_1',
-          sessionId: 's1',
-          status: AttendanceStatus.present,
-          createdAt: ref,
-          updatedAt: ref,
-        ),
-      ];
-      final legacy = [
-        LegacyAttendanceEntity(
-          id: 'leg_1',
-          date: '2026-11-17',
-          held: 4,
-          attended: 4,
-          createdAt: ref,
-          updatedAt: ref,
-        ),
-      ];
+    test(
+      'computeStreak factors in legacy attendance where held == attended',
+      () {
+        final ref = DateTime(2026, 11, 18);
+        final records = [
+          AttendanceRecordEntity(
+            id: '1',
+            date: '2026-11-18',
+            subjectId: 'sub_1',
+            sessionId: 's1',
+            status: AttendanceStatus.present,
+            createdAt: ref,
+            updatedAt: ref,
+          ),
+        ];
+        final legacy = [
+          LegacyAttendanceEntity(
+            id: 'leg_1',
+            date: '2026-11-17',
+            held: 4,
+            attended: 4,
+            createdAt: ref,
+            updatedAt: ref,
+          ),
+        ];
 
-      final streak = service.computeStreak(
-        attendanceRecords: records,
-        legacyAttendance: legacy,
-        classDays: [1, 2, 3, 4, 5],
-        referenceDate: ref,
-      );
+        final streak = service.computeStreak(
+          attendanceRecords: records,
+          legacyAttendance: legacy,
+          classDays: [1, 2, 3, 4, 5],
+          referenceDate: ref,
+        );
 
-      expect(streak, 2);
-    });
+        expect(streak, 2);
+      },
+    );
   });
 
-  group('DashboardAnalyticsService - computeOverallStats & computeSubjectStats', () {
-    final now = DateTime(2026, 11, 18);
-    final mathSub = SubjectEntity(
-      id: 'sub_math',
-      name: 'Mathematics',
-      color: '#3B82F6',
-      createdAt: now,
-      updatedAt: now,
-    );
-    final physicsSub = SubjectEntity(
-      id: 'sub_phys',
-      name: 'Physics',
-      color: '#10B981',
-      createdAt: now,
-      updatedAt: now,
-    );
-
-    test('computeOverallStats combines session and legacy attendance', () {
-      final records = [
-        AttendanceRecordEntity(
-          id: 'r1',
-          date: '2026-11-18',
-          subjectId: 'sub_math',
-          sessionId: 's1',
-          status: AttendanceStatus.present,
-          createdAt: now,
-          updatedAt: now,
-        ),
-        AttendanceRecordEntity(
-          id: 'r2',
-          date: '2026-11-18',
-          subjectId: 'sub_math',
-          sessionId: 's2',
-          status: AttendanceStatus.absent,
-          createdAt: now,
-          updatedAt: now,
-        ),
-        AttendanceRecordEntity(
-          id: 'r3',
-          date: '2026-11-17',
-          subjectId: 'sub_phys',
-          sessionId: 's3',
-          status: AttendanceStatus.present,
-          createdAt: now,
-          updatedAt: now,
-        ),
-      ];
-
-      final legacy = [
-        LegacyAttendanceEntity(
-          id: 'leg_1',
-          date: '2026-11-15',
-          held: 5,
-          attended: 4,
-          createdAt: now,
-          updatedAt: now,
-        ),
-      ];
-
-      final stats = service.computeOverallStats(
-        attendanceRecords: records,
-        legacyAttendance: legacy,
-        minPercent: 75.0,
-      );
-
-      // Present: 1 (r1) + 1 (r3) + 4 (legacy) = 6
-      // Absent: 1 (r2) + 1 (legacy: 5-4) = 2
-      // Conducted: 8
-      // Percentage: 6 / 8 = 75.0%
-      expect(stats.conducted, 8);
-      expect(stats.present, 6);
-      expect(stats.absent, 2);
-      expect(stats.percentage, 75.0);
-      expect(stats.isSafe, isTrue);
-      expect(stats.canMiss, 0);
-      expect(stats.needToAttend, 0);
-    });
-
-    test('computeSubjectStats filters by subjectId and ignores soft-deleted records', () {
-      final records = [
-        AttendanceRecordEntity(
-          id: 'r1',
-          date: '2026-11-18',
-          subjectId: 'sub_math',
-          sessionId: 's1',
-          status: AttendanceStatus.present,
-          createdAt: now,
-          updatedAt: now,
-        ),
-        AttendanceRecordEntity(
-          id: 'r2',
-          date: '2026-11-18',
-          subjectId: 'sub_math',
-          sessionId: 's2',
-          status: AttendanceStatus.present,
-          createdAt: now,
-          updatedAt: now,
-        ),
-        AttendanceRecordEntity(
-          id: 'r3',
-          date: '2026-11-18',
-          subjectId: 'sub_math',
-          sessionId: 's3',
-          status: AttendanceStatus.absent,
-          createdAt: now,
-          updatedAt: now,
-          deletedAt: now, // deleted!
-        ),
-        AttendanceRecordEntity(
-          id: 'r4',
-          date: '2026-11-18',
-          subjectId: 'sub_phys',
-          sessionId: 's4',
-          status: AttendanceStatus.absent,
-          createdAt: now,
-          updatedAt: now,
-        ),
-      ];
-
-      final mathStats = service.computeSubjectStats(
-        subject: mathSub,
-        attendanceRecords: records,
-        minPercent: 75.0,
-      );
-
-      expect(mathStats.conducted, 2);
-      expect(mathStats.present, 2);
-      expect(mathStats.absent, 0);
-      expect(mathStats.percentage, 100.0);
-      expect(mathStats.isSafe, isTrue);
-
-      final physStats = service.computeSubjectStats(
-        subject: physicsSub,
-        attendanceRecords: records,
-        minPercent: 75.0,
-      );
-
-      expect(physStats.conducted, 1);
-      expect(physStats.present, 0);
-      expect(physStats.absent, 1);
-      expect(physStats.percentage, 0.0);
-      expect(physStats.isSafe, isFalse);
-    });
-
-    test('computeAllSubjectStats filters deleted and inactive subjects', () {
-      final inactiveSub = SubjectEntity(
-        id: 'sub_inact',
-        name: 'Inactive',
-        active: false,
+  group(
+    'DashboardAnalyticsService - computeOverallStats & computeSubjectStats',
+    () {
+      final now = DateTime(2026, 11, 18);
+      final mathSub = SubjectEntity(
+        id: 'sub_math',
+        name: 'Mathematics',
+        color: '#3B82F6',
         createdAt: now,
         updatedAt: now,
       );
-      final deletedSub = SubjectEntity(
-        id: 'sub_del',
-        name: 'Deleted',
+      final physicsSub = SubjectEntity(
+        id: 'sub_phys',
+        name: 'Physics',
+        color: '#10B981',
         createdAt: now,
         updatedAt: now,
-        deletedAt: now,
       );
 
-      final allStats = service.computeAllSubjectStats(
-        subjects: [mathSub, physicsSub, inactiveSub, deletedSub],
-        attendanceRecords: [],
-        minPercent: 75.0,
+      test('computeOverallStats combines session and legacy attendance', () {
+        final records = [
+          AttendanceRecordEntity(
+            id: 'r1',
+            date: '2026-11-18',
+            subjectId: 'sub_math',
+            sessionId: 's1',
+            status: AttendanceStatus.present,
+            createdAt: now,
+            updatedAt: now,
+          ),
+          AttendanceRecordEntity(
+            id: 'r2',
+            date: '2026-11-18',
+            subjectId: 'sub_math',
+            sessionId: 's2',
+            status: AttendanceStatus.absent,
+            createdAt: now,
+            updatedAt: now,
+          ),
+          AttendanceRecordEntity(
+            id: 'r3',
+            date: '2026-11-17',
+            subjectId: 'sub_phys',
+            sessionId: 's3',
+            status: AttendanceStatus.present,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        ];
+
+        final legacy = [
+          LegacyAttendanceEntity(
+            id: 'leg_1',
+            date: '2026-11-15',
+            held: 5,
+            attended: 4,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        ];
+
+        final stats = service.computeOverallStats(
+          attendanceRecords: records,
+          legacyAttendance: legacy,
+          minPercent: 75.0,
+        );
+
+        // Present: 1 (r1) + 1 (r3) + 4 (legacy) = 6
+        // Absent: 1 (r2) + 1 (legacy: 5-4) = 2
+        // Conducted: 8
+        // Percentage: 6 / 8 = 75.0%
+        expect(stats.conducted, 8);
+        expect(stats.present, 6);
+        expect(stats.absent, 2);
+        expect(stats.percentage, 75.0);
+        expect(stats.isSafe, isTrue);
+        expect(stats.canMiss, 0);
+        expect(stats.needToAttend, 0);
+      });
+
+      test(
+        'computeSubjectStats filters by subjectId and ignores soft-deleted records',
+        () {
+          final records = [
+            AttendanceRecordEntity(
+              id: 'r1',
+              date: '2026-11-18',
+              subjectId: 'sub_math',
+              sessionId: 's1',
+              status: AttendanceStatus.present,
+              createdAt: now,
+              updatedAt: now,
+            ),
+            AttendanceRecordEntity(
+              id: 'r2',
+              date: '2026-11-18',
+              subjectId: 'sub_math',
+              sessionId: 's2',
+              status: AttendanceStatus.present,
+              createdAt: now,
+              updatedAt: now,
+            ),
+            AttendanceRecordEntity(
+              id: 'r3',
+              date: '2026-11-18',
+              subjectId: 'sub_math',
+              sessionId: 's3',
+              status: AttendanceStatus.absent,
+              createdAt: now,
+              updatedAt: now,
+              deletedAt: now, // deleted!
+            ),
+            AttendanceRecordEntity(
+              id: 'r4',
+              date: '2026-11-18',
+              subjectId: 'sub_phys',
+              sessionId: 's4',
+              status: AttendanceStatus.absent,
+              createdAt: now,
+              updatedAt: now,
+            ),
+          ];
+
+          final mathStats = service.computeSubjectStats(
+            subject: mathSub,
+            attendanceRecords: records,
+            minPercent: 75.0,
+          );
+
+          expect(mathStats.conducted, 2);
+          expect(mathStats.present, 2);
+          expect(mathStats.absent, 0);
+          expect(mathStats.percentage, 100.0);
+          expect(mathStats.isSafe, isTrue);
+
+          final physStats = service.computeSubjectStats(
+            subject: physicsSub,
+            attendanceRecords: records,
+            minPercent: 75.0,
+          );
+
+          expect(physStats.conducted, 1);
+          expect(physStats.present, 0);
+          expect(physStats.absent, 1);
+          expect(physStats.percentage, 0.0);
+          expect(physStats.isSafe, isFalse);
+        },
       );
 
-      expect(allStats.length, 2);
-      expect(allStats[0].subject.id, 'sub_math');
-      expect(allStats[1].subject.id, 'sub_phys');
-    });
-  });
+      test('computeAllSubjectStats filters deleted and inactive subjects', () {
+        final inactiveSub = SubjectEntity(
+          id: 'sub_inact',
+          name: 'Inactive',
+          active: false,
+          createdAt: now,
+          updatedAt: now,
+        );
+        final deletedSub = SubjectEntity(
+          id: 'sub_del',
+          name: 'Deleted',
+          createdAt: now,
+          updatedAt: now,
+          deletedAt: now,
+        );
+
+        final allStats = service.computeAllSubjectStats(
+          subjects: [mathSub, physicsSub, inactiveSub, deletedSub],
+          attendanceRecords: [],
+          minPercent: 75.0,
+        );
+
+        expect(allStats.length, 2);
+        expect(allStats[0].subject.id, 'sub_math');
+        expect(allStats[1].subject.id, 'sub_phys');
+      });
+
+      test(
+        'excludes cancelled/unmarked statuses and declared holidays from conducted attendance',
+        () {
+          final records = [
+            AttendanceRecordEntity(
+              id: 'r1',
+              date: '2026-11-18',
+              subjectId: 'sub_math',
+              sessionId: 's1',
+              status: AttendanceStatus.present,
+              createdAt: now,
+              updatedAt: now,
+            ),
+            AttendanceRecordEntity(
+              id: 'r2',
+              date: '2026-11-19',
+              subjectId: 'sub_math',
+              sessionId: 's1',
+              status: AttendanceStatus.absent,
+              createdAt: now,
+              updatedAt: now,
+            ),
+            AttendanceRecordEntity(
+              id: 'r3',
+              date: '2026-11-19',
+              subjectId: 'sub_math',
+              sessionId: 's2',
+              status: AttendanceStatus.cancelled,
+              createdAt: now,
+              updatedAt: now,
+            ),
+            AttendanceRecordEntity(
+              id: 'r4',
+              date: '2026-11-20', // declared holiday
+              subjectId: 'sub_math',
+              sessionId: 's1',
+              status: AttendanceStatus.absent,
+              createdAt: now,
+              updatedAt: now,
+            ),
+          ];
+
+          final holidays = {'2026-11-20'};
+
+          final overall = service.computeOverallStats(
+            attendanceRecords: records,
+            legacyAttendance: const [],
+            minPercent: 75.0,
+            holidays: holidays,
+          );
+          expect(overall.present, 1);
+          expect(overall.absent, 1);
+          expect(overall.conducted, 2);
+          expect(overall.percentage, 50.0);
+
+          final subject = service.computeSubjectStats(
+            subject: mathSub,
+            attendanceRecords: records,
+            minPercent: 75.0,
+            holidays: holidays,
+          );
+          expect(subject.present, 1);
+          expect(subject.absent, 1);
+          expect(subject.conducted, 2);
+          expect(subject.percentage, 50.0);
+        },
+      );
+    },
+  );
 }

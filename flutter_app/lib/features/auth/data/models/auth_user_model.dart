@@ -13,10 +13,10 @@ class AuthUserModel extends AuthUserEntity {
 
   /// Factory creating an anonymous, offline-first guest model.
   factory AuthUserModel.guest() => const AuthUserModel(
-        id: 'guest',
-        displayName: 'Guest User',
-        isGuest: true,
-      );
+    id: 'guest',
+    displayName: 'Guest User',
+    isGuest: true,
+  );
 
   /// Convert entity to data model.
   factory AuthUserModel.fromEntity(AuthUserEntity entity) {

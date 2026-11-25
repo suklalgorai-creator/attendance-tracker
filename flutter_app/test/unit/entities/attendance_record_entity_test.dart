@@ -15,7 +15,10 @@ void main() {
       expect(AttendanceStatus.fromString('PRESENT'), AttendanceStatus.present);
       expect(AttendanceStatus.fromString('present '), AttendanceStatus.present);
       expect(AttendanceStatus.fromString('ABSENT'), AttendanceStatus.absent);
-      expect(AttendanceStatus.fromString('CANCELLED'), AttendanceStatus.cancelled);
+      expect(
+        AttendanceStatus.fromString('CANCELLED'),
+        AttendanceStatus.cancelled,
+      );
       expect(AttendanceStatus.fromString('INVALID'), AttendanceStatus.unmarked);
       expect(AttendanceStatus.fromString(null), AttendanceStatus.unmarked);
 

@@ -32,7 +32,9 @@ class ViewTogglesWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final ruleColor = isDark ? AppColors.ruleDark : AppColors.ruleLight;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
+    final surfaceColor = isDark
+        ? AppColors.surfaceDark
+        : AppColors.surfaceLight;
     final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
     final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
 
@@ -55,7 +57,10 @@ class ViewTogglesWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6.0),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10.0,
+                    vertical: 4.0,
+                  ),
                   decoration: BoxDecoration(
                     color: isActive ? surfaceColor : Colors.transparent,
                     borderRadius: BorderRadius.circular(6.0),

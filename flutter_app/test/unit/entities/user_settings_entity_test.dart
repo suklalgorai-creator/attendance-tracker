@@ -34,15 +34,9 @@ void main() {
     });
 
     test('verifies equality and hashCode include classDays', () {
-      const s1 = UserSettingsEntity(
-        name: 'John',
-        classDays: [1, 2, 3, 4, 5],
-      );
+      const s1 = UserSettingsEntity(name: 'John', classDays: [1, 2, 3, 4, 5]);
 
-      const s2 = UserSettingsEntity(
-        name: 'John',
-        classDays: [1, 2, 3, 4, 5],
-      );
+      const s2 = UserSettingsEntity(name: 'John', classDays: [1, 2, 3, 4, 5]);
 
       const s3DifferentClassDays = UserSettingsEntity(
         name: 'John',

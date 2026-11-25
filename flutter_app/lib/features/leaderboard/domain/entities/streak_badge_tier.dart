@@ -2,30 +2,10 @@ import 'package:flutter/material.dart';
 
 /// Tier classification for streak-based attendance gamification.
 enum StreakTier {
-  none(
-    name: 'Starter',
-    minDays: 0,
-    color: Color(0xFFA1A1AA),
-    emoji: '🌱',
-  ),
-  bronze(
-    name: 'Bronze',
-    minDays: 3,
-    color: Color(0xFFCD7F32),
-    emoji: '🥉',
-  ),
-  silver(
-    name: 'Silver',
-    minDays: 7,
-    color: Color(0xFFE2E8F0),
-    emoji: '🥈',
-  ),
-  gold(
-    name: 'Gold',
-    minDays: 14,
-    color: Color(0xFFF59E0B),
-    emoji: '🥇',
-  ),
+  none(name: 'Starter', minDays: 0, color: Color(0xFFA1A1AA), emoji: '🌱'),
+  bronze(name: 'Bronze', minDays: 3, color: Color(0xFFCD7F32), emoji: '🥉'),
+  silver(name: 'Silver', minDays: 7, color: Color(0xFFE2E8F0), emoji: '🥈'),
+  gold(name: 'Gold', minDays: 14, color: Color(0xFFF59E0B), emoji: '🥇'),
   platinum(
     name: 'Platinum',
     minDays: 30,

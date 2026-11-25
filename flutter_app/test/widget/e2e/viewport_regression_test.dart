@@ -45,9 +45,12 @@ class ViewportTestSubjectRepo implements SubjectRepository {
   ];
 
   @override
-  Future<List<SubjectEntity>> getSubjects({bool includeDeleted = false}) async => _subjects;
+  Future<List<SubjectEntity>> getSubjects({
+    bool includeDeleted = false,
+  }) async => _subjects;
   @override
-  Stream<List<SubjectEntity>> watchSubjects({bool includeDeleted = false}) => Stream.value(_subjects);
+  Stream<List<SubjectEntity>> watchSubjects({bool includeDeleted = false}) =>
+      Stream.value(_subjects);
   @override
   Future<SubjectEntity?> getSubjectById(String id) async => _subjects.first;
   @override
@@ -75,7 +78,9 @@ void main() {
   }) {
     return ProviderScope(
       overrides: [
-        settingsRepositoryProvider.overrideWithValue(ViewportTestSettingsRepo()),
+        settingsRepositoryProvider.overrideWithValue(
+          ViewportTestSettingsRepo(),
+        ),
         subjectRepositoryProvider.overrideWithValue(ViewportTestSubjectRepo()),
       ],
       child: MaterialApp(
@@ -94,62 +99,85 @@ void main() {
   }
 
   group('Phase 7: Compact Viewport (320px) Regression Audit', () {
-    const compact320 = Size(320, 568); // iPhone SE 1st gen / narrowest mobile width
+    const compact320 = Size(
+      320,
+      568,
+    ); // iPhone SE 1st gen / narrowest mobile width
 
-    testWidgets('DashboardPage renders cleanly without overflow on 320px viewport', (tester) async {
-      await tester.binding.setSurfaceSize(compact320);
-      addTearDown(() => tester.binding.setSurfaceSize(null));
+    testWidgets(
+      'DashboardPage renders cleanly without overflow on 320px viewport',
+      (tester) async {
+        await tester.binding.setSurfaceSize(compact320);
+        addTearDown(() => tester.binding.setSurfaceSize(null));
 
-      await tester.pumpWidget(buildViewportHarness(
-        child: const DashboardPage(),
-        screenSize: compact320,
-      ));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          buildViewportHarness(
+            child: const DashboardPage(),
+            screenSize: compact320,
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-      expect(find.byType(DashboardPage), findsOneWidget);
-    });
+        expect(tester.takeException(), isNull);
+        expect(find.byType(DashboardPage), findsOneWidget);
+      },
+    );
 
-    testWidgets('RegisterPage renders cleanly without overflow on 320px viewport', (tester) async {
-      await tester.binding.setSurfaceSize(compact320);
-      addTearDown(() => tester.binding.setSurfaceSize(null));
+    testWidgets(
+      'RegisterPage renders cleanly without overflow on 320px viewport',
+      (tester) async {
+        await tester.binding.setSurfaceSize(compact320);
+        addTearDown(() => tester.binding.setSurfaceSize(null));
 
-      await tester.pumpWidget(buildViewportHarness(
-        child: const RegisterPage(),
-        screenSize: compact320,
-      ));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          buildViewportHarness(
+            child: const RegisterPage(),
+            screenSize: compact320,
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-      expect(find.byType(RegisterPage), findsOneWidget);
-    });
+        expect(tester.takeException(), isNull);
+        expect(find.byType(RegisterPage), findsOneWidget);
+      },
+    );
 
-    testWidgets('LeaderboardPage renders cleanly without overflow on 320px viewport', (tester) async {
-      await tester.binding.setSurfaceSize(compact320);
-      addTearDown(() => tester.binding.setSurfaceSize(null));
+    testWidgets(
+      'LeaderboardPage renders cleanly without overflow on 320px viewport',
+      (tester) async {
+        await tester.binding.setSurfaceSize(compact320);
+        addTearDown(() => tester.binding.setSurfaceSize(null));
 
-      await tester.pumpWidget(buildViewportHarness(
-        child: const LeaderboardPage(),
-        screenSize: compact320,
-      ));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          buildViewportHarness(
+            child: const LeaderboardPage(),
+            screenSize: compact320,
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-      expect(find.byType(LeaderboardPage), findsOneWidget);
-    });
+        expect(tester.takeException(), isNull);
+        expect(find.byType(LeaderboardPage), findsOneWidget);
+      },
+    );
 
-    testWidgets('SettingsPage renders cleanly without overflow on 320px viewport', (tester) async {
-      await tester.binding.setSurfaceSize(compact320);
-      addTearDown(() => tester.binding.setSurfaceSize(null));
+    testWidgets(
+      'SettingsPage renders cleanly without overflow on 320px viewport',
+      (tester) async {
+        await tester.binding.setSurfaceSize(compact320);
+        addTearDown(() => tester.binding.setSurfaceSize(null));
 
-      await tester.pumpWidget(buildViewportHarness(
-        child: const SettingsPage(),
-        screenSize: compact320,
-      ));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          buildViewportHarness(
+            child: const SettingsPage(),
+            screenSize: compact320,
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-      expect(find.byType(SettingsPage), findsOneWidget);
-    });
+        expect(tester.takeException(), isNull);
+        expect(find.byType(SettingsPage), findsOneWidget);
+      },
+    );
   });
 }

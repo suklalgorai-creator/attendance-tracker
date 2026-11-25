@@ -34,7 +34,10 @@ class ProfileCard extends ConsumerWidget {
     }
 
     final String emailHint;
-    if (user != null && !user.isGuest && user.email != null && user.email!.isNotEmpty) {
+    if (user != null &&
+        !user.isGuest &&
+        user.email != null &&
+        user.email!.isNotEmpty) {
       emailHint = user.email!;
     } else {
       emailHint = 'Not logged in — stored on this device only';
@@ -55,10 +58,7 @@ class ProfileCard extends ConsumerWidget {
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: Text(
-              'Profile',
-              style: AppTypography.cardTitle(paperColor),
-            ),
+            child: Text('Profile', style: AppTypography.cardTitle(paperColor)),
           ),
           const SizedBox(height: 16),
           // 88x88 circular avatar matching React
@@ -68,7 +68,9 @@ class ProfileCard extends ConsumerWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: isDark ? AppColors.glassBorderDark : AppColors.glassBorderLight,
+                color: isDark
+                    ? AppColors.glassBorderDark
+                    : AppColors.glassBorderLight,
                 width: 2.0,
               ),
             ),
@@ -99,10 +101,7 @@ class ProfileCard extends ConsumerWidget {
           Text(
             emailHint,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
-              fontSize: 13,
-              color: mutedColor,
-            ),
+            style: GoogleFonts.outfit(fontSize: 13, color: mutedColor),
           ),
           const SizedBox(height: 24),
           // Responsive button actions
@@ -113,7 +112,9 @@ class ProfileCard extends ConsumerWidget {
 
               final authBtn = AppButton(
                 label: isLogged ? 'Log Out' : 'Sign In to Sync',
-                variant: isLogged ? AppButtonVariant.ghost : AppButtonVariant.present,
+                variant: isLogged
+                    ? AppButtonVariant.ghost
+                    : AppButtonVariant.present,
                 isWide: isNarrow,
                 onPressed: () {
                   if (isLogged) {
@@ -125,18 +126,10 @@ class ProfileCard extends ConsumerWidget {
               );
 
               if (isNarrow) {
-                return Column(
-                  children: [
-                    authBtn,
-                  ],
-                );
+                return Column(children: [authBtn]);
               }
 
-              return Row(
-                children: [
-                  Expanded(child: authBtn),
-                ],
-              );
+              return Row(children: [Expanded(child: authBtn)]);
             },
           ),
         ],

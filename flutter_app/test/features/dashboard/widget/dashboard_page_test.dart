@@ -38,7 +38,9 @@ class FakeAttendanceRepo implements AttendanceRepository {
   }
 
   @override
-  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({bool includeDeleted = false}) {
+  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({
+    bool includeDeleted = false,
+  }) {
     return recordsController.stream;
   }
 
@@ -49,17 +51,26 @@ class FakeAttendanceRepo implements AttendanceRepository {
   Future<void> deleteLegacyAttendance(String id) async {}
 
   @override
-  Future<List<AttendanceRecordEntity>> getAttendanceRecords({bool includeDeleted = false}) async =>
-      List.from(saved);
+  Future<List<AttendanceRecordEntity>> getAttendanceRecords({
+    bool includeDeleted = false,
+  }) async => List.from(saved);
 
   @override
-  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({bool includeDeleted = false}) async => [];
+  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({
+    bool includeDeleted = false,
+  }) async => [];
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForDate(String date, {bool includeDeleted = false}) async => [];
+  Future<List<AttendanceRecordEntity>> getRecordsForDate(
+    String date, {
+    bool includeDeleted = false,
+  }) async => [];
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForSubject(String subjectId, {bool includeDeleted = false}) async => [];
+  Future<List<AttendanceRecordEntity>> getRecordsForSubject(
+    String subjectId, {
+    bool includeDeleted = false,
+  }) async => [];
 
   @override
   Future<void> hardDeleteAttendanceRecord(String id) async {}
@@ -74,7 +85,9 @@ class FakeAttendanceRepo implements AttendanceRepository {
   Future<void> restoreLegacyAttendance(String id) async {}
 
   @override
-  Future<void> saveAttendanceRecords(List<AttendanceRecordEntity> records) async {
+  Future<void> saveAttendanceRecords(
+    List<AttendanceRecordEntity> records,
+  ) async {
     saved.addAll(records);
     recordsController.add(List.from(saved));
   }
@@ -83,11 +96,14 @@ class FakeAttendanceRepo implements AttendanceRepository {
   Future<void> saveLegacyAttendance(LegacyAttendanceEntity record) async {}
 
   @override
-  Future<void> saveLegacyAttendances(List<LegacyAttendanceEntity> records) async {}
+  Future<void> saveLegacyAttendances(
+    List<LegacyAttendanceEntity> records,
+  ) async {}
 
   @override
-  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({bool includeDeleted = false}) =>
-      Stream.value([]);
+  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({
+    bool includeDeleted = false,
+  }) => Stream.value([]);
 }
 
 Widget _wrapPage({
@@ -99,9 +115,7 @@ Widget _wrapPage({
     child: MaterialApp(
       darkTheme: ThemeData.dark(),
       themeMode: ThemeMode.dark,
-      home: Scaffold(
-        body: DashboardPage(onAddSubject: onAddSubject),
-      ),
+      home: Scaffold(body: DashboardPage(onAddSubject: onAddSubject)),
     ),
   );
 }
@@ -145,44 +159,65 @@ void main() {
   }
 
   group('DashboardPage Widget Tests', () {
-    testWidgets('Renders Dashboard title exactly once, Program subtitle, OverviewCard, and AdvisorBanner', (tester) async {
-      setTallScreen(tester);
-      final fakeRepo = FakeAttendanceRepo();
+    testWidgets(
+      'Renders Dashboard title exactly once, Program subtitle, OverviewCard, and AdvisorBanner',
+      (tester) async {
+        setTallScreen(tester);
+        final fakeRepo = FakeAttendanceRepo();
 
-      await tester.pumpWidget(_wrapPage(
-        overrides: [
-          attendanceRepositoryProvider.overrideWithValue(fakeRepo),
-          subjectsStreamProvider.overrideWith((ref) => Stream.value([])),
-          attendanceRecordsStreamProvider.overrideWith((ref) => Stream.value([])),
-          legacyAttendanceStreamProvider.overrideWith((ref) => Stream.value([])),
-          settingsStreamProvider.overrideWith((ref) => Stream.value(testSettings)),
-        ],
-      ));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          _wrapPage(
+            overrides: [
+              attendanceRepositoryProvider.overrideWithValue(fakeRepo),
+              subjectsStreamProvider.overrideWith((ref) => Stream.value([])),
+              attendanceRecordsStreamProvider.overrideWith(
+                (ref) => Stream.value([]),
+              ),
+              legacyAttendanceStreamProvider.overrideWith(
+                (ref) => Stream.value([]),
+              ),
+              settingsStreamProvider.overrideWith(
+                (ref) => Stream.value(testSettings),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // CRITICAL: Text 'Dashboard' must be found exactly once for app_router_test compatibility
-      expect(find.text('Dashboard'), findsOneWidget);
-      expect(find.text('Computer Science & Engineering'), findsOneWidget);
-      expect(find.byType(OverviewCard), findsOneWidget);
-      expect(find.byType(AdvisorBanner), findsOneWidget);
-      expect(find.text('Quick Attendance'), findsOneWidget);
-    });
+        // CRITICAL: Text 'Dashboard' must be found exactly once for app_router_test compatibility
+        expect(find.text('Dashboard'), findsOneWidget);
+        expect(find.text('Computer Science & Engineering'), findsOneWidget);
+        expect(find.byType(OverviewCard), findsOneWidget);
+        expect(find.byType(AdvisorBanner), findsOneWidget);
+        expect(find.text('Quick Attendance'), findsOneWidget);
+      },
+    );
 
-    testWidgets('Renders EmptyDashboardView when no subjects exist', (tester) async {
+    testWidgets('Renders EmptyDashboardView when no subjects exist', (
+      tester,
+    ) async {
       setTallScreen(tester);
       final fakeRepo = FakeAttendanceRepo();
       var addCalled = false;
 
-      await tester.pumpWidget(_wrapPage(
-        overrides: [
-          attendanceRepositoryProvider.overrideWithValue(fakeRepo),
-          subjectsStreamProvider.overrideWith((ref) => Stream.value([])),
-          attendanceRecordsStreamProvider.overrideWith((ref) => Stream.value([])),
-          legacyAttendanceStreamProvider.overrideWith((ref) => Stream.value([])),
-          settingsStreamProvider.overrideWith((ref) => Stream.value(testSettings)),
-        ],
-        onAddSubject: () => addCalled = true,
-      ));
+      await tester.pumpWidget(
+        _wrapPage(
+          overrides: [
+            attendanceRepositoryProvider.overrideWithValue(fakeRepo),
+            subjectsStreamProvider.overrideWith((ref) => Stream.value([])),
+            attendanceRecordsStreamProvider.overrideWith(
+              (ref) => Stream.value([]),
+            ),
+            legacyAttendanceStreamProvider.overrideWith(
+              (ref) => Stream.value([]),
+            ),
+            settingsStreamProvider.overrideWith(
+              (ref) => Stream.value(testSettings),
+            ),
+          ],
+          onAddSubject: () => addCalled = true,
+        ),
+      );
       await tester.pumpAndSettle();
 
       expect(find.byType(EmptyDashboardView), findsOneWidget);
@@ -193,19 +228,31 @@ void main() {
       expect(addCalled, isTrue);
     });
 
-    testWidgets('Renders QuickActionSubjectCard for each active subject', (tester) async {
+    testWidgets('Renders QuickActionSubjectCard for each active subject', (
+      tester,
+    ) async {
       setTallScreen(tester);
       final fakeRepo = FakeAttendanceRepo();
 
-      await tester.pumpWidget(_wrapPage(
-        overrides: [
-          attendanceRepositoryProvider.overrideWithValue(fakeRepo),
-          subjectsStreamProvider.overrideWith((ref) => Stream.value([testSubject1, testSubject2])),
-          attendanceRecordsStreamProvider.overrideWith((ref) => Stream.value([])),
-          legacyAttendanceStreamProvider.overrideWith((ref) => Stream.value([])),
-          settingsStreamProvider.overrideWith((ref) => Stream.value(testSettings)),
-        ],
-      ));
+      await tester.pumpWidget(
+        _wrapPage(
+          overrides: [
+            attendanceRepositoryProvider.overrideWithValue(fakeRepo),
+            subjectsStreamProvider.overrideWith(
+              (ref) => Stream.value([testSubject1, testSubject2]),
+            ),
+            attendanceRecordsStreamProvider.overrideWith(
+              (ref) => Stream.value([]),
+            ),
+            legacyAttendanceStreamProvider.overrideWith(
+              (ref) => Stream.value([]),
+            ),
+            settingsStreamProvider.overrideWith(
+              (ref) => Stream.value(testSettings),
+            ),
+          ],
+        ),
+      );
       await tester.pumpAndSettle();
 
       expect(find.byType(EmptyDashboardView), findsNothing);
@@ -221,7 +268,8 @@ void main() {
       // Attended today Wednesday 2026-11-18
       final record = AttendanceRecordEntity(
         id: 'rec_1',
-        date: '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}',
+        date:
+            '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}',
         subjectId: 'sub_math',
         sessionId: 'sess_1',
         status: AttendanceStatus.present,
@@ -229,175 +277,237 @@ void main() {
         updatedAt: now,
       );
 
-      await tester.pumpWidget(_wrapPage(
-        overrides: [
-          attendanceRepositoryProvider.overrideWithValue(fakeRepo),
-          subjectsStreamProvider.overrideWith((ref) => Stream.value([testSubject1])),
-          attendanceRecordsStreamProvider.overrideWith((ref) => Stream.value([record])),
-          legacyAttendanceStreamProvider.overrideWith((ref) => Stream.value([])),
-          settingsStreamProvider.overrideWith((ref) => Stream.value(testSettings)),
-        ],
-      ));
+      await tester.pumpWidget(
+        _wrapPage(
+          overrides: [
+            attendanceRepositoryProvider.overrideWithValue(fakeRepo),
+            subjectsStreamProvider.overrideWith(
+              (ref) => Stream.value([testSubject1]),
+            ),
+            attendanceRecordsStreamProvider.overrideWith(
+              (ref) => Stream.value([record]),
+            ),
+            legacyAttendanceStreamProvider.overrideWith(
+              (ref) => Stream.value([]),
+            ),
+            settingsStreamProvider.overrideWith(
+              (ref) => Stream.value(testSettings),
+            ),
+          ],
+        ),
+      );
       await tester.pumpAndSettle();
 
       expect(find.byType(StreakBadge), findsOneWidget);
       expect(find.text('🔥'), findsOneWidget);
     });
 
-    testWidgets('Tapping + Present logs attendance and displays SnackBar with Undo action', (tester) async {
-      setTallScreen(tester);
-      final fakeRepo = FakeAttendanceRepo();
+    testWidgets(
+      'Tapping + Present logs attendance and displays SnackBar with Undo action',
+      (tester) async {
+        setTallScreen(tester);
+        final fakeRepo = FakeAttendanceRepo();
 
-      await tester.pumpWidget(_wrapPage(
-        overrides: [
-          attendanceRepositoryProvider.overrideWithValue(fakeRepo),
-          subjectsStreamProvider.overrideWith((ref) => Stream.value([testSubject1])),
-          attendanceRecordsStreamProvider.overrideWith((ref) => Stream.value([])),
-          legacyAttendanceStreamProvider.overrideWith((ref) => Stream.value([])),
-          settingsStreamProvider.overrideWith((ref) => Stream.value(testSettings)),
-        ],
-      ));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          _wrapPage(
+            overrides: [
+              attendanceRepositoryProvider.overrideWithValue(fakeRepo),
+              subjectsStreamProvider.overrideWith(
+                (ref) => Stream.value([testSubject1]),
+              ),
+              attendanceRecordsStreamProvider.overrideWith(
+                (ref) => Stream.value([]),
+              ),
+              legacyAttendanceStreamProvider.overrideWith(
+                (ref) => Stream.value([]),
+              ),
+              settingsStreamProvider.overrideWith(
+                (ref) => Stream.value(testSettings),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Tap + Present on Mathematics card
-      await tester.tap(find.text('+ Present'));
-      await tester.pumpAndSettle();
+        // Tap + Present on Mathematics card
+        await tester.tap(find.text('+ Present'));
+        await tester.pumpAndSettle();
 
-      expect(fakeRepo.saved.length, 1);
-      final recordedId = fakeRepo.saved.first.id;
-      expect(fakeRepo.saved.first.subjectId, 'sub_math');
-      expect(fakeRepo.saved.first.status, AttendanceStatus.present);
+        expect(fakeRepo.saved.length, 1);
+        final recordedId = fakeRepo.saved.first.id;
+        expect(fakeRepo.saved.first.subjectId, 'sub_math');
+        expect(fakeRepo.saved.first.status, AttendanceStatus.present);
 
-      // Verify SnackBar shown
-      expect(find.text('Marked Mathematics as Present'), findsOneWidget);
-      expect(find.text('Undo'), findsOneWidget);
+        // Verify SnackBar shown
+        expect(find.text('Marked Mathematics as Present'), findsOneWidget);
+        expect(find.text('Undo'), findsOneWidget);
 
-      // Tap Undo in SnackBar
-      await tester.tap(find.text('Undo'));
-      await tester.pumpAndSettle();
+        // Tap Undo in SnackBar
+        await tester.tap(find.text('Undo'));
+        await tester.pumpAndSettle();
 
-      expect(fakeRepo.deleted, contains(recordedId));
-    });
+        expect(fakeRepo.deleted, contains(recordedId));
+      },
+    );
 
-    testWidgets('Tapping - Absent logs absent attendance and displays SnackBar with Undo action', (tester) async {
-      setTallScreen(tester);
-      final fakeRepo = FakeAttendanceRepo();
+    testWidgets(
+      'Tapping - Absent logs absent attendance and displays SnackBar with Undo action',
+      (tester) async {
+        setTallScreen(tester);
+        final fakeRepo = FakeAttendanceRepo();
 
-      await tester.pumpWidget(_wrapPage(
-        overrides: [
-          attendanceRepositoryProvider.overrideWithValue(fakeRepo),
-          subjectsStreamProvider.overrideWith((ref) => Stream.value([testSubject1])),
-          attendanceRecordsStreamProvider.overrideWith((ref) => Stream.value([])),
-          legacyAttendanceStreamProvider.overrideWith((ref) => Stream.value([])),
-          settingsStreamProvider.overrideWith((ref) => Stream.value(testSettings)),
-        ],
-      ));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          _wrapPage(
+            overrides: [
+              attendanceRepositoryProvider.overrideWithValue(fakeRepo),
+              subjectsStreamProvider.overrideWith(
+                (ref) => Stream.value([testSubject1]),
+              ),
+              attendanceRecordsStreamProvider.overrideWith(
+                (ref) => Stream.value([]),
+              ),
+              legacyAttendanceStreamProvider.overrideWith(
+                (ref) => Stream.value([]),
+              ),
+              settingsStreamProvider.overrideWith(
+                (ref) => Stream.value(testSettings),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Tap - Absent on Mathematics card
-      await tester.tap(find.text('- Absent'));
-      await tester.pumpAndSettle();
+        // Tap - Absent on Mathematics card
+        await tester.tap(find.text('- Absent'));
+        await tester.pumpAndSettle();
 
-      expect(fakeRepo.saved.length, 1);
-      final recordedId = fakeRepo.saved.first.id;
-      expect(fakeRepo.saved.first.subjectId, 'sub_math');
-      expect(fakeRepo.saved.first.status, AttendanceStatus.absent);
+        expect(fakeRepo.saved.length, 1);
+        final recordedId = fakeRepo.saved.first.id;
+        expect(fakeRepo.saved.first.subjectId, 'sub_math');
+        expect(fakeRepo.saved.first.status, AttendanceStatus.absent);
 
-      // Verify SnackBar shown
-      expect(find.text('Marked Mathematics as Absent'), findsOneWidget);
-      expect(find.text('Undo'), findsOneWidget);
+        // Verify SnackBar shown
+        expect(find.text('Marked Mathematics as Absent'), findsOneWidget);
+        expect(find.text('Undo'), findsOneWidget);
 
-      // Tap Undo in SnackBar
-      await tester.tap(find.text('Undo'));
-      await tester.pumpAndSettle();
+        // Tap Undo in SnackBar
+        await tester.tap(find.text('Undo'));
+        await tester.pumpAndSettle();
 
-      expect(fakeRepo.deleted, contains(recordedId));
-    });
+        expect(fakeRepo.deleted, contains(recordedId));
+      },
+    );
 
-    testWidgets('Renders cleanly without overflow on compact mobile viewport Size(320, 568)', (tester) async {
-      tester.view.physicalSize = const Size(320, 568);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets(
+      'Renders cleanly without overflow on compact mobile viewport Size(320, 568)',
+      (tester) async {
+        tester.view.physicalSize = const Size(320, 568);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-      final fakeRepo = FakeAttendanceRepo();
-      final records = List.generate(
-        10,
-        (i) => AttendanceRecordEntity(
-          id: 'rec_$i',
-          date: '2026-11-${(i + 1).toString().padLeft(2, '0')}',
-          subjectId: 'sub_math',
-          sessionId: 'sess_$i',
-          status: i < 9 ? AttendanceStatus.present : AttendanceStatus.absent,
-          createdAt: now,
-          updatedAt: now,
-        ),
-      );
+        final fakeRepo = FakeAttendanceRepo();
+        final records = List.generate(
+          10,
+          (i) => AttendanceRecordEntity(
+            id: 'rec_$i',
+            date: '2026-11-${(i + 1).toString().padLeft(2, '0')}',
+            subjectId: 'sub_math',
+            sessionId: 'sess_$i',
+            status: i < 9 ? AttendanceStatus.present : AttendanceStatus.absent,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
 
-      await tester.pumpWidget(_wrapPage(
-        overrides: [
-          attendanceRepositoryProvider.overrideWithValue(fakeRepo),
-          subjectsStreamProvider.overrideWith((ref) => Stream.value([testSubject1, testSubject2])),
-          attendanceRecordsStreamProvider.overrideWith((ref) => Stream.value(records)),
-          legacyAttendanceStreamProvider.overrideWith((ref) => Stream.value([])),
-          settingsStreamProvider.overrideWith((ref) => Stream.value(testSettings)),
-        ],
-      ));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          _wrapPage(
+            overrides: [
+              attendanceRepositoryProvider.overrideWithValue(fakeRepo),
+              subjectsStreamProvider.overrideWith(
+                (ref) => Stream.value([testSubject1, testSubject2]),
+              ),
+              attendanceRecordsStreamProvider.overrideWith(
+                (ref) => Stream.value(records),
+              ),
+              legacyAttendanceStreamProvider.overrideWith(
+                (ref) => Stream.value([]),
+              ),
+              settingsStreamProvider.overrideWith(
+                (ref) => Stream.value(testSettings),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-      expect(find.text('Dashboard'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        expect(find.text('Dashboard'), findsOneWidget);
 
-      await tester.scrollUntilVisible(find.text('Quick Attendance'), 100);
-      await tester.pumpAndSettle();
+        await tester.scrollUntilVisible(find.text('Quick Attendance'), 100);
+        await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-      expect(find.text('Quick Attendance'), findsOneWidget);
-      expect(find.text('2 subjects'), findsOneWidget);
-      expect(find.byType(QuickActionSubjectCard), findsWidgets);
-    });
+        expect(tester.takeException(), isNull);
+        expect(find.text('Quick Attendance'), findsOneWidget);
+        expect(find.text('2 subjects'), findsOneWidget);
+        expect(find.byType(QuickActionSubjectCard), findsWidgets);
+      },
+    );
 
-    testWidgets('Renders cleanly without overflow on compact mobile viewport Size(360, 640)', (tester) async {
-      tester.view.physicalSize = const Size(360, 640);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets(
+      'Renders cleanly without overflow on compact mobile viewport Size(360, 640)',
+      (tester) async {
+        tester.view.physicalSize = const Size(360, 640);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-      final fakeRepo = FakeAttendanceRepo();
-      final records = List.generate(
-        10,
-        (i) => AttendanceRecordEntity(
-          id: 'rec_$i',
-          date: '2026-11-${(i + 1).toString().padLeft(2, '0')}',
-          subjectId: 'sub_math',
-          sessionId: 'sess_$i',
-          status: i < 9 ? AttendanceStatus.present : AttendanceStatus.absent,
-          createdAt: now,
-          updatedAt: now,
-        ),
-      );
+        final fakeRepo = FakeAttendanceRepo();
+        final records = List.generate(
+          10,
+          (i) => AttendanceRecordEntity(
+            id: 'rec_$i',
+            date: '2026-11-${(i + 1).toString().padLeft(2, '0')}',
+            subjectId: 'sub_math',
+            sessionId: 'sess_$i',
+            status: i < 9 ? AttendanceStatus.present : AttendanceStatus.absent,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
 
-      await tester.pumpWidget(_wrapPage(
-        overrides: [
-          attendanceRepositoryProvider.overrideWithValue(fakeRepo),
-          subjectsStreamProvider.overrideWith((ref) => Stream.value([testSubject1, testSubject2])),
-          attendanceRecordsStreamProvider.overrideWith((ref) => Stream.value(records)),
-          legacyAttendanceStreamProvider.overrideWith((ref) => Stream.value([])),
-          settingsStreamProvider.overrideWith((ref) => Stream.value(testSettings)),
-        ],
-      ));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          _wrapPage(
+            overrides: [
+              attendanceRepositoryProvider.overrideWithValue(fakeRepo),
+              subjectsStreamProvider.overrideWith(
+                (ref) => Stream.value([testSubject1, testSubject2]),
+              ),
+              attendanceRecordsStreamProvider.overrideWith(
+                (ref) => Stream.value(records),
+              ),
+              legacyAttendanceStreamProvider.overrideWith(
+                (ref) => Stream.value([]),
+              ),
+              settingsStreamProvider.overrideWith(
+                (ref) => Stream.value(testSettings),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-      expect(find.text('Dashboard'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        expect(find.text('Dashboard'), findsOneWidget);
 
-      await tester.scrollUntilVisible(find.text('Quick Attendance'), 100);
-      await tester.pumpAndSettle();
+        await tester.scrollUntilVisible(find.text('Quick Attendance'), 100);
+        await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-      expect(find.text('Quick Attendance'), findsOneWidget);
-      expect(find.text('2 subjects'), findsOneWidget);
-      expect(find.byType(QuickActionSubjectCard), findsWidgets);
-    });
+        expect(tester.takeException(), isNull);
+        expect(find.text('Quick Attendance'), findsOneWidget);
+        expect(find.text('2 subjects'), findsOneWidget);
+        expect(find.byType(QuickActionSubjectCard), findsWidgets);
+      },
+    );
   });
 }

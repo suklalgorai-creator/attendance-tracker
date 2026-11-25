@@ -22,7 +22,9 @@ class DialogTestSubjectRepository implements SubjectRepository {
   }
 
   @override
-  Stream<List<SubjectEntity>> watchSubjects({bool includeDeleted = false}) async* {
+  Stream<List<SubjectEntity>> watchSubjects({
+    bool includeDeleted = false,
+  }) async* {
     yield List.from(subjects);
     yield* _controller.stream;
   }
@@ -107,9 +109,7 @@ void main() {
     VoidCallback? onDeleted,
   }) {
     return ProviderScope(
-      overrides: [
-        subjectRepositoryProvider.overrideWithValue(repository),
-      ],
+      overrides: [subjectRepositoryProvider.overrideWithValue(repository)],
       child: MaterialApp(
         home: Scaffold(
           body: SubjectDialog(
@@ -137,7 +137,9 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
     }
 
-    testWidgets('Renders in Add Mode with empty fields and no delete button', (tester) async {
+    testWidgets('Renders in Add Mode with empty fields and no delete button', (
+      tester,
+    ) async {
       setTallScreen(tester);
 
       await tester.pumpWidget(createTestWidget(repository: repository));
@@ -154,30 +156,35 @@ void main() {
       expect(find.byKey(const Key('delete_subject_button')), findsNothing);
     });
 
-    testWidgets('Renders in Edit Mode with pre-populated fields and delete button', (tester) async {
-      setTallScreen(tester);
+    testWidgets(
+      'Renders in Edit Mode with pre-populated fields and delete button',
+      (tester) async {
+        setTallScreen(tester);
 
-      final subject = SubjectEntity(
-        id: 'sub_edit',
-        name: 'Calculus III',
-        code: 'MATH301',
-        color: '#3B82F6',
-        icon: 'calculate',
-        targetPercentage: 85.0,
-        createdAt: now,
-        updatedAt: now,
-      );
+        final subject = SubjectEntity(
+          id: 'sub_edit',
+          name: 'Calculus III',
+          code: 'MATH301',
+          color: '#3B82F6',
+          icon: 'calculate',
+          targetPercentage: 85.0,
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      await tester.pumpWidget(createTestWidget(repository: repository, subject: subject));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createTestWidget(repository: repository, subject: subject),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Edit Subject'), findsOneWidget);
-      expect(find.text('Calculus III'), findsOneWidget);
-      expect(find.text('MATH301'), findsOneWidget);
-      expect(find.text('Update'), findsOneWidget);
-      expect(find.byKey(const Key('delete_subject_button')), findsOneWidget);
-      expect(find.text('85%'), findsWidgets);
-    });
+        expect(find.text('Edit Subject'), findsOneWidget);
+        expect(find.text('Calculus III'), findsOneWidget);
+        expect(find.text('MATH301'), findsOneWidget);
+        expect(find.text('Update'), findsOneWidget);
+        expect(find.byKey(const Key('delete_subject_button')), findsOneWidget);
+        expect(find.text('85%'), findsWidgets);
+      },
+    );
 
     testWidgets('Validation: empty name triggers inline error', (tester) async {
       setTallScreen(tester);
@@ -193,7 +200,9 @@ void main() {
       expect(repository.subjects.isEmpty, isTrue);
     });
 
-    testWidgets('Color palette: selecting swatch updates chosen color', (tester) async {
+    testWidgets('Color palette: selecting swatch updates chosen color', (
+      tester,
+    ) async {
       setTallScreen(tester);
 
       await tester.pumpWidget(createTestWidget(repository: repository));
@@ -206,7 +215,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Enter name and save
-      await tester.enterText(find.byKey(const Key('subject_name_field')), 'Operating Systems');
+      await tester.enterText(
+        find.byKey(const Key('subject_name_field')),
+        'Operating Systems',
+      );
       await tester.tap(find.byKey(const Key('save_subject_button')));
       await tester.pumpAndSettle();
 
@@ -214,7 +226,9 @@ void main() {
       expect(repository.subjects.first.color, '#3B82F6');
     });
 
-    testWidgets('Icon selector: selecting icon updates chosen icon', (tester) async {
+    testWidgets('Icon selector: selecting icon updates chosen icon', (
+      tester,
+    ) async {
       setTallScreen(tester);
 
       await tester.pumpWidget(createTestWidget(repository: repository));
@@ -226,7 +240,10 @@ void main() {
       await tester.tap(computerIcon);
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.byKey(const Key('subject_name_field')), 'Web Engineering');
+      await tester.enterText(
+        find.byKey(const Key('subject_name_field')),
+        'Web Engineering',
+      );
       await tester.tap(find.byKey(const Key('save_subject_button')));
       await tester.pumpAndSettle();
 
@@ -234,61 +251,77 @@ void main() {
       expect(repository.subjects.first.icon, 'computer');
     });
 
-    testWidgets('Custom target toggle enables slider and saves target percentage', (tester) async {
-      setTallScreen(tester);
+    testWidgets(
+      'Custom target toggle enables slider and saves target percentage',
+      (tester) async {
+        setTallScreen(tester);
 
-      await tester.pumpWidget(createTestWidget(repository: repository));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(createTestWidget(repository: repository));
+        await tester.pumpAndSettle();
 
-      // Initially target slider is not visible
-      expect(find.byKey(const Key('target_slider')), findsNothing);
+        // Initially target slider is not visible
+        expect(find.byKey(const Key('target_slider')), findsNothing);
 
-      // Toggle switch on
-      await tester.tap(find.byKey(const Key('custom_target_toggle')));
-      await tester.pumpAndSettle();
+        // Toggle switch on
+        await tester.tap(find.byKey(const Key('custom_target_toggle')));
+        await tester.pumpAndSettle();
 
-      // Target slider is now visible
-      expect(find.byKey(const Key('target_slider')), findsOneWidget);
+        // Target slider is now visible
+        expect(find.byKey(const Key('target_slider')), findsOneWidget);
 
-      await tester.enterText(find.byKey(const Key('subject_name_field')), 'Linear Algebra');
-      await tester.tap(find.byKey(const Key('save_subject_button')));
-      await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const Key('subject_name_field')),
+          'Linear Algebra',
+        );
+        await tester.tap(find.byKey(const Key('save_subject_button')));
+        await tester.pumpAndSettle();
 
-      expect(repository.subjects.length, 1);
-      expect(repository.subjects.first.targetPercentage, 75.0);
-    });
+        expect(repository.subjects.length, 1);
+        expect(repository.subjects.first.targetPercentage, 75.0);
+      },
+    );
 
-    testWidgets('Tapping Delete opens confirmation dialog; cancel dismisses dialog', (tester) async {
-      setTallScreen(tester);
+    testWidgets(
+      'Tapping Delete opens confirmation dialog; cancel dismisses dialog',
+      (tester) async {
+        setTallScreen(tester);
 
-      final subject = SubjectEntity(
-        id: 'sub_del',
-        name: 'Chemistry',
-        createdAt: now,
-        updatedAt: now,
-      );
-      await repository.saveSubject(subject);
+        final subject = SubjectEntity(
+          id: 'sub_del',
+          name: 'Chemistry',
+          createdAt: now,
+          updatedAt: now,
+        );
+        await repository.saveSubject(subject);
 
-      await tester.pumpWidget(createTestWidget(repository: repository, subject: subject));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createTestWidget(repository: repository, subject: subject),
+        );
+        await tester.pumpAndSettle();
 
-      // Tap Delete button
-      await tester.tap(find.byKey(const Key('delete_subject_button')));
-      await tester.pumpAndSettle();
+        // Tap Delete button
+        await tester.tap(find.byKey(const Key('delete_subject_button')));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Delete Subject'), findsWidgets);
-      expect(find.textContaining('Are you sure you want to delete "Chemistry"?'), findsOneWidget);
+        expect(find.text('Delete Subject'), findsWidgets);
+        expect(
+          find.textContaining('Are you sure you want to delete "Chemistry"?'),
+          findsOneWidget,
+        );
 
-      // Tap Cancel in confirmation dialog
-      await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
-      await tester.pumpAndSettle();
+        // Tap Cancel in confirmation dialog
+        await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+        await tester.pumpAndSettle();
 
-      // Subject was not deleted
-      final active = await repository.getSubjects();
-      expect(active.length, 1);
-    });
+        // Subject was not deleted
+        final active = await repository.getSubjects();
+        expect(active.length, 1);
+      },
+    );
 
-    testWidgets('Tapping Delete and confirming performs soft-delete', (tester) async {
+    testWidgets('Tapping Delete and confirming performs soft-delete', (
+      tester,
+    ) async {
       setTallScreen(tester);
 
       final subject = SubjectEntity(
@@ -301,11 +334,13 @@ void main() {
 
       bool deletedCallbackCalled = false;
 
-      await tester.pumpWidget(createTestWidget(
-        repository: repository,
-        subject: subject,
-        onDeleted: () => deletedCallbackCalled = true,
-      ));
+      await tester.pumpWidget(
+        createTestWidget(
+          repository: repository,
+          subject: subject,
+          onDeleted: () => deletedCallbackCalled = true,
+        ),
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(const Key('delete_subject_button')));
@@ -322,25 +357,30 @@ void main() {
       expect(all.first.isDeleted, isTrue);
     });
 
-    testWidgets('Responsive rendering: does not overflow on compact viewport Size(320, 568)', (tester) async {
-      tester.view.physicalSize = const Size(320, 568);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets(
+      'Responsive rendering: does not overflow on compact viewport Size(320, 568)',
+      (tester) async {
+        tester.view.physicalSize = const Size(320, 568);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-      final subject = SubjectEntity(
-        id: 'sub_compact',
-        name: 'Algorithms',
-        targetPercentage: 80.0,
-        createdAt: now,
-        updatedAt: now,
-      );
+        final subject = SubjectEntity(
+          id: 'sub_compact',
+          name: 'Algorithms',
+          targetPercentage: 80.0,
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      await tester.pumpWidget(createTestWidget(repository: repository, subject: subject));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createTestWidget(repository: repository, subject: subject),
+        );
+        await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-      expect(find.text('Edit Subject'), findsOneWidget);
-    });
+        expect(tester.takeException(), isNull);
+        expect(find.text('Edit Subject'), findsOneWidget);
+      },
+    );
   });
 }

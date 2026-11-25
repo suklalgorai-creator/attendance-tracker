@@ -10,7 +10,12 @@ void main() {
     LegacyAttendanceEntity? legacyRecord,
     bool isToday = false,
     bool isHoliday = false,
-    void Function({required String date, required int held, required int attended})? onSaveDaily,
+    void Function({
+      required String date,
+      required int held,
+      required int attended,
+    })?
+    onSaveDaily,
     void Function(String id)? onDeleteDaily,
     Brightness brightness = Brightness.dark,
     double width = 400.0,
@@ -26,7 +31,9 @@ void main() {
               legacyRecord: legacyRecord,
               isToday: isToday,
               isHoliday: isHoliday,
-              onSaveDaily: onSaveDaily ?? ({required date, required held, required attended}) {},
+              onSaveDaily:
+                  onSaveDaily ??
+                  ({required date, required held, required attended}) {},
               onDeleteDaily: onDeleteDaily ?? (_) {},
             ),
           ),
@@ -37,20 +44,19 @@ void main() {
 
   group('DayRow Status Display (All 7 States)', () {
     testWidgets('renders "Holiday" status when isHoliday=true', (tester) async {
-      await tester.pumpWidget(buildTestableWidget(
-        dateStr: '2026-11-10',
-        isHoliday: true,
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(dateStr: '2026-11-10', isHoliday: true),
+      );
 
       expect(find.text('Holiday'), findsOneWidget);
       expect(find.text('DAILY ATTENDANCE'), findsNothing);
     });
 
-    testWidgets('renders "Upcoming" status and 65% opacity for future date', (tester) async {
+    testWidgets('renders "Upcoming" status and 65% opacity for future date', (
+      tester,
+    ) async {
       final futureDate = AppDateUtils.addDays(AppDateUtils.todayStr(), 5)!;
-      await tester.pumpWidget(buildTestableWidget(
-        dateStr: futureDate,
-      ));
+      await tester.pumpWidget(buildTestableWidget(dateStr: futureDate));
 
       expect(find.text('Upcoming'), findsOneWidget);
       expect(find.text('DAILY ATTENDANCE'), findsNothing);
@@ -61,17 +67,21 @@ void main() {
       expect(opacityWidget.opacity, equals(0.65));
     });
 
-    testWidgets('renders "Not marked" status for past date with no legacy record', (tester) async {
-      await tester.pumpWidget(buildTestableWidget(
-        dateStr: '2026-10-15',
-        legacyRecord: null,
-      ));
+    testWidgets(
+      'renders "Not marked" status for past date with no legacy record',
+      (tester) async {
+        await tester.pumpWidget(
+          buildTestableWidget(dateStr: '2026-10-15', legacyRecord: null),
+        );
 
-      expect(find.text('Not marked'), findsOneWidget);
-      expect(find.text('DAILY ATTENDANCE'), findsOneWidget);
-    });
+        expect(find.text('Not marked'), findsOneWidget);
+        expect(find.text('DAILY ATTENDANCE'), findsOneWidget);
+      },
+    );
 
-    testWidgets('renders "Holiday / No class" status when held=0', (tester) async {
+    testWidgets('renders "Holiday / No class" status when held=0', (
+      tester,
+    ) async {
       final record = LegacyAttendanceEntity(
         id: 'daily-2026-10-15',
         date: '2026-10-15',
@@ -81,16 +91,17 @@ void main() {
         updatedAt: DateTime.now(),
       );
 
-      await tester.pumpWidget(buildTestableWidget(
-        dateStr: '2026-10-15',
-        legacyRecord: record,
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(dateStr: '2026-10-15', legacyRecord: record),
+      );
 
       // In header, status text should be Holiday / No class
       expect(find.text('Holiday / No class'), findsWidgets);
     });
 
-    testWidgets('renders "Present" status when held > 0 and attended == held', (tester) async {
+    testWidgets('renders "Present" status when held > 0 and attended == held', (
+      tester,
+    ) async {
       final record = LegacyAttendanceEntity(
         id: 'daily-2026-10-15',
         date: '2026-10-15',
@@ -100,15 +111,16 @@ void main() {
         updatedAt: DateTime.now(),
       );
 
-      await tester.pumpWidget(buildTestableWidget(
-        dateStr: '2026-10-15',
-        legacyRecord: record,
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(dateStr: '2026-10-15', legacyRecord: record),
+      );
 
       expect(find.text('Present'), findsWidgets);
     });
 
-    testWidgets('renders "Absent" status when held > 0 and attended == 0', (tester) async {
+    testWidgets('renders "Absent" status when held > 0 and attended == 0', (
+      tester,
+    ) async {
       final record = LegacyAttendanceEntity(
         id: 'daily-2026-10-15',
         date: '2026-10-15',
@@ -118,15 +130,16 @@ void main() {
         updatedAt: DateTime.now(),
       );
 
-      await tester.pumpWidget(buildTestableWidget(
-        dateStr: '2026-10-15',
-        legacyRecord: record,
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(dateStr: '2026-10-15', legacyRecord: record),
+      );
 
       expect(find.text('Absent'), findsWidgets);
     });
 
-    testWidgets('renders "Partial · X/Y" status when 0 < attended < held', (tester) async {
+    testWidgets('renders "Partial · X/Y" status when 0 < attended < held', (
+      tester,
+    ) async {
       final record = LegacyAttendanceEntity(
         id: 'daily-2026-10-15',
         date: '2026-10-15',
@@ -136,10 +149,9 @@ void main() {
         updatedAt: DateTime.now(),
       );
 
-      await tester.pumpWidget(buildTestableWidget(
-        dateStr: '2026-10-15',
-        legacyRecord: record,
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(dateStr: '2026-10-15', legacyRecord: record),
+      );
 
       expect(find.text('Partial · 1/3'), findsOneWidget);
     });
@@ -147,34 +159,36 @@ void main() {
 
   group('DayRow Badges and Buttons', () {
     testWidgets('renders TODAY badge only when isToday=true', (tester) async {
-      await tester.pumpWidget(buildTestableWidget(
-        dateStr: '2026-11-18',
-        isToday: true,
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(dateStr: '2026-11-18', isToday: true),
+      );
 
       expect(find.text('TODAY'), findsOneWidget);
 
-      await tester.pumpWidget(buildTestableWidget(
-        dateStr: '2026-11-18',
-        isToday: false,
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(dateStr: '2026-11-18', isToday: false),
+      );
 
       expect(find.text('TODAY'), findsNothing);
     });
 
-    testWidgets('when legacyRecord is null, renders Present, Absent, Holiday buttons and NO Clear button', (tester) async {
-      await tester.pumpWidget(buildTestableWidget(
-        dateStr: '2026-10-15',
-        legacyRecord: null,
-      ));
+    testWidgets(
+      'when legacyRecord is null, renders Present, Absent, Holiday buttons and NO Clear button',
+      (tester) async {
+        await tester.pumpWidget(
+          buildTestableWidget(dateStr: '2026-10-15', legacyRecord: null),
+        );
 
-      expect(find.text('Present'), findsOneWidget);
-      expect(find.text('Absent'), findsOneWidget);
-      expect(find.text('Holiday / No class'), findsOneWidget);
-      expect(find.text('Clear'), findsNothing);
-    });
+        expect(find.text('Present'), findsOneWidget);
+        expect(find.text('Absent'), findsOneWidget);
+        expect(find.text('Holiday / No class'), findsOneWidget);
+        expect(find.text('Clear'), findsNothing);
+      },
+    );
 
-    testWidgets('when legacyRecord is present, renders Clear button', (tester) async {
+    testWidgets('when legacyRecord is present, renders Clear button', (
+      tester,
+    ) async {
       final record = LegacyAttendanceEntity(
         id: 'daily-2026-10-15',
         date: '2026-10-15',
@@ -184,27 +198,30 @@ void main() {
         updatedAt: DateTime.now(),
       );
 
-      await tester.pumpWidget(buildTestableWidget(
-        dateStr: '2026-10-15',
-        legacyRecord: record,
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(dateStr: '2026-10-15', legacyRecord: record),
+      );
 
       expect(find.text('Clear'), findsOneWidget);
     });
 
-    testWidgets('tapping Present calls onSaveDaily with held=1, attended=1', (tester) async {
+    testWidgets('tapping Present calls onSaveDaily with held=1, attended=1', (
+      tester,
+    ) async {
       String? savedDate;
       int? savedHeld;
       int? savedAttended;
 
-      await tester.pumpWidget(buildTestableWidget(
-        dateStr: '2026-10-15',
-        onSaveDaily: ({required date, required held, required attended}) {
-          savedDate = date;
-          savedHeld = held;
-          savedAttended = attended;
-        },
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(
+          dateStr: '2026-10-15',
+          onSaveDaily: ({required date, required held, required attended}) {
+            savedDate = date;
+            savedHeld = held;
+            savedAttended = attended;
+          },
+        ),
+      );
 
       await tester.tap(find.text('Present'));
       await tester.pump();
@@ -214,19 +231,23 @@ void main() {
       expect(savedAttended, equals(1));
     });
 
-    testWidgets('tapping Absent calls onSaveDaily with held=1, attended=0', (tester) async {
+    testWidgets('tapping Absent calls onSaveDaily with held=1, attended=0', (
+      tester,
+    ) async {
       String? savedDate;
       int? savedHeld;
       int? savedAttended;
 
-      await tester.pumpWidget(buildTestableWidget(
-        dateStr: '2026-10-15',
-        onSaveDaily: ({required date, required held, required attended}) {
-          savedDate = date;
-          savedHeld = held;
-          savedAttended = attended;
-        },
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(
+          dateStr: '2026-10-15',
+          onSaveDaily: ({required date, required held, required attended}) {
+            savedDate = date;
+            savedHeld = held;
+            savedAttended = attended;
+          },
+        ),
+      );
 
       await tester.tap(find.text('Absent'));
       await tester.pump();
@@ -236,29 +257,36 @@ void main() {
       expect(savedAttended, equals(0));
     });
 
-    testWidgets('tapping Holiday / No class calls onSaveDaily with held=0, attended=0', (tester) async {
-      String? savedDate;
-      int? savedHeld;
-      int? savedAttended;
+    testWidgets(
+      'tapping Holiday / No class calls onSaveDaily with held=0, attended=0',
+      (tester) async {
+        String? savedDate;
+        int? savedHeld;
+        int? savedAttended;
 
-      await tester.pumpWidget(buildTestableWidget(
-        dateStr: '2026-10-15',
-        onSaveDaily: ({required date, required held, required attended}) {
-          savedDate = date;
-          savedHeld = held;
-          savedAttended = attended;
-        },
-      ));
+        await tester.pumpWidget(
+          buildTestableWidget(
+            dateStr: '2026-10-15',
+            onSaveDaily: ({required date, required held, required attended}) {
+              savedDate = date;
+              savedHeld = held;
+              savedAttended = attended;
+            },
+          ),
+        );
 
-      await tester.tap(find.text('Holiday / No class'));
-      await tester.pump();
+        await tester.tap(find.text('Holiday / No class'));
+        await tester.pump();
 
-      expect(savedDate, equals('2026-10-15'));
-      expect(savedHeld, equals(0));
-      expect(savedAttended, equals(0));
-    });
+        expect(savedDate, equals('2026-10-15'));
+        expect(savedHeld, equals(0));
+        expect(savedAttended, equals(0));
+      },
+    );
 
-    testWidgets('tapping Clear calls onDeleteDaily with record id', (tester) async {
+    testWidgets('tapping Clear calls onDeleteDaily with record id', (
+      tester,
+    ) async {
       String? deletedId;
       final record = LegacyAttendanceEntity(
         id: 'rec-test-123',
@@ -269,11 +297,13 @@ void main() {
         updatedAt: DateTime.now(),
       );
 
-      await tester.pumpWidget(buildTestableWidget(
-        dateStr: '2026-10-15',
-        legacyRecord: record,
-        onDeleteDaily: (id) => deletedId = id,
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(
+          dateStr: '2026-10-15',
+          legacyRecord: record,
+          onDeleteDaily: (id) => deletedId = id,
+        ),
+      );
 
       await tester.tap(find.text('Clear'));
       await tester.pump();
@@ -298,12 +328,14 @@ void main() {
         updatedAt: DateTime.now(),
       );
 
-      await tester.pumpWidget(buildTestableWidget(
-        dateStr: '2026-10-15',
-        legacyRecord: record,
-        isToday: true,
-        width: 320,
-      ));
+      await tester.pumpWidget(
+        buildTestableWidget(
+          dateStr: '2026-10-15',
+          legacyRecord: record,
+          isToday: true,
+          width: 320,
+        ),
+      );
 
       expect(tester.takeException(), isNull);
       expect(find.text('TODAY'), findsOneWidget);

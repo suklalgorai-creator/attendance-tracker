@@ -84,11 +84,7 @@ class BackupRestoreResult {
   final String? error;
   final BackupSummary? summary;
 
-  const BackupRestoreResult({
-    required this.ok,
-    this.error,
-    this.summary,
-  });
+  const BackupRestoreResult({required this.ok, this.error, this.summary});
 
   factory BackupRestoreResult.success([BackupSummary? summary]) =>
       BackupRestoreResult(ok: true, summary: summary);

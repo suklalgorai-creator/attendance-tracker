@@ -17,7 +17,7 @@ class SubjectLocalDataSourceImpl implements SubjectLocalDataSource {
   final Box _box;
 
   SubjectLocalDataSourceImpl({Box? box})
-      : _box = box ?? DatabaseService.getBox(DatabaseService.subjectsV2BoxName);
+    : _box = box ?? DatabaseService.getBox(DatabaseService.subjectsV2BoxName);
 
   @override
   Future<List<SubjectModel>> getSubjects() async {
@@ -25,7 +25,10 @@ class SubjectLocalDataSourceImpl implements SubjectLocalDataSource {
       final rawData = _box.get('items', defaultValue: []);
       if (rawData is List) {
         return rawData
-            .map((item) => SubjectModel.fromMap(Map<String, dynamic>.from(item as Map)))
+            .map(
+              (item) =>
+                  SubjectModel.fromMap(Map<String, dynamic>.from(item as Map)),
+            )
             .toList();
       }
       return [];

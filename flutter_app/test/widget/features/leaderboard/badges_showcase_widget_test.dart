@@ -20,7 +20,9 @@ void main() {
   }
 
   group('BadgesShowcaseWidget Widget Tests', () {
-    testWidgets('Renders title, streak pill, and all 4 badge tiers', (tester) async {
+    testWidgets('Renders title, streak pill, and all 4 badge tiers', (
+      tester,
+    ) async {
       await tester.pumpWidget(createWidget(streak: 5));
       await tester.pumpAndSettle();
 
@@ -34,21 +36,27 @@ void main() {
     });
 
     testWidgets('Renders progress towards next tier', (tester) async {
-      await tester.pumpWidget(createWidget(streak: 5)); // Next tier is Silver at 7 days
+      await tester.pumpWidget(
+        createWidget(streak: 5),
+      ); // Next tier is Silver at 7 days
       await tester.pumpAndSettle();
 
       expect(find.text('2 more days to unlock Silver'), findsOneWidget);
       expect(find.text('50%'), findsOneWidget);
     });
 
-    testWidgets('Renders maximum tier achieved message when streak >= 30', (tester) async {
+    testWidgets('Renders maximum tier achieved message when streak >= 30', (
+      tester,
+    ) async {
       await tester.pumpWidget(createWidget(streak: 35));
       await tester.pumpAndSettle();
 
       expect(find.text('👑 Maximum Streak Tier Achieved!'), findsOneWidget);
     });
 
-    testWidgets('Renders cleanly on 320px narrow width without overflow', (tester) async {
+    testWidgets('Renders cleanly on 320px narrow width without overflow', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(320 * 2, 600 * 2);
       tester.view.devicePixelRatio = 2.0;
       addTearDown(() => tester.view.resetPhysicalSize());

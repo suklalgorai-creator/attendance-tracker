@@ -31,7 +31,10 @@ void main() {
 
       // 7 to 14 days (Gold target)
       expect(StreakTier.calculateProgress(7), 0.0);
-      expect(StreakTier.calculateProgress(10), closeTo(3 / 7, 0.001)); // (10-7)/(14-7) = 3/7 ≈ 0.428
+      expect(
+        StreakTier.calculateProgress(10),
+        closeTo(3 / 7, 0.001),
+      ); // (10-7)/(14-7) = 3/7 ≈ 0.428
 
       // Max tier
       expect(StreakTier.calculateProgress(30), 1.0);

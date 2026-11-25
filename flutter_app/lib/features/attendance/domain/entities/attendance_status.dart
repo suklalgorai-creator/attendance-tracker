@@ -18,7 +18,8 @@ enum AttendanceStatus {
     };
   }
 
-  bool get isConducted => this == AttendanceStatus.present || this == AttendanceStatus.absent;
+  bool get isConducted =>
+      this == AttendanceStatus.present || this == AttendanceStatus.absent;
 }
 
 const String dailySubjectId = '__daily__';

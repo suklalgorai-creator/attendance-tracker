@@ -36,10 +36,7 @@ void main() {
         displayName: 'User One',
       );
 
-      final updated = user.copyWith(
-        displayName: 'Updated Name',
-        isAdmin: true,
-      );
+      final updated = user.copyWith(displayName: 'Updated Name', isAdmin: true);
 
       expect(updated.id, 'u1');
       expect(updated.email, 'u1@test.com');
@@ -60,10 +57,7 @@ void main() {
         displayName: 'Sam',
       );
 
-      const u3 = AuthUserEntity(
-        id: '456',
-        email: 'other@mail.com',
-      );
+      const u3 = AuthUserEntity(id: '456', email: 'other@mail.com');
 
       expect(u1, equals(u2));
       expect(u1.hashCode, equals(u2.hashCode));

@@ -73,7 +73,9 @@ class _AppTextFieldState extends State<AppTextField> {
   void didUpdateWidget(covariant AppTextField oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.focusNode != widget.focusNode) {
-      (oldWidget.focusNode ?? _internalFocusNode).removeListener(_handleFocusChange);
+      (oldWidget.focusNode ?? _internalFocusNode).removeListener(
+        _handleFocusChange,
+      );
       _effectiveFocusNode.addListener(_handleFocusChange);
     }
   }
@@ -115,7 +117,9 @@ class _AppTextFieldState extends State<AppTextField> {
           blurRadius: 0.0,
         ),
       ];
-      backgroundColor = isDark ? AppColors.surfaceSolidDark : AppColors.surfaceSolidLight;
+      backgroundColor = isDark
+          ? AppColors.surfaceSolidDark
+          : AppColors.surfaceSolidLight;
     } else if (_isFocused) {
       borderColor = AppColors.amber;
       shadows = [
@@ -125,9 +129,13 @@ class _AppTextFieldState extends State<AppTextField> {
           blurRadius: 0.0,
         ),
       ];
-      backgroundColor = isDark ? AppColors.surfaceSolidDark : AppColors.surfaceSolidLight;
+      backgroundColor = isDark
+          ? AppColors.surfaceSolidDark
+          : AppColors.surfaceSolidLight;
     } else {
-      borderColor = isDark ? AppColors.ruleBrightDark : AppColors.ruleBrightLight;
+      borderColor = isDark
+          ? AppColors.ruleBrightDark
+          : AppColors.ruleBrightLight;
       shadows = null;
       backgroundColor = isDark ? AppColors.inputBgDark : AppColors.inputBgLight;
     }
@@ -155,7 +163,9 @@ class _AppTextFieldState extends State<AppTextField> {
           ),
           child: TextFormField(
             controller: widget.controller,
-            initialValue: widget.controller == null ? widget.initialValue : null,
+            initialValue: widget.controller == null
+                ? widget.initialValue
+                : null,
             focusNode: _effectiveFocusNode,
             enabled: widget.enabled,
             readOnly: widget.readOnly,
@@ -173,8 +183,13 @@ class _AppTextFieldState extends State<AppTextField> {
             decoration: InputDecoration(
               isDense: true,
               hintText: effectiveHint,
-              hintStyle: AppTypography.inputHint(mutedColor.withValues(alpha: 0.6)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 18.0),
+              hintStyle: AppTypography.inputHint(
+                mutedColor.withValues(alpha: 0.6),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 13.0,
+              ),
               border: InputBorder.none,
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,

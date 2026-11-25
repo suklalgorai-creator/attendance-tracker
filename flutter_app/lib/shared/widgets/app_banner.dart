@@ -3,12 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_radius.dart';
 
-enum AppBannerType {
-  safe,
-  danger,
-  neutral,
-  reminder,
-}
+enum AppBannerType { safe, danger, neutral, reminder }
 
 typedef AppBannerVariant = AppBannerType;
 
@@ -126,7 +121,10 @@ class AppBanner extends StatelessWidget {
         borderC = AppColors.inkGreen.withValues(alpha: 0.20);
         textC = AppColors.inkGreen;
         radius = 12.0;
-        defaultPadding = const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0);
+        defaultPadding = const EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 12.0,
+        );
         defaultMargin = const EdgeInsets.only(bottom: 16.0);
         fontSize = 14.0;
         fontWeight = FontWeight.w500;
@@ -136,7 +134,10 @@ class AppBanner extends StatelessWidget {
         borderC = AppColors.penRed.withValues(alpha: 0.20);
         textC = AppColors.penRed;
         radius = 12.0;
-        defaultPadding = const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0);
+        defaultPadding = const EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 12.0,
+        );
         defaultMargin = const EdgeInsets.only(bottom: 16.0);
         fontSize = 14.0;
         fontWeight = FontWeight.w500;
@@ -146,7 +147,10 @@ class AppBanner extends StatelessWidget {
         borderC = isDark ? AppColors.ruleBrightDark : AppColors.ruleBrightLight;
         textC = mutedColor;
         radius = 12.0;
-        defaultPadding = const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0);
+        defaultPadding = const EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 12.0,
+        );
         defaultMargin = const EdgeInsets.only(bottom: 16.0);
         fontSize = 14.0;
         fontWeight = FontWeight.w500;
@@ -156,7 +160,10 @@ class AppBanner extends StatelessWidget {
         borderC = AppColors.penRed.withValues(alpha: 0.20);
         textC = AppColors.penRed;
         radius = AppRadius.lg; // 20.0
-        defaultPadding = const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0);
+        defaultPadding = const EdgeInsets.symmetric(
+          horizontal: 24.0,
+          vertical: 20.0,
+        );
         defaultMargin = const EdgeInsets.only(bottom: 24.0);
         fontSize = 15.0;
         fontWeight = FontWeight.w600;
@@ -170,10 +177,7 @@ class AppBanner extends StatelessWidget {
     Widget bannerContent = Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        if (leading != null) ...[
-          leading!,
-          const SizedBox(width: 12),
-        ],
+        if (leading != null) ...[leading!, const SizedBox(width: 12)],
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,10 +208,7 @@ class AppBanner extends StatelessWidget {
             ],
           ),
         ),
-        if (action != null) ...[
-          const SizedBox(width: 12),
-          action!,
-        ],
+        if (action != null) ...[const SizedBox(width: 12), action!],
       ],
     );
 

@@ -14,7 +14,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   final Box _box;
 
   SettingsLocalDataSourceImpl({Box? box})
-      : _box = box ?? DatabaseService.getBox(DatabaseService.settingsBoxName);
+    : _box = box ?? DatabaseService.getBox(DatabaseService.settingsBoxName);
 
   @override
   Future<UserSettingsModel> getSettings() async {

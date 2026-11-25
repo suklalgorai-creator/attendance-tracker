@@ -9,10 +9,7 @@ import '../../../../shared/widgets/glass_card.dart';
 class EmptyDashboardView extends StatelessWidget {
   final VoidCallback? onAddSubject;
 
-  const EmptyDashboardView({
-    super.key,
-    this.onAddSubject,
-  });
+  const EmptyDashboardView({super.key, this.onAddSubject});
 
   @override
   Widget build(BuildContext context) {
@@ -53,10 +50,7 @@ class EmptyDashboardView extends StatelessWidget {
           ),
           if (onAddSubject != null) ...[
             const SizedBox(height: 24),
-            AppButton.present(
-              label: '+ Add Subject',
-              onPressed: onAddSubject,
-            ),
+            AppButton.present(label: '+ Add Subject', onPressed: onAddSubject),
           ],
         ],
       ),

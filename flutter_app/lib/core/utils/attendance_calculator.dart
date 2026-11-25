@@ -265,7 +265,9 @@ AttendanceStatus? _getRecordStatus(dynamic record) {
 bool _isHoliday(String? date, dynamic holidays) {
   if (date == null || holidays == null) return false;
   if (holidays is Map) {
-    return holidays.containsKey(date) && holidays[date] != null && holidays[date] != false;
+    return holidays.containsKey(date) &&
+        holidays[date] != null &&
+        holidays[date] != false;
   }
   if (holidays is Set) return holidays.contains(date);
   if (holidays is List) return holidays.contains(date);
@@ -303,7 +305,9 @@ class AttendanceCalculator {
     num? conducted,
     num? threshold,
   ) {
-    if (!isValidThreshold(threshold) || present == null || conducted == null) return 0;
+    if (!isValidThreshold(threshold) || present == null || conducted == null) {
+      return 0;
+    }
     final p = present.toDouble();
     final c = conducted.toDouble();
     final t = threshold!.toDouble();
@@ -323,7 +327,9 @@ class AttendanceCalculator {
     num? conducted,
     num? threshold,
   ) {
-    if (!isValidThreshold(threshold) || present == null || conducted == null) return 0;
+    if (!isValidThreshold(threshold) || present == null || conducted == null) {
+      return 0;
+    }
     final p = present.toDouble();
     final c = conducted.toDouble();
     final t = threshold!.toDouble();
@@ -457,7 +463,9 @@ class AttendanceCalculator {
         attended = record.attended;
       } else if (record is Map) {
         held = (record['held'] is num) ? (record['held'] as num).toInt() : 0;
-        attended = (record['attended'] is num) ? (record['attended'] as num).toInt() : 0;
+        attended = (record['attended'] is num)
+            ? (record['attended'] as num).toInt()
+            : 0;
       } else {
         try {
           held = ((record as dynamic).held as num).toInt();
@@ -486,7 +494,10 @@ class AttendanceCalculator {
     required num minPercent,
     dynamic holidays,
   }) {
-    final current = summarizeAttendanceRecords(attendanceRecords, holidays: holidays);
+    final current = summarizeAttendanceRecords(
+      attendanceRecords,
+      holidays: holidays,
+    );
     final legacy = summarizeLegacyAttendance(legacyAttendance, holidays);
     final present = current.present + legacy.present;
     final absent = current.absent + legacy.absent;
@@ -495,8 +506,12 @@ class AttendanceCalculator {
     final target = minPercent.toDouble();
     final safe = attendance != null && attendance >= target;
     final status = attendance == null ? 'none' : (safe ? 'safe' : 'danger');
-    final canMiss = safe ? calculateMaximumAbsences(present, conducted, target) : 0;
-    final needToAttend = safe ? 0 : calculateRequiredRecoveryClasses(present, conducted, target);
+    final canMiss = safe
+        ? calculateMaximumAbsences(present, conducted, target)
+        : 0;
+    final needToAttend = safe
+        ? 0
+        : calculateRequiredRecoveryClasses(present, conducted, target);
     final impossible = !safe && target >= 100.0;
 
     return OverallAttendanceResult(
@@ -529,8 +544,16 @@ class AttendanceCalculator {
     final target = minPercent.toDouble();
     final safe = attendance != null && attendance >= target;
     final status = attendance == null ? 'none' : (safe ? 'safe' : 'danger');
-    final canMiss = safe ? calculateMaximumAbsences(summary.present, summary.conducted, target) : 0;
-    final needToAttend = safe ? 0 : calculateRequiredRecoveryClasses(summary.present, summary.conducted, target);
+    final canMiss = safe
+        ? calculateMaximumAbsences(summary.present, summary.conducted, target)
+        : 0;
+    final needToAttend = safe
+        ? 0
+        : calculateRequiredRecoveryClasses(
+            summary.present,
+            summary.conducted,
+            target,
+          );
     final impossible = !safe && target >= 100.0;
 
     return SubjectAttendanceResult(
@@ -581,7 +604,11 @@ class AttendanceCalculator {
       }
     }
 
-    final dates = AppDateUtils.classDayRangeDesc(startDate, effectiveEndDate, classDays);
+    final dates = AppDateUtils.classDayRangeDesc(
+      startDate,
+      effectiveEndDate,
+      classDays,
+    );
     int pending = 0;
 
     for (final date in dates) {
@@ -639,66 +666,108 @@ class AttendanceCalculator {
     final effectiveTarget = isValidThreshold(target) ? target : 75.0;
 
     if (currentPct >= effectiveTarget) {
-      final int bunkable = calculateMaximumAbsences(attended, total, effectiveTarget);
+      final int bunkable = calculateMaximumAbsences(
+        attended,
+        total,
+        effectiveTarget,
+      );
       return AttendanceMetrics(
         percentage: currentPct,
         isSafe: true,
         classesCanBunk: bunkable,
         classesNeeded: 0,
-        statusMessage: bunkable > 0 
-            ? "Safe Zone: Can bunk $bunkable more class${bunkable > 1 ? 'es' : ''}" 
+        statusMessage: bunkable > 0
+            ? "Safe Zone: Can bunk $bunkable more class${bunkable > 1 ? 'es' : ''}"
             : "On the edge: Don't miss your next class!",
       );
     } else {
-      final int needed = calculateRequiredRecoveryClasses(attended, total, effectiveTarget);
+      final int needed = calculateRequiredRecoveryClasses(
+        attended,
+        total,
+        effectiveTarget,
+      );
       return AttendanceMetrics(
         percentage: currentPct,
         isSafe: false,
         classesCanBunk: 0,
         classesNeeded: needed,
-        statusMessage: "Danger Zone: Must attend next $needed class${needed > 1 ? 'es' : ''} to reach ${effectiveTarget.toInt()}%",
+        statusMessage:
+            "Danger Zone: Must attend next $needed class${needed > 1 ? 'es' : ''} to reach ${effectiveTarget.toInt()}%",
       );
     }
   }
 }
 
 // Top-level aliases for direct parity with React function imports
-bool isValidThreshold(num? threshold) => AttendanceCalculator.isValidThreshold(threshold);
-double? calculateAttendance(num? present, num? conducted) => AttendanceCalculator.calculateAttendance(present, conducted);
-int calculateMaximumAbsences(num? present, num? conducted, num? threshold) => AttendanceCalculator.calculateMaximumAbsences(present, conducted, threshold);
-int calculateRequiredRecoveryClasses(num? present, num? conducted, num? threshold) => AttendanceCalculator.calculateRequiredRecoveryClasses(present, conducted, threshold);
-double? calculateProjectedAttendance(num? present, num? conducted, {num futurePresent = 0, num futureAbsent = 0}) =>
-    AttendanceCalculator.calculateProjectedAttendance(present, conducted, futurePresent: futurePresent, futureAbsent: futureAbsent);
-bool isConductedStatus(dynamic status) => AttendanceCalculator.isConductedStatus(status);
-bool isConductedAttendanceRecord(dynamic record) => AttendanceCalculator.isConductedAttendanceRecord(record);
-AttendanceSummary summarizeAttendanceRecords(dynamic records, {String? subjectId, dynamic holidays}) =>
-    AttendanceCalculator.summarizeAttendanceRecords(records, subjectId: subjectId, holidays: holidays);
-AttendanceSummary summarizeLegacyAttendance(dynamic records, [dynamic holidays]) =>
-    AttendanceCalculator.summarizeLegacyAttendance(records, holidays);
+bool isValidThreshold(num? threshold) =>
+    AttendanceCalculator.isValidThreshold(threshold);
+double? calculateAttendance(num? present, num? conducted) =>
+    AttendanceCalculator.calculateAttendance(present, conducted);
+int calculateMaximumAbsences(num? present, num? conducted, num? threshold) =>
+    AttendanceCalculator.calculateMaximumAbsences(
+      present,
+      conducted,
+      threshold,
+    );
+int calculateRequiredRecoveryClasses(
+  num? present,
+  num? conducted,
+  num? threshold,
+) => AttendanceCalculator.calculateRequiredRecoveryClasses(
+  present,
+  conducted,
+  threshold,
+);
+double? calculateProjectedAttendance(
+  num? present,
+  num? conducted, {
+  num futurePresent = 0,
+  num futureAbsent = 0,
+}) => AttendanceCalculator.calculateProjectedAttendance(
+  present,
+  conducted,
+  futurePresent: futurePresent,
+  futureAbsent: futureAbsent,
+);
+bool isConductedStatus(dynamic status) =>
+    AttendanceCalculator.isConductedStatus(status);
+bool isConductedAttendanceRecord(dynamic record) =>
+    AttendanceCalculator.isConductedAttendanceRecord(record);
+AttendanceSummary summarizeAttendanceRecords(
+  dynamic records, {
+  String? subjectId,
+  dynamic holidays,
+}) => AttendanceCalculator.summarizeAttendanceRecords(
+  records,
+  subjectId: subjectId,
+  holidays: holidays,
+);
+AttendanceSummary summarizeLegacyAttendance(
+  dynamic records, [
+  dynamic holidays,
+]) => AttendanceCalculator.summarizeLegacyAttendance(records, holidays);
 OverallAttendanceResult calculateOverallAttendance({
   dynamic attendanceRecords,
   dynamic legacyAttendance,
   required num minPercent,
   dynamic holidays,
-}) =>
-    AttendanceCalculator.calculateOverallAttendance(
-      attendanceRecords: attendanceRecords,
-      legacyAttendance: legacyAttendance,
-      minPercent: minPercent,
-      holidays: holidays,
-    );
+}) => AttendanceCalculator.calculateOverallAttendance(
+  attendanceRecords: attendanceRecords,
+  legacyAttendance: legacyAttendance,
+  minPercent: minPercent,
+  holidays: holidays,
+);
 SubjectAttendanceResult calculateSubjectAttendance(
   String subjectId, {
   dynamic attendanceRecords,
   required num minPercent,
   dynamic holidays,
-}) =>
-    AttendanceCalculator.calculateSubjectAttendance(
-      subjectId,
-      attendanceRecords: attendanceRecords,
-      minPercent: minPercent,
-      holidays: holidays,
-    );
+}) => AttendanceCalculator.calculateSubjectAttendance(
+  subjectId,
+  attendanceRecords: attendanceRecords,
+  minPercent: minPercent,
+  holidays: holidays,
+);
 int calculatePendingScheduledSessions({
   dynamic attendanceRecords,
   dynamic timetable,
@@ -706,12 +775,11 @@ int calculatePendingScheduledSessions({
   String? startDate,
   String? endDate,
   dynamic holidays,
-}) =>
-    AttendanceCalculator.calculatePendingScheduledSessions(
-      attendanceRecords: attendanceRecords,
-      timetable: timetable,
-      classDays: classDays,
-      startDate: startDate,
-      endDate: endDate,
-      holidays: holidays,
-    );
+}) => AttendanceCalculator.calculatePendingScheduledSessions(
+  attendanceRecords: attendanceRecords,
+  timetable: timetable,
+  classDays: classDays,
+  startDate: startDate,
+  endDate: endDate,
+  holidays: holidays,
+);

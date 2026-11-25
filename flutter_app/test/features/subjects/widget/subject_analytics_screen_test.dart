@@ -27,7 +27,9 @@ class ScreenTestSubjectRepository implements SubjectRepository {
   }
 
   @override
-  Stream<List<SubjectEntity>> watchSubjects({bool includeDeleted = false}) async* {
+  Stream<List<SubjectEntity>> watchSubjects({
+    bool includeDeleted = false,
+  }) async* {
     yield List.from(subjects);
     yield* _controller.stream;
   }
@@ -94,7 +96,8 @@ class ScreenTestSubjectRepository implements SubjectRepository {
 
 class ScreenTestAttendanceRepository implements AttendanceRepository {
   final List<AttendanceRecordEntity> records = [];
-  final _controller = StreamController<List<AttendanceRecordEntity>>.broadcast();
+  final _controller =
+      StreamController<List<AttendanceRecordEntity>>.broadcast();
 
   void _notify() => _controller.add(List.unmodifiable(records));
 
@@ -122,35 +125,56 @@ class ScreenTestAttendanceRepository implements AttendanceRepository {
   }
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForDate(String date, {bool includeDeleted = false}) async {
-    return records.where((r) => (includeDeleted || !r.isDeleted) && r.date == date).toList();
+  Future<List<AttendanceRecordEntity>> getRecordsForDate(
+    String date, {
+    bool includeDeleted = false,
+  }) async {
+    return records
+        .where((r) => (includeDeleted || !r.isDeleted) && r.date == date)
+        .toList();
   }
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForSubject(String subjectId, {bool includeDeleted = false}) async {
-    return records.where((r) => (includeDeleted || !r.isDeleted) && r.subjectId == subjectId).toList();
+  Future<List<AttendanceRecordEntity>> getRecordsForSubject(
+    String subjectId, {
+    bool includeDeleted = false,
+  }) async {
+    return records
+        .where(
+          (r) => (includeDeleted || !r.isDeleted) && r.subjectId == subjectId,
+        )
+        .toList();
   }
 
   @override
   Future<void> restoreAttendanceRecord(String id) async {
     final index = records.indexWhere((r) => r.id == id);
     if (index >= 0) {
-      records[index] = records[index].copyWith(clearDeletedAt: true, updatedAt: DateTime.now());
+      records[index] = records[index].copyWith(
+        clearDeletedAt: true,
+        updatedAt: DateTime.now(),
+      );
       _notify();
     }
   }
 
   @override
-  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({bool includeDeleted = false}) async => [];
+  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({
+    bool includeDeleted = false,
+  }) async => [];
 
   @override
-  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({bool includeDeleted = false}) => const Stream.empty();
+  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({
+    bool includeDeleted = false,
+  }) => const Stream.empty();
 
   @override
   Future<void> saveLegacyAttendance(LegacyAttendanceEntity record) async {}
 
   @override
-  Future<void> saveLegacyAttendances(List<LegacyAttendanceEntity> records) async {}
+  Future<void> saveLegacyAttendances(
+    List<LegacyAttendanceEntity> records,
+  ) async {}
 
   @override
   Future<void> deleteLegacyAttendance(String id) async {}
@@ -179,7 +203,9 @@ class ScreenTestAttendanceRepository implements AttendanceRepository {
   }
 
   @override
-  Future<void> saveAttendanceRecords(List<AttendanceRecordEntity> newRecords) async {
+  Future<void> saveAttendanceRecords(
+    List<AttendanceRecordEntity> newRecords,
+  ) async {
     for (final r in newRecords) {
       final index = records.indexWhere((item) => item.id == r.id);
       if (index >= 0) {
@@ -246,13 +272,17 @@ void main() {
       overrides: [
         subjectRepositoryProvider.overrideWithValue(subjectRepo),
         attendanceRepositoryProvider.overrideWithValue(attendanceRepo),
-        subjectsStreamProvider.overrideWith((ref) => subjectRepo.watchSubjects()),
-        attendanceRecordsStreamProvider.overrideWith((ref) => attendanceRepo.watchAttendanceRecords()),
-        settingsStreamProvider.overrideWith((ref) => Stream.value(testSettings)),
+        subjectsStreamProvider.overrideWith(
+          (ref) => subjectRepo.watchSubjects(),
+        ),
+        attendanceRecordsStreamProvider.overrideWith(
+          (ref) => attendanceRepo.watchAttendanceRecords(),
+        ),
+        settingsStreamProvider.overrideWith(
+          (ref) => Stream.value(testSettings),
+        ),
       ],
-      child: MaterialApp(
-        home: SubjectAnalyticsScreen(subjectId: subjectId),
-      ),
+      child: MaterialApp(home: SubjectAnalyticsScreen(subjectId: subjectId)),
     );
   }
 
@@ -277,25 +307,32 @@ void main() {
       attendanceRepo = ScreenTestAttendanceRepository();
     });
 
-    testWidgets('Renders subject header with name, code, target badge and edit button', (tester) async {
-      setTallScreen(tester);
-      await subjectRepo.saveSubject(testSubject);
+    testWidgets(
+      'Renders subject header with name, code, target badge and edit button',
+      (tester) async {
+        setTallScreen(tester);
+        await subjectRepo.saveSubject(testSubject);
 
-      await tester.pumpWidget(createTestWidget(
-        subjectRepo: subjectRepo,
-        attendanceRepo: attendanceRepo,
-        subjectId: 'sub_net',
-      ));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createTestWidget(
+            subjectRepo: subjectRepo,
+            attendanceRepo: attendanceRepo,
+            subjectId: 'sub_net',
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Computer Networks'), findsOneWidget);
-      expect(find.text('CS301'), findsOneWidget);
-      expect(find.text('TARGET 80%'), findsOneWidget);
-      expect(find.byKey(const Key('subject_back_button')), findsOneWidget);
-      expect(find.byKey(const Key('edit_subject_button')), findsOneWidget);
-    });
+        expect(find.text('Computer Networks'), findsOneWidget);
+        expect(find.text('CS301'), findsOneWidget);
+        expect(find.text('TARGET 80%'), findsOneWidget);
+        expect(find.byKey(const Key('subject_back_button')), findsOneWidget);
+        expect(find.byKey(const Key('edit_subject_button')), findsOneWidget);
+      },
+    );
 
-    testWidgets('Renders AttendanceRing and stats breakdown with records', (tester) async {
+    testWidgets('Renders AttendanceRing and stats breakdown with records', (
+      tester,
+    ) async {
       setTallScreen(tester);
       await subjectRepo.saveSubject(testSubject);
 
@@ -330,11 +367,13 @@ void main() {
       ];
       await attendanceRepo.saveAttendanceRecords(records);
 
-      await tester.pumpWidget(createTestWidget(
-        subjectRepo: subjectRepo,
-        attendanceRepo: attendanceRepo,
-        subjectId: 'sub_net',
-      ));
+      await tester.pumpWidget(
+        createTestWidget(
+          subjectRepo: subjectRepo,
+          attendanceRepo: attendanceRepo,
+          subjectId: 'sub_net',
+        ),
+      );
       await tester.pumpAndSettle();
 
       // Attendance: 2 / 3 = 66.7%
@@ -345,11 +384,13 @@ void main() {
       expect(find.text('ABSENT SESSIONS'), findsOneWidget);
       expect(find.text('TARGET THRESHOLD'), findsOneWidget);
       expect(find.text('3'), findsOneWidget); // Conducted count
-      expect(find.text('2'), findsWidgets);   // Present count
-      expect(find.text('1'), findsWidgets);   // Absent count
+      expect(find.text('2'), findsWidgets); // Present count
+      expect(find.text('1'), findsWidgets); // Absent count
     });
 
-    testWidgets('Renders session history rows with date and status badge', (tester) async {
+    testWidgets('Renders session history rows with date and status badge', (
+      tester,
+    ) async {
       setTallScreen(tester);
       await subjectRepo.saveSubject(testSubject);
 
@@ -375,11 +416,13 @@ void main() {
       ];
       await attendanceRepo.saveAttendanceRecords(records);
 
-      await tester.pumpWidget(createTestWidget(
-        subjectRepo: subjectRepo,
-        attendanceRepo: attendanceRepo,
-        subjectId: 'sub_net',
-      ));
+      await tester.pumpWidget(
+        createTestWidget(
+          subjectRepo: subjectRepo,
+          attendanceRepo: attendanceRepo,
+          subjectId: 'sub_net',
+        ),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('Session History'), findsOneWidget);
@@ -389,44 +432,62 @@ void main() {
       expect(find.text('ABSENT'), findsOneWidget);
     });
 
-    testWidgets('Renders empty state placeholder when no records exist', (tester) async {
+    testWidgets('Renders empty state placeholder when no records exist', (
+      tester,
+    ) async {
       setTallScreen(tester);
       await subjectRepo.saveSubject(testSubject);
 
-      await tester.pumpWidget(createTestWidget(
-        subjectRepo: subjectRepo,
-        attendanceRepo: attendanceRepo,
-        subjectId: 'sub_net',
-      ));
+      await tester.pumpWidget(
+        createTestWidget(
+          subjectRepo: subjectRepo,
+          attendanceRepo: attendanceRepo,
+          subjectId: 'sub_net',
+        ),
+      );
       await tester.pumpAndSettle();
 
-      expect(find.text('No classes recorded yet for this subject'), findsOneWidget);
-      expect(find.text('Use the buttons above to log your first class.'), findsOneWidget);
+      expect(
+        find.text('No classes recorded yet for this subject'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Use the buttons above to log your first class.'),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('Renders Subject Not Found when subjectId does not exist', (tester) async {
+    testWidgets('Renders Subject Not Found when subjectId does not exist', (
+      tester,
+    ) async {
       setTallScreen(tester);
 
-      await tester.pumpWidget(createTestWidget(
-        subjectRepo: subjectRepo,
-        attendanceRepo: attendanceRepo,
-        subjectId: 'non_existent_id',
-      ));
+      await tester.pumpWidget(
+        createTestWidget(
+          subjectRepo: subjectRepo,
+          attendanceRepo: attendanceRepo,
+          subjectId: 'non_existent_id',
+        ),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('Subject Not Found'), findsOneWidget);
       expect(find.byKey(const Key('not_found_back_button')), findsOneWidget);
     });
 
-    testWidgets('Tapping + Present logs present record for this subject', (tester) async {
+    testWidgets('Tapping + Present logs present record for this subject', (
+      tester,
+    ) async {
       setTallScreen(tester);
       await subjectRepo.saveSubject(testSubject);
 
-      await tester.pumpWidget(createTestWidget(
-        subjectRepo: subjectRepo,
-        attendanceRepo: attendanceRepo,
-        subjectId: 'sub_net',
-      ));
+      await tester.pumpWidget(
+        createTestWidget(
+          subjectRepo: subjectRepo,
+          attendanceRepo: attendanceRepo,
+          subjectId: 'sub_net',
+        ),
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(const Key('analytics_present_button')));
@@ -435,18 +496,25 @@ void main() {
       final records = await attendanceRepo.getRecordsForSubject('sub_net');
       expect(records.length, 1);
       expect(records.first.status, AttendanceStatus.present);
-      expect(find.textContaining('Marked Computer Networks as Present'), findsOneWidget);
+      expect(
+        find.textContaining('Marked Computer Networks as Present'),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('Tapping - Absent logs absent record for this subject', (tester) async {
+    testWidgets('Tapping - Absent logs absent record for this subject', (
+      tester,
+    ) async {
       setTallScreen(tester);
       await subjectRepo.saveSubject(testSubject);
 
-      await tester.pumpWidget(createTestWidget(
-        subjectRepo: subjectRepo,
-        attendanceRepo: attendanceRepo,
-        subjectId: 'sub_net',
-      ));
+      await tester.pumpWidget(
+        createTestWidget(
+          subjectRepo: subjectRepo,
+          attendanceRepo: attendanceRepo,
+          subjectId: 'sub_net',
+        ),
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(const Key('analytics_absent_button')));
@@ -455,18 +523,25 @@ void main() {
       final records = await attendanceRepo.getRecordsForSubject('sub_net');
       expect(records.length, 1);
       expect(records.first.status, AttendanceStatus.absent);
-      expect(find.textContaining('Marked Computer Networks as Absent'), findsOneWidget);
+      expect(
+        find.textContaining('Marked Computer Networks as Absent'),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('Tapping Edit button opens SubjectDialog in Edit Mode', (tester) async {
+    testWidgets('Tapping Edit button opens SubjectDialog in Edit Mode', (
+      tester,
+    ) async {
       setTallScreen(tester);
       await subjectRepo.saveSubject(testSubject);
 
-      await tester.pumpWidget(createTestWidget(
-        subjectRepo: subjectRepo,
-        attendanceRepo: attendanceRepo,
-        subjectId: 'sub_net',
-      ));
+      await tester.pumpWidget(
+        createTestWidget(
+          subjectRepo: subjectRepo,
+          attendanceRepo: attendanceRepo,
+          subjectId: 'sub_net',
+        ),
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(const Key('edit_subject_button')));
@@ -476,23 +551,28 @@ void main() {
       expect(find.byKey(const Key('delete_subject_button')), findsOneWidget);
     });
 
-    testWidgets('Responsive rendering: does not overflow on compact viewport Size(320, 568)', (tester) async {
-      tester.view.physicalSize = const Size(320, 568);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets(
+      'Responsive rendering: does not overflow on compact viewport Size(320, 568)',
+      (tester) async {
+        tester.view.physicalSize = const Size(320, 568);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-      await subjectRepo.saveSubject(testSubject);
+        await subjectRepo.saveSubject(testSubject);
 
-      await tester.pumpWidget(createTestWidget(
-        subjectRepo: subjectRepo,
-        attendanceRepo: attendanceRepo,
-        subjectId: 'sub_net',
-      ));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createTestWidget(
+            subjectRepo: subjectRepo,
+            attendanceRepo: attendanceRepo,
+            subjectId: 'sub_net',
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-      expect(find.text('Computer Networks'), findsOneWidget);
-    });
+        expect(tester.takeException(), isNull);
+        expect(find.text('Computer Networks'), findsOneWidget);
+      },
+    );
   });
 }

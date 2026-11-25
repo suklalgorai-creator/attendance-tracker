@@ -25,25 +25,30 @@ void main() {
       expect(find.byIcon(Icons.school_outlined), findsOneWidget);
       expect(find.text('No subjects added yet'), findsOneWidget);
       expect(
-        find.text('Add your enrolled subjects to start logging attendance and tracking safe bunks.'),
+        find.text(
+          'Add your enrolled subjects to start logging attendance and tracking safe bunks.',
+        ),
         findsOneWidget,
       );
       expect(find.text('+ Add Subject'), findsNothing);
     });
 
-    testWidgets('Renders + Add Subject button when onAddSubject is supplied and handles tap', (tester) async {
-      var addTapped = false;
-      await tester.pumpWidget(_wrap(EmptyDashboardView(
-        onAddSubject: () => addTapped = true,
-      )));
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Renders + Add Subject button when onAddSubject is supplied and handles tap',
+      (tester) async {
+        var addTapped = false;
+        await tester.pumpWidget(
+          _wrap(EmptyDashboardView(onAddSubject: () => addTapped = true)),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('+ Add Subject'), findsOneWidget);
+        expect(find.text('+ Add Subject'), findsOneWidget);
 
-      await tester.tap(find.text('+ Add Subject'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('+ Add Subject'));
+        await tester.pumpAndSettle();
 
-      expect(addTapped, isTrue);
-    });
+        expect(addTapped, isTrue);
+      },
+    );
   });
 }

@@ -47,25 +47,35 @@ class E2ESubjectRepo implements SubjectRepository {
   final List<SubjectEntity> _subjects = [];
 
   @override
-  Future<List<SubjectEntity>> getSubjects({bool includeDeleted = false}) async =>
-      includeDeleted ? _subjects : _subjects.where((s) => !s.isDeleted).toList();
+  Future<List<SubjectEntity>> getSubjects({
+    bool includeDeleted = false,
+  }) async => includeDeleted
+      ? _subjects
+      : _subjects.where((s) => !s.isDeleted).toList();
   @override
   Stream<List<SubjectEntity>> watchSubjects({bool includeDeleted = false}) =>
-      Stream.value(includeDeleted ? _subjects : _subjects.where((s) => !s.isDeleted).toList());
+      Stream.value(
+        includeDeleted
+            ? _subjects
+            : _subjects.where((s) => !s.isDeleted).toList(),
+      );
   @override
-  Future<SubjectEntity?> getSubjectById(String id) async =>
-      _subjects.cast<SubjectEntity?>().firstWhere((s) => s?.id == id, orElse: () => null);
+  Future<SubjectEntity?> getSubjectById(String id) async => _subjects
+      .cast<SubjectEntity?>()
+      .firstWhere((s) => s?.id == id, orElse: () => null);
   @override
   Future<void> saveSubject(SubjectEntity s) async {
     _subjects.removeWhere((item) => item.id == s.id);
     _subjects.add(s);
   }
+
   @override
   Future<void> saveSubjects(List<SubjectEntity> list) async {
     for (final s in list) {
       await saveSubject(s);
     }
   }
+
   @override
   Future<void> reorderSubjects(List<String> orderedIds) async {}
   @override
@@ -75,6 +85,7 @@ class E2ESubjectRepo implements SubjectRepository {
       _subjects[idx] = _subjects[idx].copyWith(deletedAt: DateTime.now());
     }
   }
+
   @override
   Future<void> restoreSubject(String id) async {}
   @override
@@ -87,28 +98,39 @@ class E2EAttendanceRepo implements AttendanceRepository {
   final List<LegacyAttendanceEntity> _legacy = [];
 
   @override
-  Future<List<AttendanceRecordEntity>> getAttendanceRecords({bool includeDeleted = false}) async =>
+  Future<List<AttendanceRecordEntity>> getAttendanceRecords({
+    bool includeDeleted = false,
+  }) async =>
       includeDeleted ? _records : _records.where((r) => !r.isDeleted).toList();
   @override
-  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({bool includeDeleted = false}) =>
-      Stream.value(includeDeleted ? _records : _records.where((r) => !r.isDeleted).toList());
+  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({
+    bool includeDeleted = false,
+  }) => Stream.value(
+    includeDeleted ? _records : _records.where((r) => !r.isDeleted).toList(),
+  );
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForDate(String date, {bool includeDeleted = false}) async =>
-      _records.where((r) => r.date == date).toList();
+  Future<List<AttendanceRecordEntity>> getRecordsForDate(
+    String date, {
+    bool includeDeleted = false,
+  }) async => _records.where((r) => r.date == date).toList();
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForSubject(String subjectId, {bool includeDeleted = false}) async =>
-      _records.where((r) => r.subjectId == subjectId).toList();
+  Future<List<AttendanceRecordEntity>> getRecordsForSubject(
+    String subjectId, {
+    bool includeDeleted = false,
+  }) async => _records.where((r) => r.subjectId == subjectId).toList();
   @override
   Future<void> saveAttendanceRecord(AttendanceRecordEntity r) async {
     _records.removeWhere((item) => item.id == r.id);
     _records.add(r);
   }
+
   @override
   Future<void> saveAttendanceRecords(List<AttendanceRecordEntity> list) async {
     for (final r in list) {
       await saveAttendanceRecord(r);
     }
   }
+
   @override
   Future<void> deleteAttendanceRecord(String id) async {
     final idx = _records.indexWhere((r) => r.id == id);
@@ -116,19 +138,26 @@ class E2EAttendanceRepo implements AttendanceRepository {
       _records[idx] = _records[idx].copyWith(deletedAt: DateTime.now());
     }
   }
+
   @override
   Future<void> restoreAttendanceRecord(String id) async {}
   @override
   Future<void> hardDeleteAttendanceRecord(String id) async =>
       _records.removeWhere((r) => r.id == id);
   @override
-  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({bool includeDeleted = false}) async => _legacy;
+  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({
+    bool includeDeleted = false,
+  }) async => _legacy;
   @override
-  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({bool includeDeleted = false}) => Stream.value(_legacy);
+  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({
+    bool includeDeleted = false,
+  }) => Stream.value(_legacy);
   @override
-  Future<void> saveLegacyAttendance(LegacyAttendanceEntity r) async => _legacy.add(r);
+  Future<void> saveLegacyAttendance(LegacyAttendanceEntity r) async =>
+      _legacy.add(r);
   @override
-  Future<void> saveLegacyAttendances(List<LegacyAttendanceEntity> list) async => _legacy.addAll(list);
+  Future<void> saveLegacyAttendances(List<LegacyAttendanceEntity> list) async =>
+      _legacy.addAll(list);
   @override
   Future<void> deleteLegacyAttendance(String id) async {}
   @override
@@ -146,17 +175,26 @@ class E2ETimetableRepo implements TimetableRepository {
   Map<int, List<TimetableSessionEntity>> _timetable = {};
 
   @override
-  Future<Map<int, List<TimetableSessionEntity>>> getTimetable({bool includeDeleted = false}) async => _timetable;
+  Future<Map<int, List<TimetableSessionEntity>>> getTimetable({
+    bool includeDeleted = false,
+  }) async => _timetable;
   @override
-  Stream<Map<int, List<TimetableSessionEntity>>> watchTimetable({bool includeDeleted = false}) => Stream.value(_timetable);
+  Stream<Map<int, List<TimetableSessionEntity>>> watchTimetable({
+    bool includeDeleted = false,
+  }) => Stream.value(_timetable);
   @override
-  Future<void> addSession(int dayOfWeek, String subjectId, {String? label}) async {}
+  Future<void> addSession(
+    int dayOfWeek,
+    String subjectId, {
+    String? label,
+  }) async {}
   @override
   Future<void> removeSession(int dayOfWeek, String sessionId) async {}
   @override
   Future<void> clearTimetable() async => _timetable.clear();
   @override
-  Future<void> saveTimetable(Map<int, List<TimetableSessionEntity>> t) async => _timetable = Map.from(t);
+  Future<void> saveTimetable(Map<int, List<TimetableSessionEntity>> t) async =>
+      _timetable = Map.from(t);
 }
 
 class FakeNotesRepo implements NotesRepository {
@@ -179,7 +217,8 @@ class FakeNotesRepo implements NotesRepository {
 class E2EBox implements Box {
   final Map<dynamic, dynamic> _store = {};
   @override
-  dynamic get(key, {defaultValue}) => _store.containsKey(key) ? _store[key] : defaultValue;
+  dynamic get(key, {defaultValue}) =>
+      _store.containsKey(key) ? _store[key] : defaultValue;
   @override
   Future<void> put(key, value) async => _store[key] = value;
   @override
@@ -190,6 +229,7 @@ class E2EBox implements Box {
     _store.clear();
     return c;
   }
+
   @override
   bool containsKey(key) => _store.containsKey(key);
   @override
@@ -226,82 +266,88 @@ void main() {
       );
     });
 
-    testWidgets('Full User Journey: Subjects -> Attendance -> Dashboard -> Backup Cycle', (tester) async {
-      tester.view.physicalSize = const Size(800, 1600);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
+    testWidgets(
+      'Full User Journey: Subjects -> Attendance -> Dashboard -> Backup Cycle',
+      (tester) async {
+        tester.view.physicalSize = const Size(800, 1600);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
 
-      // 1. Create a subject (Algorithms, 4 credits, green)
-      final subAlgorithms = SubjectEntity(
-        id: 'sub_algo',
-        name: 'Design & Analysis of Algorithms',
-        code: 'CS501',
-        color: '#10B981',
-        createdAt: DateTime.parse('2026-11-20T09:00:00Z'),
-        updatedAt: DateTime.parse('2026-11-20T09:00:00Z'),
-      );
-      await subjectRepo.saveSubject(subAlgorithms);
+        // 1. Create a subject (Algorithms, 4 credits, green)
+        final subAlgorithms = SubjectEntity(
+          id: 'sub_algo',
+          name: 'Design & Analysis of Algorithms',
+          code: 'CS501',
+          color: '#10B981',
+          createdAt: DateTime.parse('2026-11-20T09:00:00Z'),
+          updatedAt: DateTime.parse('2026-11-20T09:00:00Z'),
+        );
+        await subjectRepo.saveSubject(subAlgorithms);
 
-      // 2. Log 8 attended classes out of 10 conducted (80.0% -> Safe against 75% threshold)
-      for (int i = 1; i <= 10; i++) {
-        final dayStr = i < 10 ? '0$i' : '$i';
-        await attendanceRepo.saveAttendanceRecord(AttendanceRecordEntity(
-          id: 'rec_$i',
-          date: '2026-11-$dayStr',
-          sessionId: 'session_$i',
-          subjectId: 'sub_algo',
-          status: i <= 8 ? AttendanceStatus.present : AttendanceStatus.absent,
-          createdAt: DateTime.parse('2026-11-${dayStr}T10:00:00Z'),
-          updatedAt: DateTime.parse('2026-11-${dayStr}T10:00:00Z'),
-        ));
-      }
-
-      // 3. Render Dashboard with Riverpod overrides
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            settingsRepositoryProvider.overrideWithValue(settingsRepo),
-            subjectRepositoryProvider.overrideWithValue(subjectRepo),
-            attendanceRepositoryProvider.overrideWithValue(attendanceRepo),
-            timetableRepositoryProvider.overrideWithValue(timetableRepo),
-            backupServiceProvider.overrideWithValue(backupService),
-          ],
-          child: const MaterialApp(
-            home: Scaffold(
-              body: DashboardPage(),
+        // 2. Log 8 attended classes out of 10 conducted (80.0% -> Safe against 75% threshold)
+        for (int i = 1; i <= 10; i++) {
+          final dayStr = i < 10 ? '0$i' : '$i';
+          await attendanceRepo.saveAttendanceRecord(
+            AttendanceRecordEntity(
+              id: 'rec_$i',
+              date: '2026-11-$dayStr',
+              sessionId: 'session_$i',
+              subjectId: 'sub_algo',
+              status: i <= 8
+                  ? AttendanceStatus.present
+                  : AttendanceStatus.absent,
+              createdAt: DateTime.parse('2026-11-${dayStr}T10:00:00Z'),
+              updatedAt: DateTime.parse('2026-11-${dayStr}T10:00:00Z'),
             ),
+          );
+        }
+
+        // 3. Render Dashboard with Riverpod overrides
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              settingsRepositoryProvider.overrideWithValue(settingsRepo),
+              subjectRepositoryProvider.overrideWithValue(subjectRepo),
+              attendanceRepositoryProvider.overrideWithValue(attendanceRepo),
+              timetableRepositoryProvider.overrideWithValue(timetableRepo),
+              backupServiceProvider.overrideWithValue(backupService),
+            ],
+            child: const MaterialApp(home: Scaffold(body: DashboardPage())),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      // 4. Verify Dashboard displays Attendance metrics & Subject Cards
-      expect(find.text('Dashboard'), findsOneWidget);
-      expect(find.text('B.Tech Computer Science'), findsOneWidget);
-      expect(find.text('CONDUCTED'), findsWidgets);
-      expect(find.text('PRESENT'), findsWidgets);
-      expect(find.text('80.0%'), findsWidgets); // Overall and subject percentage
-      expect(find.text('Design & Analysis of Algorithms'), findsOneWidget);
+        // 4. Verify Dashboard displays Attendance metrics & Subject Cards
+        expect(find.text('Dashboard'), findsOneWidget);
+        expect(find.text('B.Tech Computer Science'), findsOneWidget);
+        expect(find.text('CONDUCTED'), findsWidgets);
+        expect(find.text('PRESENT'), findsWidgets);
+        expect(
+          find.text('80.0%'),
+          findsWidgets,
+        ); // Overall and subject percentage
+        expect(find.text('Design & Analysis of Algorithms'), findsOneWidget);
 
-      // 5. Verify Backup export serialization preserves complete user journey data
-      final backupEnvelope = await backupService.createBackup();
-      expect(backupEnvelope['format'], 'college-attendance-tracker-backup');
-      expect(backupEnvelope['schemaVersion'], 2);
+        // 5. Verify Backup export serialization preserves complete user journey data
+        final backupEnvelope = await backupService.createBackup();
+        expect(backupEnvelope['format'], 'college-attendance-tracker-backup');
+        expect(backupEnvelope['schemaVersion'], 2);
 
-      final exportedData = backupEnvelope['data'] as Map<String, dynamic>;
-      expect(exportedData['name'], 'Rahul Sharma');
-      expect(exportedData['programName'], 'B.Tech Computer Science');
-      expect((exportedData['subjects'] as List).length, 1);
-      expect((exportedData['attendanceRecords'] as List).length, 10);
+        final exportedData = backupEnvelope['data'] as Map<String, dynamic>;
+        expect(exportedData['name'], 'Rahul Sharma');
+        expect(exportedData['programName'], 'B.Tech Computer Science');
+        expect((exportedData['subjects'] as List).length, 1);
+        expect((exportedData['attendanceRecords'] as List).length, 10);
 
-      // 6. Verify Backup restore round-trip
-      final restoreResult = await backupService.restoreBackup(exportedData);
-      expect(restoreResult.ok, isTrue);
+        // 6. Verify Backup restore round-trip
+        final restoreResult = await backupService.restoreBackup(exportedData);
+        expect(restoreResult.ok, isTrue);
 
-      final restoredSettings = await settingsRepo.getSettings();
-      expect(restoredSettings.name, 'Rahul Sharma');
-      expect(restoredSettings.minPercent, 75.0);
-    });
+        final restoredSettings = await settingsRepo.getSettings();
+        expect(restoredSettings.name, 'Rahul Sharma');
+        expect(restoredSettings.minPercent, 75.0);
+      },
+    );
   });
 }

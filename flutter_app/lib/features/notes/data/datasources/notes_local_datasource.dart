@@ -17,7 +17,7 @@ class NotesLocalDataSourceImpl implements NotesLocalDataSource {
   final Box _box;
 
   NotesLocalDataSourceImpl({Box? box})
-      : _box = box ?? DatabaseService.getBox(DatabaseService.notesBoxName);
+    : _box = box ?? DatabaseService.getBox(DatabaseService.notesBoxName);
 
   @override
   Future<List<NoteModel>> getNotes() async {
@@ -25,7 +25,10 @@ class NotesLocalDataSourceImpl implements NotesLocalDataSource {
       final rawData = _box.get('items', defaultValue: []);
       if (rawData is List) {
         return rawData
-            .map((item) => NoteModel.fromMap(Map<String, dynamic>.from(item as Map)))
+            .map(
+              (item) =>
+                  NoteModel.fromMap(Map<String, dynamic>.from(item as Map)),
+            )
             .toList();
       }
       return [];

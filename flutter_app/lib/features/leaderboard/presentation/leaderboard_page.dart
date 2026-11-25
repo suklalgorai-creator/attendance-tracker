@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../shared/widgets/glass_card.dart';
 import '../../dashboard/presentation/providers/dashboard_providers.dart';
 import '../domain/entities/leaderboard_entry_entity.dart';
 import 'providers/leaderboard_providers.dart';
@@ -21,35 +22,23 @@ class LeaderboardPage extends ConsumerWidget {
     final streak = ref.watch(streakCountProvider).valueOrNull ?? 0;
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor =
-        isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
     final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
     final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
-    final ruleBrightColor =
-        isDark ? AppColors.ruleBrightDark : AppColors.ruleBrightLight;
 
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
       children: [
         // Card 1: Attendance Leaderboard Overview
-        Container(
-          padding: const EdgeInsets.all(20.0),
-          decoration: BoxDecoration(
-            color: surfaceColor,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: ruleBrightColor,
-              width: 1.0,
-            ),
-          ),
+        GlassCard(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Attendance Leaderboard',
                 style: GoogleFonts.outfit(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
                   color: paperColor,
                 ),
               ),
@@ -63,10 +52,12 @@ class LeaderboardPage extends ConsumerWidget {
                 ),
               ),
               if (myRank > 0) ...[
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: isDark ? AppColors.ruleDark : AppColors.ruleLight,
                     borderRadius: BorderRadius.circular(12),
@@ -81,12 +72,12 @@ class LeaderboardPage extends ConsumerWidget {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text('🏆', style: TextStyle(fontSize: 18)),
+                          const Text('🏆', style: TextStyle(fontSize: 16)),
                           const SizedBox(width: 8),
                           Text(
                             'Your Rank',
                             style: GoogleFonts.outfit(
-                              fontSize: 14,
+                              fontSize: 13.5,
                               fontWeight: FontWeight.w700,
                               color: paperColor,
                             ),
@@ -96,7 +87,7 @@ class LeaderboardPage extends ConsumerWidget {
                       Text(
                         '#$myRank',
                         style: GoogleFonts.outfit(
-                          fontSize: 20,
+                          fontSize: 18,
                           fontWeight: FontWeight.w900,
                           color: AppColors.inkGreen,
                         ),
@@ -109,36 +100,28 @@ class LeaderboardPage extends ConsumerWidget {
           ),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
 
         // Card 2: Gamification Badges Showcase (Bronze, Silver, Gold, Platinum)
         BadgesShowcaseWidget(currentStreak: streak),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
 
         // Card 3: Rankings List Card
-        Container(
-          padding: const EdgeInsets.all(20.0),
-          decoration: BoxDecoration(
-            color: surfaceColor,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: ruleBrightColor,
-              width: 1.0,
-            ),
-          ),
+        GlassCard(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Class Rankings',
                 style: GoogleFonts.outfit(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
                   color: paperColor,
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
 
               entriesAsync.when(
                 loading: () => const Center(
@@ -236,7 +219,9 @@ class LeaderboardPage extends ConsumerWidget {
         border: Border.all(
           color: isYou
               ? AppColors.inkGreen
-              : (isDark ? AppColors.glassBorderDark : AppColors.glassBorderLight),
+              : (isDark
+                    ? AppColors.glassBorderDark
+                    : AppColors.glassBorderLight),
           width: isYou ? 2.0 : 1.0,
         ),
       ),
@@ -272,7 +257,9 @@ class LeaderboardPage extends ConsumerWidget {
                               overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.outfit(
                                 fontSize: 14,
-                                fontWeight: isYou ? FontWeight.w800 : FontWeight.w600,
+                                fontWeight: isYou
+                                    ? FontWeight.w800
+                                    : FontWeight.w600,
                                 color: isYou ? AppColors.inkGreen : paperColor,
                               ),
                             ),
@@ -281,7 +268,9 @@ class LeaderboardPage extends ConsumerWidget {
                             const SizedBox(width: 4),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 5, vertical: 1.5),
+                                horizontal: 5,
+                                vertical: 1.5,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.inkGreen,
                                 borderRadius: BorderRadius.circular(4),
@@ -311,8 +300,10 @@ class LeaderboardPage extends ConsumerWidget {
                 children: [
                   if (entry.streak > 0) ...[
                     Container(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.amberSoft,
                         borderRadius: BorderRadius.circular(6),
@@ -336,8 +327,8 @@ class LeaderboardPage extends ConsumerWidget {
                       color: entry.attendancePercent >= 75.0
                           ? AppColors.inkGreen
                           : (entry.attendancePercent >= 65.0
-                              ? AppColors.amber
-                              : AppColors.penRed),
+                                ? AppColors.amber
+                                : AppColors.penRed),
                     ),
                   ),
                 ],
@@ -349,10 +340,7 @@ class LeaderboardPage extends ConsumerWidget {
             return FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
-              child: SizedBox(
-                width: 260,
-                child: content,
-              ),
+              child: SizedBox(width: 260, child: content),
             );
           }
 

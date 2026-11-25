@@ -20,26 +20,32 @@ void main() {
 
   group('ViewTogglesWidget Tests', () {
     testWidgets('Renders all three modes: WEEK, MONTH, ALL', (tester) async {
-      await tester.pumpWidget(_wrap(
-        ViewTogglesWidget(
-          currentMode: RegisterViewMode.week,
-          onModeChanged: (_) {},
+      await tester.pumpWidget(
+        _wrap(
+          ViewTogglesWidget(
+            currentMode: RegisterViewMode.week,
+            onModeChanged: (_) {},
+          ),
         ),
-      ));
+      );
 
       expect(find.text('WEEK'), findsOneWidget);
       expect(find.text('MONTH'), findsOneWidget);
       expect(find.text('ALL'), findsOneWidget);
     });
 
-    testWidgets('Tapping segment invokes onModeChanged callback', (tester) async {
+    testWidgets('Tapping segment invokes onModeChanged callback', (
+      tester,
+    ) async {
       RegisterViewMode? selected;
-      await tester.pumpWidget(_wrap(
-        ViewTogglesWidget(
-          currentMode: RegisterViewMode.week,
-          onModeChanged: (mode) => selected = mode,
+      await tester.pumpWidget(
+        _wrap(
+          ViewTogglesWidget(
+            currentMode: RegisterViewMode.week,
+            onModeChanged: (mode) => selected = mode,
+          ),
         ),
-      ));
+      );
 
       await tester.tap(find.text('MONTH'));
       await tester.pump();
@@ -50,15 +56,21 @@ void main() {
       expect(selected, RegisterViewMode.all);
     });
 
-    testWidgets('Active mode renders with distinct surface shadow', (tester) async {
-      await tester.pumpWidget(_wrap(
-        ViewTogglesWidget(
-          currentMode: RegisterViewMode.month,
-          onModeChanged: (_) {},
+    testWidgets('Active mode renders with distinct surface shadow', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          ViewTogglesWidget(
+            currentMode: RegisterViewMode.month,
+            onModeChanged: (_) {},
+          ),
         ),
-      ));
+      );
 
-      final containers = tester.widgetList<AnimatedContainer>(find.byType(AnimatedContainer)).toList();
+      final containers = tester
+          .widgetList<AnimatedContainer>(find.byType(AnimatedContainer))
+          .toList();
       // Second container corresponds to 'Month'
       final activeContainer = containers[1];
       final deco = activeContainer.decoration as BoxDecoration;

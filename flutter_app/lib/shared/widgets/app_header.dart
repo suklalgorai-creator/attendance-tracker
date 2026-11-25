@@ -6,6 +6,7 @@ import '../../core/constants/app_radius.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_typography.dart';
 import '../../features/sync/presentation/widgets/sync_indicator_widget.dart';
+import 'streak_popup_dialog.dart';
 
 /// App header component replicating AppLayout.jsx header:
 /// - Hamburger menu button (opens Drawer)
@@ -18,6 +19,7 @@ class AppHeader extends ConsumerWidget {
   final String? programName;
   final String? courseName;
   final int streak;
+  final bool showMenuButton;
 
   const AppHeader({
     super.key,
@@ -25,23 +27,41 @@ class AppHeader extends ConsumerWidget {
     this.programName,
     this.courseName,
     this.streak = 0,
+    this.showMenuButton = true,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceHoverDark : AppColors.surfaceHoverLight;
-    final borderColor = isDark ? AppColors.ruleBrightDark : AppColors.ruleBrightLight;
+    final surfaceColor = isDark
+        ? AppColors.surfaceHoverDark
+        : AppColors.surfaceHoverLight;
+    final borderColor = isDark
+        ? AppColors.ruleBrightDark
+        : AppColors.ruleBrightLight;
 
-    final gradStart = isDark ? AppColors.textGradientStartDark : AppColors.textGradientStartLight;
-    final gradEnd = isDark ? AppColors.textGradientEndDark : AppColors.textGradientEndLight;
+    final gradStart = isDark
+        ? AppColors.textGradientStartDark
+        : AppColors.textGradientStartLight;
+    final gradEnd = isDark
+        ? AppColors.textGradientEndDark
+        : AppColors.textGradientEndLight;
 
-    final eyebrowText = programName != null && programName!.isNotEmpty
-        ? programName!.toUpperCase()
-        : 'ATTENDANCE REGISTER';
+    final eyebrowParts = [
+      if (programName != null && programName!.trim().isNotEmpty)
+        programName!.trim(),
+      if (courseName != null && courseName!.trim().isNotEmpty)
+        courseName!.trim(),
+    ];
+    final eyebrowText = eyebrowParts.isEmpty
+        ? 'ATTENDANCE REGISTER'
+        : eyebrowParts.join(' • ').toUpperCase();
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.sm,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -49,25 +69,29 @@ class AppHeader extends ConsumerWidget {
           Expanded(
             child: Row(
               children: [
-                InkWell(
-                  onTap: onMenuPressed,
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: surfaceColor,
-                      borderRadius: BorderRadius.circular(AppRadius.md),
-                      border: Border.all(color: borderColor, width: 1),
-                    ),
-                    child: Icon(
-                      Icons.menu_rounded,
-                      size: 20,
-                      color: isDark ? AppColors.paperDark : AppColors.paperLight,
+                if (showMenuButton) ...[
+                  InkWell(
+                    onTap: onMenuPressed,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: surfaceColor,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        border: Border.all(color: borderColor, width: 1),
+                      ),
+                      child: Icon(
+                        Icons.menu_rounded,
+                        size: 20,
+                        color: isDark
+                            ? AppColors.paperDark
+                            : AppColors.paperLight,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: AppSpacing.md),
+                  const SizedBox(width: AppSpacing.md),
+                ],
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +110,7 @@ class AppHeader extends ConsumerWidget {
                           end: Alignment.bottomRight,
                         ).createShader(bounds),
                         child: Text(
-                          courseName ?? 'My Attendance',
+                          'My Attendance',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: AppTypography.courseTitle(Colors.white),
@@ -124,23 +148,37 @@ class AppHeader extends ConsumerWidget {
               ),
               if (streak > 0) ...[
                 const SizedBox(width: AppSpacing.sm),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: surfaceColor,
+                Semantics(
+                  button: true,
+                  label: '$streak day streak, tap to view details',
+                  child: InkWell(
+                    key: const Key('header_streak_button'),
+                    onTap: () => showStreakDialog(context, streak: streak),
                     borderRadius: BorderRadius.circular(AppRadius.full),
-                    border: Border.all(color: AppColors.amber, width: 1),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text('🔥', style: TextStyle(fontSize: 16)),
-                      const SizedBox(width: 4),
-                      Text(
-                        '$streak',
-                        style: AppTypography.statLabel(AppColors.amber).copyWith(fontWeight: FontWeight.w800),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
                       ),
-                    ],
+                      decoration: BoxDecoration(
+                        color: surfaceColor,
+                        borderRadius: BorderRadius.circular(AppRadius.full),
+                        border: Border.all(color: AppColors.amber, width: 1),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('🔥', style: TextStyle(fontSize: 16)),
+                          const SizedBox(width: 4),
+                          Text(
+                            '$streak',
+                            style: AppTypography.statLabel(
+                              AppColors.amber,
+                            ).copyWith(fontWeight: FontWeight.w800),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],

@@ -35,7 +35,11 @@ class DashboardAnalyticsService {
   /// Uses a `- 1e-10` floating-point precision guard to prevent ceiling artifacts.
   /// Returns `0` if already at or above [threshold]%.
   /// Returns `-1` (impossible) if [threshold] >= 100.0 and attendance < 100%.
-  int calculateRequiredRecoveryClasses(int present, int conducted, double threshold) {
+  int calculateRequiredRecoveryClasses(
+    int present,
+    int conducted,
+    double threshold,
+  ) {
     return AttendanceCalculator.calculateRequiredRecoveryClasses(
       present,
       conducted,
@@ -134,17 +138,19 @@ class DashboardAnalyticsService {
   }
 
   /// Computes overall dashboard statistics aggregating session records and legacy data.
+  /// Excludes soft-deleted records, non-conducted statuses (cancelled/unmarked), and [holidays].
   DashboardStats computeOverallStats({
     required List<AttendanceRecordEntity> attendanceRecords,
     required List<LegacyAttendanceEntity> legacyAttendance,
     double minPercent = 75.0,
     int unmarkedPastSessions = 0,
+    Set<String> holidays = const {},
   }) {
     var presentCount = 0;
     var absentCount = 0;
 
     for (final record in attendanceRecords) {
-      if (record.isDeleted) continue;
+      if (record.isDeleted || holidays.contains(record.date)) continue;
       if (record.status == AttendanceStatus.present) {
         presentCount++;
       } else if (record.status == AttendanceStatus.absent) {
@@ -153,7 +159,7 @@ class DashboardAnalyticsService {
     }
 
     for (final legacy in legacyAttendance) {
-      if (legacy.isDeleted) continue;
+      if (legacy.isDeleted || holidays.contains(legacy.date)) continue;
       presentCount += legacy.attended;
       absentCount += (legacy.held - legacy.attended).clamp(0, 999999);
     }
@@ -162,7 +168,9 @@ class DashboardAnalyticsService {
     final percentage = calculateAttendance(presentCount, conducted);
     final isSafe = percentage == null || percentage >= minPercent;
     final isImpossible = !isSafe && minPercent >= 100.0;
-    final canMiss = isSafe ? calculateMaximumAbsences(presentCount, conducted, minPercent) : 0;
+    final canMiss = isSafe
+        ? calculateMaximumAbsences(presentCount, conducted, minPercent)
+        : 0;
     final recovery = isSafe
         ? 0
         : calculateRequiredRecoveryClasses(presentCount, conducted, minPercent);
@@ -183,16 +191,22 @@ class DashboardAnalyticsService {
   }
 
   /// Computes metrics for an individual subject.
+  /// Excludes soft-deleted records, non-conducted statuses (cancelled/unmarked), and [holidays].
   SubjectAttendanceStats computeSubjectStats({
     required SubjectEntity subject,
     required List<AttendanceRecordEntity> attendanceRecords,
     double minPercent = 75.0,
+    Set<String> holidays = const {},
   }) {
     var presentCount = 0;
     var absentCount = 0;
 
     for (final record in attendanceRecords) {
-      if (record.isDeleted || record.subjectId != subject.id) continue;
+      if (record.isDeleted ||
+          record.subjectId != subject.id ||
+          holidays.contains(record.date)) {
+        continue;
+      }
       if (record.status == AttendanceStatus.present) {
         presentCount++;
       } else if (record.status == AttendanceStatus.absent) {
@@ -205,10 +219,16 @@ class DashboardAnalyticsService {
     final effectiveThreshold = subject.targetPercentage ?? minPercent;
     final isSafe = percentage == null || percentage >= effectiveThreshold;
     final isImpossible = !isSafe && effectiveThreshold >= 100.0;
-    final canMiss = isSafe ? calculateMaximumAbsences(presentCount, conducted, effectiveThreshold) : 0;
+    final canMiss = isSafe
+        ? calculateMaximumAbsences(presentCount, conducted, effectiveThreshold)
+        : 0;
     final recovery = isSafe
         ? 0
-        : calculateRequiredRecoveryClasses(presentCount, conducted, effectiveThreshold);
+        : calculateRequiredRecoveryClasses(
+            presentCount,
+            conducted,
+            effectiveThreshold,
+          );
     final needToAttend = recovery < 0 ? 0 : recovery;
 
     return SubjectAttendanceStats(
@@ -229,14 +249,20 @@ class DashboardAnalyticsService {
     required List<SubjectEntity> subjects,
     required List<AttendanceRecordEntity> attendanceRecords,
     double minPercent = 75.0,
+    Set<String> holidays = const {},
   }) {
-    final activeSubjects = subjects.where((s) => s.active && !s.isDeleted).toList();
+    final activeSubjects = subjects
+        .where((s) => s.active && !s.isDeleted)
+        .toList();
     return activeSubjects
-        .map((subject) => computeSubjectStats(
-              subject: subject,
-              attendanceRecords: attendanceRecords,
-              minPercent: minPercent,
-            ))
+        .map(
+          (subject) => computeSubjectStats(
+            subject: subject,
+            attendanceRecords: attendanceRecords,
+            minPercent: minPercent,
+            holidays: holidays,
+          ),
+        )
         .toList();
   }
 }

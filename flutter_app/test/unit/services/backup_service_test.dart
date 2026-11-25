@@ -43,16 +43,25 @@ class FakeSubjectRepo implements SubjectRepository {
 
   @override
   Future<List<SubjectEntity>> getSubjects({bool includeDeleted = false}) async {
-    return includeDeleted ? subjects : subjects.where((s) => !s.isDeleted).toList();
+    return includeDeleted
+        ? subjects
+        : subjects.where((s) => !s.isDeleted).toList();
   }
 
   @override
   Stream<List<SubjectEntity>> watchSubjects({bool includeDeleted = false}) =>
-      Stream.value(includeDeleted ? subjects : subjects.where((s) => !s.isDeleted).toList());
+      Stream.value(
+        includeDeleted
+            ? subjects
+            : subjects.where((s) => !s.isDeleted).toList(),
+      );
 
   @override
   Future<SubjectEntity?> getSubjectById(String id) async {
-    return subjects.cast<SubjectEntity?>().firstWhere((s) => s?.id == id, orElse: () => null);
+    return subjects.cast<SubjectEntity?>().firstWhere(
+      (s) => s?.id == id,
+      orElse: () => null,
+    );
   }
 
   @override
@@ -93,15 +102,21 @@ class FakeTimetableRepo implements TimetableRepository {
   Map<int, List<TimetableSessionEntity>> timetable = {};
 
   @override
-  Future<Map<int, List<TimetableSessionEntity>>> getTimetable({bool includeDeleted = false}) async =>
-      timetable;
+  Future<Map<int, List<TimetableSessionEntity>>> getTimetable({
+    bool includeDeleted = false,
+  }) async => timetable;
 
   @override
-  Stream<Map<int, List<TimetableSessionEntity>>> watchTimetable({bool includeDeleted = false}) =>
-      Stream.value(timetable);
+  Stream<Map<int, List<TimetableSessionEntity>>> watchTimetable({
+    bool includeDeleted = false,
+  }) => Stream.value(timetable);
 
   @override
-  Future<void> addSession(int dayOfWeek, String subjectId, {String? label}) async {}
+  Future<void> addSession(
+    int dayOfWeek,
+    String subjectId, {
+    String? label,
+  }) async {}
 
   @override
   Future<void> removeSession(int dayOfWeek, String sessionId) async {}
@@ -112,7 +127,9 @@ class FakeTimetableRepo implements TimetableRepository {
   }
 
   @override
-  Future<void> saveTimetable(Map<int, List<TimetableSessionEntity>> newTimetable) async {
+  Future<void> saveTimetable(
+    Map<int, List<TimetableSessionEntity>> newTimetable,
+  ) async {
     timetable = Map.from(newTimetable);
   }
 }
@@ -122,21 +139,32 @@ class FakeAttendanceRepo implements AttendanceRepository {
   List<LegacyAttendanceEntity> legacy = [];
 
   @override
-  Future<List<AttendanceRecordEntity>> getAttendanceRecords({bool includeDeleted = false}) async {
-    return includeDeleted ? records : records.where((r) => !r.isDeleted).toList();
+  Future<List<AttendanceRecordEntity>> getAttendanceRecords({
+    bool includeDeleted = false,
+  }) async {
+    return includeDeleted
+        ? records
+        : records.where((r) => !r.isDeleted).toList();
   }
 
   @override
-  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({bool includeDeleted = false}) =>
-      Stream.value(includeDeleted ? records : records.where((r) => !r.isDeleted).toList());
+  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({
+    bool includeDeleted = false,
+  }) => Stream.value(
+    includeDeleted ? records : records.where((r) => !r.isDeleted).toList(),
+  );
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForDate(String date, {bool includeDeleted = false}) async =>
-      records.where((r) => r.date == date).toList();
+  Future<List<AttendanceRecordEntity>> getRecordsForDate(
+    String date, {
+    bool includeDeleted = false,
+  }) async => records.where((r) => r.date == date).toList();
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForSubject(String subjectId, {bool includeDeleted = false}) async =>
-      records.where((r) => r.subjectId == subjectId).toList();
+  Future<List<AttendanceRecordEntity>> getRecordsForSubject(
+    String subjectId, {
+    bool includeDeleted = false,
+  }) async => records.where((r) => r.subjectId == subjectId).toList();
 
   @override
   Future<void> saveAttendanceRecord(AttendanceRecordEntity record) async {
@@ -145,7 +173,9 @@ class FakeAttendanceRepo implements AttendanceRepository {
   }
 
   @override
-  Future<void> saveAttendanceRecords(List<AttendanceRecordEntity> newRecords) async {
+  Future<void> saveAttendanceRecords(
+    List<AttendanceRecordEntity> newRecords,
+  ) async {
     for (final r in newRecords) {
       records.removeWhere((existing) => existing.id == r.id);
       records.add(r);
@@ -169,13 +199,18 @@ class FakeAttendanceRepo implements AttendanceRepository {
   }
 
   @override
-  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({bool includeDeleted = false}) async {
+  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({
+    bool includeDeleted = false,
+  }) async {
     return includeDeleted ? legacy : legacy.where((l) => !l.isDeleted).toList();
   }
 
   @override
-  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({bool includeDeleted = false}) =>
-      Stream.value(includeDeleted ? legacy : legacy.where((l) => !l.isDeleted).toList());
+  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({
+    bool includeDeleted = false,
+  }) => Stream.value(
+    includeDeleted ? legacy : legacy.where((l) => !l.isDeleted).toList(),
+  );
 
   @override
   Future<void> saveLegacyAttendance(LegacyAttendanceEntity record) async {
@@ -184,7 +219,9 @@ class FakeAttendanceRepo implements AttendanceRepository {
   }
 
   @override
-  Future<void> saveLegacyAttendances(List<LegacyAttendanceEntity> newRecords) async {
+  Future<void> saveLegacyAttendances(
+    List<LegacyAttendanceEntity> newRecords,
+  ) async {
     for (final l in newRecords) {
       legacy.removeWhere((existing) => existing.id == l.id);
       legacy.add(l);
@@ -209,7 +246,9 @@ class FakeAttendanceRepo implements AttendanceRepository {
 
   @override
   Future<void> clearAllAttendanceHistory() async {
-    records = records.map((r) => r.copyWith(deletedAt: DateTime.now())).toList();
+    records = records
+        .map((r) => r.copyWith(deletedAt: DateTime.now()))
+        .toList();
     legacy = legacy.map((l) => l.copyWith(deletedAt: DateTime.now())).toList();
   }
 }
@@ -224,8 +263,9 @@ class FakeNotesRepo implements NotesRepository {
   Stream<List<NoteEntity>> watchNotes() => Stream.value(notes);
 
   @override
-  Future<NoteEntity?> getNoteById(String id) async =>
-      notes.cast<NoteEntity?>().firstWhere((n) => n?.id == id, orElse: () => null);
+  Future<NoteEntity?> getNoteById(String id) async => notes
+      .cast<NoteEntity?>()
+      .firstWhere((n) => n?.id == id, orElse: () => null);
 
   @override
   Future<void> saveNote(NoteEntity note) async {
@@ -257,7 +297,8 @@ class FakeBox implements Box {
   final Map<dynamic, dynamic> storage = {};
 
   @override
-  dynamic get(key, {defaultValue}) => storage.containsKey(key) ? storage[key] : defaultValue;
+  dynamic get(key, {defaultValue}) =>
+      storage.containsKey(key) ? storage[key] : defaultValue;
 
   @override
   Future<void> put(key, value) async {
@@ -320,51 +361,78 @@ void main() {
       );
     });
 
-    test('parseBackup with empty string or null fails with 5MB/empty safety limit message', () {
-      final res1 = backupService.parseBackup('');
-      expect(res1.isValid, isFalse);
-      expect(res1.error, 'Backup file is empty or exceeds the 5 MB safety limit.');
+    test(
+      'parseBackup with empty string or null fails with 5MB/empty safety limit message',
+      () {
+        final res1 = backupService.parseBackup('');
+        expect(res1.isValid, isFalse);
+        expect(
+          res1.error,
+          'Backup file is empty or exceeds the 5 MB safety limit.',
+        );
 
-      final res2 = backupService.parseBackup(null);
-      expect(res2.isValid, isFalse);
-      expect(res2.error, 'Backup file is empty or exceeds the 5 MB safety limit.');
-    });
+        final res2 = backupService.parseBackup(null);
+        expect(res2.isValid, isFalse);
+        expect(
+          res2.error,
+          'Backup file is empty or exceeds the 5 MB safety limit.',
+        );
+      },
+    );
 
     test('parseBackup exceeding 5MB fails with safety limit message', () {
       // 5MB + 1 byte
       final bigBytes = Uint8List(5 * 1024 * 1024 + 1);
       final res = backupService.parseBackup(bigBytes);
       expect(res.isValid, isFalse);
-      expect(res.error, 'Backup file is empty or exceeds the 5 MB safety limit.');
+      expect(
+        res.error,
+        'Backup file is empty or exceeds the 5 MB safety limit.',
+      );
     });
 
     test('parseBackup with malformed JSON fails with valid JSON message', () {
       final res = backupService.parseBackup('{ invalid json: here ');
       expect(res.isValid, isFalse);
-      expect(res.error, 'This file is not valid JSON. Existing data was not changed.');
+      expect(
+        res.error,
+        'This file is not valid JSON. Existing data was not changed.',
+      );
     });
 
-    test('parseBackup with wrong format identifier fails with format error message', () {
-      final raw = jsonEncode({
-        'format': 'unknown-format',
-        'schemaVersion': 2,
-        'data': {},
-      });
-      final res = backupService.parseBackup(raw);
-      expect(res.isValid, isFalse);
-      expect(res.error, 'This is not a College Attendance Tracker backup. Existing data was not changed.');
-    });
+    test(
+      'parseBackup with wrong format identifier fails with format error message',
+      () {
+        final raw = jsonEncode({
+          'format': 'unknown-format',
+          'schemaVersion': 2,
+          'data': {},
+        });
+        final res = backupService.parseBackup(raw);
+        expect(res.isValid, isFalse);
+        expect(
+          res.error,
+          'This is not a College Attendance Tracker backup. Existing data was not changed.',
+        );
+      },
+    );
 
-    test('parseBackup with newer schemaVersion fails with newer version error message', () {
-      final raw = jsonEncode({
-        'format': 'college-attendance-tracker-backup',
-        'schemaVersion': 99,
-        'data': {},
-      });
-      final res = backupService.parseBackup(raw);
-      expect(res.isValid, isFalse);
-      expect(res.error, 'This backup is from a newer app version and cannot be restored safely.');
-    });
+    test(
+      'parseBackup with newer schemaVersion fails with newer version error message',
+      () {
+        final raw = jsonEncode({
+          'format': 'college-attendance-tracker-backup',
+          'schemaVersion': 99,
+          'data': {},
+        });
+        final res = backupService.parseBackup(raw);
+        expect(res.isValid, isFalse);
+        expect(
+          res.error,
+          'This backup is from a newer app version and cannot be restored safely.',
+        );
+      },
+    );
 
     test('parseBackup parses valid V2 backup and extracts summary counts', () {
       final now = DateTime.now();
@@ -388,8 +456,8 @@ void main() {
                 'label': 'Mathematics',
                 'dayOfWeek': 1,
                 'active': true,
-              }
-            ]
+              },
+            ],
           },
           'subjects': [
             {
@@ -399,7 +467,7 @@ void main() {
               'active': true,
               'createdAt': now.toIso8601String(),
               'updatedAt': now.toIso8601String(),
-            }
+            },
           ],
           'attendanceRecords': [
             {
@@ -408,7 +476,7 @@ void main() {
               'subjectId': 'sub-math',
               'sessionId': 'sess-1',
               'status': 'PRESENT',
-            }
+            },
           ],
           'legacyAttendance': [
             {
@@ -416,15 +484,12 @@ void main() {
               'date': '2026-01-20',
               'held': 4,
               'attended': 3,
-            }
+            },
           ],
           'notes': [
-            {
-              'id': 'note-1',
-              'content': 'Study Calculus tonight',
-            }
+            {'id': 'note-1', 'content': 'Study Calculus tonight'},
           ],
-        }
+        },
       };
 
       final res = backupService.parseBackup(jsonEncode(validV2));
@@ -438,170 +503,198 @@ void main() {
       expect(res.summary!.quarantinedCount, 0);
     });
 
-    test('parseBackup handles V1 legacy daily records and string timetable sessions', () {
-      final v1 = {
-        'format': 'college-attendance-tracker-backup',
-        'schemaVersion': 1,
-        'data': {
-          'records': {
-            '2026-01-10': {'held': 2, 'attended': 2},
-            '2026-01-11': {'held': 3, 'attended': 1},
+    test(
+      'parseBackup handles V1 legacy daily records and string timetable sessions',
+      () {
+        final v1 = {
+          'format': 'college-attendance-tracker-backup',
+          'schemaVersion': 1,
+          'data': {
+            'records': {
+              '2026-01-10': {'held': 2, 'attended': 2},
+              '2026-01-11': {'held': 3, 'attended': 1},
+            },
+            'timetable': {
+              '1': ['Algorithms', 'Data Structures'],
+            },
+            'subjects': [],
           },
-          'timetable': {
-            '1': ['Algorithms', 'Data Structures'],
-          },
-          'subjects': [],
-        }
-      };
+        };
 
-      final res = backupService.parseBackup(jsonEncode(v1));
-      expect(res.isValid, isTrue);
-      expect(res.summary, isNotNull);
-      expect(res.summary!.legacyRecordsCount, 2);
-      expect(res.summary!.sessionsCount, 2);
-      expect(res.summary!.subjectsCount, 2); // synthesized legacy subjects
-    });
+        final res = backupService.parseBackup(jsonEncode(v1));
+        expect(res.isValid, isTrue);
+        expect(res.summary, isNotNull);
+        expect(res.summary!.legacyRecordsCount, 2);
+        expect(res.summary!.sessionsCount, 2);
+        expect(res.summary!.subjectsCount, 2); // synthesized legacy subjects
+      },
+    );
 
-    test('createBackup exports current application state into validated envelope', () async {
-      final now = DateTime.now();
-      await settingsRepo.saveSettings(const UserSettingsEntity(name: 'Alice', programName: 'BCA'));
-      await subjectRepo.saveSubject(SubjectEntity(
-        id: 'sub-1',
-        name: 'Operating Systems',
-        createdAt: now,
-        updatedAt: now,
-      ));
+    test(
+      'createBackup exports current application state into validated envelope',
+      () async {
+        final now = DateTime.now();
+        await settingsRepo.saveSettings(
+          const UserSettingsEntity(name: 'Alice', programName: 'BCA'),
+        );
+        await subjectRepo.saveSubject(
+          SubjectEntity(
+            id: 'sub-1',
+            name: 'Operating Systems',
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
 
-      final exportMap = await backupService.createBackup();
-      expect(exportMap['format'], 'college-attendance-tracker-backup');
-      expect(exportMap['schemaVersion'], 2);
-      expect(exportMap['data'], isA<Map<String, dynamic>>());
+        final exportMap = await backupService.createBackup();
+        expect(exportMap['format'], 'college-attendance-tracker-backup');
+        expect(exportMap['schemaVersion'], 2);
+        expect(exportMap['data'], isA<Map<String, dynamic>>());
 
-      final exportData = exportMap['data'] as Map<String, dynamic>;
-      expect(exportData['name'], 'Alice');
-      expect(exportData['programName'], 'BCA');
-      expect((exportData['subjects'] as List).length, 1);
+        final exportData = exportMap['data'] as Map<String, dynamic>;
+        expect(exportData['name'], 'Alice');
+        expect(exportData['programName'], 'BCA');
+        expect((exportData['subjects'] as List).length, 1);
 
-      final jsonStr = await backupService.createBackupJsonString();
-      expect(jsonStr.contains('Operating Systems'), isTrue);
-    });
+        final jsonStr = await backupService.createBackupJsonString();
+        expect(jsonStr.contains('Operating Systems'), isTrue);
+      },
+    );
 
-    test('restoreBackup saves pre-restore safety snapshot and restores all data', () async {
-      final now = DateTime.now();
-      // Current state before restore
-      await settingsRepo.saveSettings(const UserSettingsEntity(name: 'Before User'));
+    test(
+      'restoreBackup saves pre-restore safety snapshot and restores all data',
+      () async {
+        final now = DateTime.now();
+        // Current state before restore
+        await settingsRepo.saveSettings(
+          const UserSettingsEntity(name: 'Before User'),
+        );
 
-      // New data to restore
-      final backupData = {
-        'name': 'Restored User',
-        'programName': 'B.Tech IT',
-        'minPercent': 85.0,
-        'classDays': [1, 2, 3, 4],
-        'subjects': [
-          {
-            'id': 'sub-restored',
-            'name': 'Cloud Computing',
-            'createdAt': now.toIso8601String(),
-            'updatedAt': now.toIso8601String(),
-          }
-        ],
-        'timetable': {
-          '1': [
+        // New data to restore
+        final backupData = {
+          'name': 'Restored User',
+          'programName': 'B.Tech IT',
+          'minPercent': 85.0,
+          'classDays': [1, 2, 3, 4],
+          'subjects': [
             {
-              'id': 'sess-restored',
+              'id': 'sub-restored',
+              'name': 'Cloud Computing',
+              'createdAt': now.toIso8601String(),
+              'updatedAt': now.toIso8601String(),
+            },
+          ],
+          'timetable': {
+            '1': [
+              {
+                'id': 'sess-restored',
+                'subjectId': 'sub-restored',
+                'label': 'Cloud Computing',
+                'dayOfWeek': 1,
+              },
+            ],
+          },
+          'attendanceRecords': [
+            {
+              'id': 'rec-restored',
+              'date': '2026-03-01',
               'subjectId': 'sub-restored',
-              'label': 'Cloud Computing',
-              'dayOfWeek': 1,
-            }
-          ]
-        },
-        'attendanceRecords': [
-          {
-            'id': 'rec-restored',
-            'date': '2026-03-01',
-            'subjectId': 'sub-restored',
-            'sessionId': 'sess-restored',
-            'status': 'PRESENT',
-          }
-        ],
-        'notes': [
-          {
-            'id': 'note-restored',
-            'content': 'Prepare presentation',
-          }
-        ],
-      };
+              'sessionId': 'sess-restored',
+              'status': 'PRESENT',
+            },
+          ],
+          'notes': [
+            {'id': 'note-restored', 'content': 'Prepare presentation'},
+          ],
+        };
 
-      final result = await backupService.restoreBackup(backupData);
-      expect(result.ok, isTrue);
+        final result = await backupService.restoreBackup(backupData);
+        expect(result.ok, isTrue);
 
-      // Verify pre-restore snapshot was stored in settingsBox
-      final preRestoreKeys = settingsBox.keys.where((k) => k.toString().startsWith('pre_restore_'));
-      expect(preRestoreKeys.isNotEmpty, isTrue);
+        // Verify pre-restore snapshot was stored in settingsBox
+        final preRestoreKeys = settingsBox.keys.where(
+          (k) => k.toString().startsWith('pre_restore_'),
+        );
+        expect(preRestoreKeys.isNotEmpty, isTrue);
 
-      // Verify restored entities
-      final updatedSettings = await settingsRepo.getSettings();
-      expect(updatedSettings.name, 'Restored User');
-      expect(updatedSettings.programName, 'B.Tech IT');
-      expect(updatedSettings.minPercent, 85.0);
-      expect(updatedSettings.classDays, [1, 2, 3, 4]);
+        // Verify restored entities
+        final updatedSettings = await settingsRepo.getSettings();
+        expect(updatedSettings.name, 'Restored User');
+        expect(updatedSettings.programName, 'B.Tech IT');
+        expect(updatedSettings.minPercent, 85.0);
+        expect(updatedSettings.classDays, [1, 2, 3, 4]);
 
-      final updatedSubjects = await subjectRepo.getSubjects();
-      expect(updatedSubjects.any((s) => s.name == 'Cloud Computing'), isTrue);
+        final updatedSubjects = await subjectRepo.getSubjects();
+        expect(updatedSubjects.any((s) => s.name == 'Cloud Computing'), isTrue);
 
-      final updatedTimetable = await timetableRepo.getTimetable();
-      expect(updatedTimetable[1]?.first.label, 'Cloud Computing');
+        final updatedTimetable = await timetableRepo.getTimetable();
+        expect(updatedTimetable[1]?.first.label, 'Cloud Computing');
 
-      final updatedRecords = await attendanceRepo.getAttendanceRecords();
-      expect(updatedRecords.any((r) => r.id == 'rec-restored'), isTrue);
+        final updatedRecords = await attendanceRepo.getAttendanceRecords();
+        expect(updatedRecords.any((r) => r.id == 'rec-restored'), isTrue);
 
-      final updatedNotes = await notesRepo.getNotes();
-      expect(updatedNotes.any((n) => n.content == 'Prepare presentation'), isTrue);
-    });
+        final updatedNotes = await notesRepo.getNotes();
+        expect(
+          updatedNotes.any((n) => n.content == 'Prepare presentation'),
+          isTrue,
+        );
+      },
+    );
 
-    test('resetAllAttendanceAndNotes clears attendance & notes but preserves subjects and settings', () async {
-      final now = DateTime.now();
-      await settingsRepo.saveSettings(const UserSettingsEntity(name: 'Preserved Profile'));
-      await subjectRepo.saveSubject(SubjectEntity(
-        id: 'sub-preserve',
-        name: 'Preserved Subject',
-        createdAt: now,
-        updatedAt: now,
-      ));
-      await attendanceRepo.saveAttendanceRecord(AttendanceRecordEntity(
-        id: 'rec-to-clear',
-        date: '2026-02-15',
-        sessionId: 'sess-1',
-        status: AttendanceStatus.present,
-        createdAt: now,
-        updatedAt: now,
-      ));
-      await notesRepo.saveNote(NoteEntity(
-        id: 'note-to-clear',
-        content: 'Clear me',
-        createdAt: now,
-      ));
+    test(
+      'resetAllAttendanceAndNotes clears attendance & notes but preserves subjects and settings',
+      () async {
+        final now = DateTime.now();
+        await settingsRepo.saveSettings(
+          const UserSettingsEntity(name: 'Preserved Profile'),
+        );
+        await subjectRepo.saveSubject(
+          SubjectEntity(
+            id: 'sub-preserve',
+            name: 'Preserved Subject',
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+        await attendanceRepo.saveAttendanceRecord(
+          AttendanceRecordEntity(
+            id: 'rec-to-clear',
+            date: '2026-02-15',
+            sessionId: 'sess-1',
+            status: AttendanceStatus.present,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+        await notesRepo.saveNote(
+          NoteEntity(id: 'note-to-clear', content: 'Clear me', createdAt: now),
+        );
 
-      final success = await backupService.resetAllAttendanceAndNotes();
-      expect(success, isTrue);
+        final success = await backupService.resetAllAttendanceAndNotes();
+        expect(success, isTrue);
 
-      // Verify safety snapshot taken
-      final preRestoreKeys = settingsBox.keys.where((k) => k.toString().startsWith('pre_restore_'));
-      expect(preRestoreKeys.isNotEmpty, isTrue);
+        // Verify safety snapshot taken
+        final preRestoreKeys = settingsBox.keys.where(
+          (k) => k.toString().startsWith('pre_restore_'),
+        );
+        expect(preRestoreKeys.isNotEmpty, isTrue);
 
-      // Verify attendance records are soft-deleted
-      final activeRecords = await attendanceRepo.getAttendanceRecords(includeDeleted: false);
-      expect(activeRecords.isEmpty, isTrue);
+        // Verify attendance records are soft-deleted
+        final activeRecords = await attendanceRepo.getAttendanceRecords(
+          includeDeleted: false,
+        );
+        expect(activeRecords.isEmpty, isTrue);
 
-      // Verify notes are cleared
-      final notes = await notesRepo.getNotes();
-      expect(notes.isEmpty, isTrue);
+        // Verify notes are cleared
+        final notes = await notesRepo.getNotes();
+        expect(notes.isEmpty, isTrue);
 
-      // Verify subjects and settings remain untouched
-      final settings = await settingsRepo.getSettings();
-      expect(settings.name, 'Preserved Profile');
-      final subjects = await subjectRepo.getSubjects();
-      expect(subjects.any((s) => s.name == 'Preserved Subject'), isTrue);
-    });
+        // Verify subjects and settings remain untouched
+        final settings = await settingsRepo.getSettings();
+        expect(settings.name, 'Preserved Profile');
+        final subjects = await subjectRepo.getSubjects();
+        expect(subjects.any((s) => s.name == 'Preserved Subject'), isTrue);
+      },
+    );
   });
 }

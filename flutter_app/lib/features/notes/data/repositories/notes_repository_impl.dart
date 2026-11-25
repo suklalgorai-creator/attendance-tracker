@@ -7,7 +7,7 @@ class NotesRepositoryImpl implements NotesRepository {
   final NotesLocalDataSource _localDataSource;
 
   NotesRepositoryImpl({NotesLocalDataSource? localDataSource})
-      : _localDataSource = localDataSource ?? NotesLocalDataSourceImpl();
+    : _localDataSource = localDataSource ?? NotesLocalDataSourceImpl();
 
   @override
   Future<List<NoteEntity>> getNotes() async {

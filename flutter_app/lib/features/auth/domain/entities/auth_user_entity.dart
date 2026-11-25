@@ -19,10 +19,10 @@ class AuthUserEntity {
 
   /// Factory creating an anonymous, offline-first guest user.
   factory AuthUserEntity.guest() => const AuthUserEntity(
-        id: 'guest',
-        displayName: 'Guest User',
-        isGuest: true,
-      );
+    id: 'guest',
+    displayName: 'Guest User',
+    isGuest: true,
+  );
 
   AuthUserEntity copyWith({
     String? id,
@@ -55,14 +55,8 @@ class AuthUserEntity {
           isGuest == other.isGuest;
 
   @override
-  int get hashCode => Object.hash(
-        id,
-        email,
-        displayName,
-        photoUrl,
-        isAdmin,
-        isGuest,
-      );
+  int get hashCode =>
+      Object.hash(id, email, displayName, photoUrl, isAdmin, isGuest);
 
   @override
   String toString() {

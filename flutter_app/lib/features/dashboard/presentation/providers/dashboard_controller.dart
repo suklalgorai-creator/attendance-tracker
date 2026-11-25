@@ -10,16 +10,19 @@ class DashboardController extends StateNotifier<AsyncValue<void>> {
   final AttendanceRepository _attendanceRepository;
   AttendanceRecordEntity? _lastLoggedRecord;
 
-  DashboardController(this._attendanceRepository) : super(const AsyncValue.data(null));
+  DashboardController(this._attendanceRepository)
+    : super(const AsyncValue.data(null));
 
   /// Returns the most recently logged attendance record for undo purposes.
   AttendanceRecordEntity? get lastLoggedRecord => _lastLoggedRecord;
 
   /// Logs a present session for the specified subject.
-  Future<void> markPresent(String subjectId) => _logAttendance(subjectId, AttendanceStatus.present);
+  Future<void> markPresent(String subjectId) =>
+      _logAttendance(subjectId, AttendanceStatus.present);
 
   /// Logs an absent session for the specified subject.
-  Future<void> markAbsent(String subjectId) => _logAttendance(subjectId, AttendanceStatus.absent);
+  Future<void> markAbsent(String subjectId) =>
+      _logAttendance(subjectId, AttendanceStatus.absent);
 
   Future<void> _logAttendance(String subjectId, AttendanceStatus status) async {
     state = const AsyncValue.loading();
@@ -67,5 +70,5 @@ class DashboardController extends StateNotifier<AsyncValue<void>> {
 /// Provider exposing [DashboardController].
 final dashboardControllerProvider =
     StateNotifierProvider<DashboardController, AsyncValue<void>>((ref) {
-  return DashboardController(ref.watch(attendanceRepositoryProvider));
-});
+      return DashboardController(ref.watch(attendanceRepositoryProvider));
+    });

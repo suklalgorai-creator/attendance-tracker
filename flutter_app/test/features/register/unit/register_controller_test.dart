@@ -19,15 +19,17 @@ class FakeAttendanceRepository implements AttendanceRepository {
       StreamController<List<AttendanceRecordEntity>>.broadcast();
 
   @override
-  Future<List<LegacyAttendanceEntity>> getLegacyAttendance(
-      {bool includeDeleted = false}) async {
+  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({
+    bool includeDeleted = false,
+  }) async {
     if (includeDeleted) return List.from(legacyStorage);
     return legacyStorage.where((r) => !r.isDeleted).toList();
   }
 
   @override
-  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance(
-      {bool includeDeleted = false}) {
+  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({
+    bool includeDeleted = false,
+  }) {
     return _legacyStreamController.stream;
   }
 
@@ -44,7 +46,8 @@ class FakeAttendanceRepository implements AttendanceRepository {
 
   @override
   Future<void> saveLegacyAttendances(
-      List<LegacyAttendanceEntity> records) async {
+    List<LegacyAttendanceEntity> records,
+  ) async {
     for (final r in records) {
       await saveLegacyAttendance(r);
     }
@@ -78,15 +81,17 @@ class FakeAttendanceRepository implements AttendanceRepository {
   }
 
   @override
-  Future<List<AttendanceRecordEntity>> getAttendanceRecords(
-      {bool includeDeleted = false}) async {
+  Future<List<AttendanceRecordEntity>> getAttendanceRecords({
+    bool includeDeleted = false,
+  }) async {
     if (includeDeleted) return List.from(recordStorage);
     return recordStorage.where((r) => !r.isDeleted).toList();
   }
 
   @override
-  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords(
-      {bool includeDeleted = false}) {
+  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({
+    bool includeDeleted = false,
+  }) {
     return _recordsStreamController.stream;
   }
 
@@ -103,7 +108,8 @@ class FakeAttendanceRepository implements AttendanceRepository {
 
   @override
   Future<void> saveAttendanceRecords(
-      List<AttendanceRecordEntity> records) async {
+    List<AttendanceRecordEntity> records,
+  ) async {
     for (final r in records) {
       await saveAttendanceRecord(r);
     }
@@ -137,14 +143,16 @@ class FakeAttendanceRepository implements AttendanceRepository {
   }
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForDate(String date,
-          {bool includeDeleted = false}) async =>
-      [];
+  Future<List<AttendanceRecordEntity>> getRecordsForDate(
+    String date, {
+    bool includeDeleted = false,
+  }) async => [];
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForSubject(String subjectId,
-          {bool includeDeleted = false}) async =>
-      [];
+  Future<List<AttendanceRecordEntity>> getRecordsForSubject(
+    String subjectId, {
+    bool includeDeleted = false,
+  }) async => [];
 
   @override
   Future<void> clearAllAttendanceHistory() async {
@@ -228,32 +236,38 @@ void main() {
       }
     });
 
-    test('toggling view mode to month updates visibleDates to month range', () async {
-      await Future<void>.delayed(Duration.zero);
-      controller.setViewMode(RegisterViewMode.month);
-      expect(controller.state.viewMode, equals(RegisterViewMode.month));
+    test(
+      'toggling view mode to month updates visibleDates to month range',
+      () async {
+        await Future<void>.delayed(Duration.zero);
+        controller.setViewMode(RegisterViewMode.month);
+        expect(controller.state.viewMode, equals(RegisterViewMode.month));
 
-      final monthRange = AppDateUtils.getCurrentMonthRangeStr();
-      for (final date in controller.state.visibleDates) {
-        expect(date.compareTo(monthRange.start) >= 0, isTrue);
-        expect(date.compareTo(monthRange.end) <= 0, isTrue);
-      }
-    });
+        final monthRange = AppDateUtils.getCurrentMonthRangeStr();
+        for (final date in controller.state.visibleDates) {
+          expect(date.compareTo(monthRange.start) >= 0, isTrue);
+          expect(date.compareTo(monthRange.end) <= 0, isTrue);
+        }
+      },
+    );
 
-    test('toggling view mode to all returns full historical descending rows', () async {
-      await Future<void>.delayed(Duration.zero);
-      controller.setViewMode(RegisterViewMode.all);
-      expect(controller.state.viewMode, equals(RegisterViewMode.all));
+    test(
+      'toggling view mode to all returns full historical descending rows',
+      () async {
+        await Future<void>.delayed(Duration.zero);
+        controller.setViewMode(RegisterViewMode.all);
+        expect(controller.state.viewMode, equals(RegisterViewMode.all));
 
-      final today = AppDateUtils.todayStr();
-      final expectedDates = AppDateUtils.classDayRangeDesc(
-        '2026-10-01',
-        today,
-        const [1, 2, 3, 4, 5],
-      );
+        final today = AppDateUtils.todayStr();
+        final expectedDates = AppDateUtils.classDayRangeDesc(
+          '2026-10-01',
+          today,
+          const [1, 2, 3, 4, 5],
+        );
 
-      expect(controller.state.visibleDates, equals(expectedDates));
-    });
+        expect(controller.state.visibleDates, equals(expectedDates));
+      },
+    );
 
     test('unions known non-class dates with classDayRangeDesc', () async {
       await Future<void>.delayed(Duration.zero);
@@ -277,19 +291,37 @@ void main() {
       expect(controller.state.legacyByDate[saturday], equals(satRecord));
     });
 
-    test('saveDailyAttendance validates input and rejects invalid totals', () async {
-      await Future<void>.delayed(Duration.zero);
+    test(
+      'saveDailyAttendance validates input and rejects invalid totals',
+      () async {
+        await Future<void>.delayed(Duration.zero);
 
-      final r1 = await controller.saveDailyAttendance(date: '', held: 1, attended: 1);
-      expect(r1, isFalse);
-      expect(controller.state.errorMessage, equals('Enter valid daily class totals.'));
+        final r1 = await controller.saveDailyAttendance(
+          date: '',
+          held: 1,
+          attended: 1,
+        );
+        expect(r1, isFalse);
+        expect(
+          controller.state.errorMessage,
+          equals('Enter valid daily class totals.'),
+        );
 
-      final r2 = await controller.saveDailyAttendance(date: '2026-11-18', held: -1, attended: 0);
-      expect(r2, isFalse);
+        final r2 = await controller.saveDailyAttendance(
+          date: '2026-11-18',
+          held: -1,
+          attended: 0,
+        );
+        expect(r2, isFalse);
 
-      final r3 = await controller.saveDailyAttendance(date: '2026-11-18', held: 1, attended: 2);
-      expect(r3, isFalse);
-    });
+        final r3 = await controller.saveDailyAttendance(
+          date: '2026-11-18',
+          held: 1,
+          attended: 2,
+        );
+        expect(r3, isFalse);
+      },
+    );
 
     test('saveDailyAttendance creates new record when none exists', () async {
       await Future<void>.delayed(Duration.zero);
@@ -305,48 +337,64 @@ void main() {
       expect(controller.state.errorMessage, isNull);
 
       await Future<void>.delayed(Duration.zero);
-      expect(attendanceRepo.legacyStorage.any((r) => r.date == testDate && r.held == 1 && r.attended == 1), isTrue);
+      expect(
+        attendanceRepo.legacyStorage.any(
+          (r) => r.date == testDate && r.held == 1 && r.attended == 1,
+        ),
+        isTrue,
+      );
       expect(controller.state.legacyByDate[testDate]?.held, equals(1));
       expect(controller.state.legacyByDate[testDate]?.attended, equals(1));
     });
 
-    test('saveDailyAttendance updates existing record preserving id and createdAt', () async {
-      await Future<void>.delayed(Duration.zero);
-      const testDate = '2026-11-18';
-      final initialCreated = DateTime(2026, 11, 10);
+    test(
+      'saveDailyAttendance updates existing record preserving id and createdAt',
+      () async {
+        await Future<void>.delayed(Duration.zero);
+        const testDate = '2026-11-18';
+        final initialCreated = DateTime(2026, 11, 10);
 
-      await attendanceRepo.saveLegacyAttendance(LegacyAttendanceEntity(
-        id: 'daily-$testDate',
-        date: testDate,
-        held: 1,
-        attended: 0,
-        createdAt: initialCreated,
-        updatedAt: initialCreated,
-      ));
+        await attendanceRepo.saveLegacyAttendance(
+          LegacyAttendanceEntity(
+            id: 'daily-$testDate',
+            date: testDate,
+            held: 1,
+            attended: 0,
+            createdAt: initialCreated,
+            updatedAt: initialCreated,
+          ),
+        );
 
-      await Future<void>.delayed(Duration.zero);
+        await Future<void>.delayed(Duration.zero);
 
-      final success = await controller.saveDailyAttendance(
-        date: testDate,
-        held: 1,
-        attended: 1,
-      );
+        final success = await controller.saveDailyAttendance(
+          date: testDate,
+          held: 1,
+          attended: 1,
+        );
 
-      expect(success, isTrue);
-      await Future<void>.delayed(Duration.zero);
+        expect(success, isTrue);
+        await Future<void>.delayed(Duration.zero);
 
-      final saved = attendanceRepo.legacyStorage.firstWhere((r) => r.date == testDate);
-      expect(saved.id, equals('daily-$testDate'));
-      expect(saved.held, equals(1));
-      expect(saved.attended, equals(1));
-      expect(saved.createdAt, equals(initialCreated));
-    });
+        final saved = attendanceRepo.legacyStorage.firstWhere(
+          (r) => r.date == testDate,
+        );
+        expect(saved.id, equals('daily-$testDate'));
+        expect(saved.held, equals(1));
+        expect(saved.attended, equals(1));
+        expect(saved.createdAt, equals(initialCreated));
+      },
+    );
 
     test('deleteDailyAttendance soft-deletes record', () async {
       await Future<void>.delayed(Duration.zero);
       const testDate = '2026-11-18';
 
-      await controller.saveDailyAttendance(date: testDate, held: 1, attended: 1);
+      await controller.saveDailyAttendance(
+        date: testDate,
+        held: 1,
+        attended: 1,
+      );
       await Future<void>.delayed(Duration.zero);
 
       final record = controller.state.legacyByDate[testDate]!;
@@ -357,27 +405,36 @@ void main() {
       expect(controller.state.legacyByDate.containsKey(testDate), isFalse);
     });
 
-    test('deleteDailyAttendanceByDate soft-deletes record by date key', () async {
-      await Future<void>.delayed(Duration.zero);
-      const testDate = '2026-11-18';
+    test(
+      'deleteDailyAttendanceByDate soft-deletes record by date key',
+      () async {
+        await Future<void>.delayed(Duration.zero);
+        const testDate = '2026-11-18';
 
-      await controller.saveDailyAttendance(date: testDate, held: 1, attended: 1);
-      await Future<void>.delayed(Duration.zero);
+        await controller.saveDailyAttendance(
+          date: testDate,
+          held: 1,
+          attended: 1,
+        );
+        await Future<void>.delayed(Duration.zero);
 
-      final deleted = await controller.deleteDailyAttendanceByDate(testDate);
-      expect(deleted, isTrue);
+        final deleted = await controller.deleteDailyAttendanceByDate(testDate);
+        expect(deleted, isTrue);
 
-      await Future<void>.delayed(Duration.zero);
-      expect(controller.state.legacyByDate.containsKey(testDate), isFalse);
-    });
+        await Future<void>.delayed(Duration.zero);
+        expect(controller.state.legacyByDate.containsKey(testDate), isFalse);
+      },
+    );
 
     test('reacts to settings stream updates', () async {
       await Future<void>.delayed(Duration.zero);
 
-      await settingsRepo.saveSettings(const UserSettingsEntity(
-        startDate: '2026-11-01',
-        classDays: [1, 3, 5], // Mon, Wed, Fri
-      ));
+      await settingsRepo.saveSettings(
+        const UserSettingsEntity(
+          startDate: '2026-11-01',
+          classDays: [1, 3, 5], // Mon, Wed, Fri
+        ),
+      );
 
       await Future<void>.delayed(Duration.zero);
       controller.setViewMode(RegisterViewMode.all);

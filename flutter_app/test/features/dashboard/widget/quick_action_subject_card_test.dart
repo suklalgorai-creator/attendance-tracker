@@ -29,7 +29,9 @@ void main() {
   );
 
   group('QuickActionSubjectCard Widget Tests', () {
-    testWidgets('Renders subject details, percentage, and safe bunk chip', (tester) async {
+    testWidgets('Renders subject details, percentage, and safe bunk chip', (
+      tester,
+    ) async {
       final stats = SubjectAttendanceStats(
         subject: subject,
         conducted: 20,
@@ -53,7 +55,9 @@ void main() {
       expect(find.text('- Absent'), findsOneWidget);
     });
 
-    testWidgets('Renders danger chip when attendance is below threshold', (tester) async {
+    testWidgets('Renders danger chip when attendance is below threshold', (
+      tester,
+    ) async {
       final stats = SubjectAttendanceStats(
         subject: subject,
         conducted: 10,
@@ -74,7 +78,9 @@ void main() {
       expect(find.text('Need 10'), findsOneWidget);
     });
 
-    testWidgets('Renders New chip and dash for zero conducted classes', (tester) async {
+    testWidgets('Renders New chip and dash for zero conducted classes', (
+      tester,
+    ) async {
       final stats = SubjectAttendanceStats(
         subject: subject,
         conducted: 0,
@@ -95,7 +101,9 @@ void main() {
       expect(find.text('New'), findsOneWidget);
     });
 
-    testWidgets('Renders On edge chip when safe but canMiss == 0', (tester) async {
+    testWidgets('Renders On edge chip when safe but canMiss == 0', (
+      tester,
+    ) async {
       final stats = SubjectAttendanceStats(
         subject: subject,
         conducted: 4,
@@ -114,77 +122,85 @@ void main() {
       expect(find.text('On edge'), findsOneWidget);
     });
 
-    testWidgets('Tapping + Present and - Absent triggers respective callbacks', (tester) async {
-      var presentTapped = false;
-      var absentTapped = false;
+    testWidgets(
+      'Tapping + Present and - Absent triggers respective callbacks',
+      (tester) async {
+        var presentTapped = false;
+        var absentTapped = false;
 
-      final stats = SubjectAttendanceStats(
-        subject: subject,
-        conducted: 10,
-        present: 8,
-        absent: 2,
-        percentage: 80.0,
-        canMiss: 0,
-        needToAttend: 0,
-        isImpossible: false,
-        isSafe: true,
-      );
+        final stats = SubjectAttendanceStats(
+          subject: subject,
+          conducted: 10,
+          present: 8,
+          absent: 2,
+          percentage: 80.0,
+          canMiss: 0,
+          needToAttend: 0,
+          isImpossible: false,
+          isSafe: true,
+        );
 
-      await tester.pumpWidget(_wrap(QuickActionSubjectCard(
-        stats: stats,
-        onPresent: () => presentTapped = true,
-        onAbsent: () => absentTapped = true,
-      )));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          _wrap(
+            QuickActionSubjectCard(
+              stats: stats,
+              onPresent: () => presentTapped = true,
+              onAbsent: () => absentTapped = true,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.text('+ Present'));
-      await tester.pump();
-      expect(presentTapped, isTrue);
+        await tester.tap(find.text('+ Present'));
+        await tester.pump();
+        expect(presentTapped, isTrue);
 
-      await tester.tap(find.text('- Absent'));
-      await tester.pump();
-      expect(absentTapped, isTrue);
-    });
+        await tester.tap(find.text('- Absent'));
+        await tester.pump();
+        expect(absentTapped, isTrue);
+      },
+    );
 
     testWidgets(
-        'Renders cleanly without overflow on compact 320x568 viewport with 1.5x text scaler and large counts',
-        (tester) async {
-      tester.view.physicalSize = const Size(320, 568);
-      tester.view.devicePixelRatio = 1.0;
-      tester.platformDispatcher.textScaleFactorTestValue = 1.5;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      'Renders cleanly without overflow on compact 320x568 viewport with 1.5x text scaler and large counts',
+      (tester) async {
+        tester.view.physicalSize = const Size(320, 568);
+        tester.view.devicePixelRatio = 1.0;
+        tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 
-      final extremeStats = SubjectAttendanceStats(
-        subject: subject,
-        conducted: 1500,
-        present: 1250,
-        absent: 250,
-        percentage: 83.3,
-        canMiss: 15,
-        needToAttend: 0,
-        isImpossible: false,
-        isSafe: true,
-      );
+        final extremeStats = SubjectAttendanceStats(
+          subject: subject,
+          conducted: 1500,
+          present: 1250,
+          absent: 250,
+          percentage: 83.3,
+          canMiss: 15,
+          needToAttend: 0,
+          isImpossible: false,
+          isSafe: true,
+        );
 
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: ThemeData.dark(),
-          home: Scaffold(
-            body: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: QuickActionSubjectCard(stats: extremeStats),
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData.dark(),
+            home: Scaffold(
+              body: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: QuickActionSubjectCard(stats: extremeStats),
+                ),
               ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-      expect(find.byType(QuickActionSubjectCard), findsOneWidget);
-    });
+        expect(tester.takeException(), isNull);
+        expect(find.byType(QuickActionSubjectCard), findsOneWidget);
+      },
+    );
   });
 }

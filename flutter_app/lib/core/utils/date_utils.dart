@@ -25,13 +25,33 @@ class DateRange {
 }
 
 const List<String> _shortMonths = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
 ];
 
 const List<String> _fullMonths = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];
 
 /// Pure date manipulation utilities matching `react_app/src/utils/date.js`.
@@ -61,7 +81,9 @@ abstract final class AppDateUtils {
     final date = DateTime(year, month, day);
     // Dart DateTime normalizes invalid dates (e.g. Feb 30 -> Mar 2).
     // Checking exact match ensures invalid dates are rejected.
-    if (date.year != year || date.month != month || date.day != day) return null;
+    if (date.year != year || date.month != month || date.day != day) {
+      return null;
+    }
 
     return date;
   }
@@ -98,7 +120,9 @@ abstract final class AppDateUtils {
   /// Generates a descending list of dates from [endStr] down to [startStr].
   /// Enforces a 3000 iteration safety limit. Returns empty list if invalid or start > end.
   static List<String> dateRangeDesc(String startStr, String endStr) {
-    if (!isDateOnly(startStr) || !isDateOnly(endStr) || startStr.compareTo(endStr) > 0) {
+    if (!isDateOnly(startStr) ||
+        !isDateOnly(endStr) ||
+        startStr.compareTo(endStr) > 0) {
       return const [];
     }
     final out = <String>[];
@@ -119,12 +143,13 @@ abstract final class AppDateUtils {
     // In Dart: weekday 1 = Mon, ..., 7 = Sun.
     // Days since Monday is (weekday - 1).
     final daysSinceMonday = current.weekday - 1;
-    final monday = DateTime(current.year, current.month, current.day - daysSinceMonday);
-    final sunday = DateTime(monday.year, monday.month, monday.day + 6);
-    return DateRange(
-      start: formatDateKey(monday),
-      end: formatDateKey(sunday),
+    final monday = DateTime(
+      current.year,
+      current.month,
+      current.day - daysSinceMonday,
     );
+    final sunday = DateTime(monday.year, monday.month, monday.day + 6);
+    return DateRange(start: formatDateKey(monday), end: formatDateKey(sunday));
   }
 
   /// Returns the current month's range from 1st day to last day.
@@ -146,9 +171,10 @@ abstract final class AppDateUtils {
     String endStr,
     List<int> classDays,
   ) {
-    return dateRangeDesc(startStr, endStr)
-        .where((date) => isClassDay(date, classDays))
-        .toList();
+    return dateRangeDesc(
+      startStr,
+      endStr,
+    ).where((date) => isClassDay(date, classDays)).toList();
   }
 
   /// Returns timetable sessions for [dateStr].
@@ -207,8 +233,7 @@ List<String> classDayRangeDesc(
   String startStr,
   String endStr,
   List<int> classDays,
-) =>
-    AppDateUtils.classDayRangeDesc(startStr, endStr, classDays);
+) => AppDateUtils.classDayRangeDesc(startStr, endStr, classDays);
 List<T> getPeriodsForDate<T>(String dateStr, dynamic timetable) =>
     AppDateUtils.getPeriodsForDate<T>(dateStr, timetable);
 String formatDateLabel(String dateStr) => AppDateUtils.formatDateLabel(dateStr);

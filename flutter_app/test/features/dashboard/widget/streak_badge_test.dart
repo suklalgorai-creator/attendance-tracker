@@ -19,7 +19,9 @@ void main() {
   });
 
   group('StreakBadge Widget Tests', () {
-    testWidgets('Renders nothing when streak <= 0 and showWhenZero is false', (tester) async {
+    testWidgets('Renders nothing when streak <= 0 and showWhenZero is false', (
+      tester,
+    ) async {
       await tester.pumpWidget(_wrap(const StreakBadge(streak: 0)));
       await tester.pumpAndSettle();
 
@@ -27,7 +29,9 @@ void main() {
       expect(find.text('0'), findsNothing);
     });
 
-    testWidgets('Renders flame and streak count when streak > 0', (tester) async {
+    testWidgets('Renders flame and streak count when streak > 0', (
+      tester,
+    ) async {
       await tester.pumpWidget(_wrap(const StreakBadge(streak: 5)));
       await tester.pumpAndSettle();
 
@@ -35,12 +39,13 @@ void main() {
       expect(find.text('5'), findsOneWidget);
     });
 
-    testWidgets('Tapping StreakBadge with custom onTap triggers callback', (tester) async {
+    testWidgets('Tapping StreakBadge with custom onTap triggers callback', (
+      tester,
+    ) async {
       var tapped = false;
-      await tester.pumpWidget(_wrap(StreakBadge(
-        streak: 7,
-        onTap: () => tapped = true,
-      )));
+      await tester.pumpWidget(
+        _wrap(StreakBadge(streak: 7, onTap: () => tapped = true)),
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.byType(StreakBadge));
@@ -49,21 +54,24 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('Tapping StreakBadge without custom onTap opens StreakPopupDialog', (tester) async {
-      await tester.pumpWidget(_wrap(const StreakBadge(streak: 12)));
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Tapping StreakBadge without custom onTap opens StreakPopupDialog',
+      (tester) async {
+        await tester.pumpWidget(_wrap(const StreakBadge(streak: 12)));
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.byType(StreakBadge));
-      // Pump explicit duration to accommodate repeating animation without timeout
-      await tester.pump(const Duration(milliseconds: 100));
+        await tester.tap(find.byType(StreakBadge));
+        // Pump explicit duration to accommodate repeating animation without timeout
+        await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.byType(StreakPopupDialog), findsOneWidget);
-      expect(find.text('12 Day Streak!'), findsOneWidget);
-      expect(find.text('Awesome'), findsOneWidget);
+        expect(find.byType(StreakPopupDialog), findsOneWidget);
+        expect(find.text('12 Day Streak!'), findsOneWidget);
+        expect(find.text('Awesome'), findsOneWidget);
 
-      // Close dialog
-      await tester.tap(find.text('Awesome'));
-      await tester.pump(const Duration(milliseconds: 100));
-    });
+        // Close dialog
+        await tester.tap(find.text('Awesome'));
+        await tester.pump(const Duration(milliseconds: 100));
+      },
+    );
   });
 }

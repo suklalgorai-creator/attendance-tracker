@@ -69,8 +69,16 @@ void main() {
     });
 
     test('saveNote and getNotes retrieves stored notes', () async {
-      final note1 = NoteEntity(id: 'n1', content: 'Buy textbooks', createdAt: now);
-      final note2 = NoteEntity(id: 'n2', content: 'Submit report', createdAt: now);
+      final note1 = NoteEntity(
+        id: 'n1',
+        content: 'Buy textbooks',
+        createdAt: now,
+      );
+      final note2 = NoteEntity(
+        id: 'n2',
+        content: 'Submit report',
+        createdAt: now,
+      );
 
       await repository.saveNote(note1);
       await repository.saveNote(note2);
@@ -82,7 +90,11 @@ void main() {
     });
 
     test('getNoteById returns correct note or null', () async {
-      final note = NoteEntity(id: 'n-spec', content: 'Specific note', createdAt: now);
+      final note = NoteEntity(
+        id: 'n-spec',
+        content: 'Specific note',
+        createdAt: now,
+      );
       await repository.saveNote(note);
 
       expect(await repository.getNoteById('n-spec'), isNotNull);
@@ -100,7 +112,11 @@ void main() {
     });
 
     test('deleteNote permanently removes note', () async {
-      final note = NoteEntity(id: 'n-del', content: 'To delete', createdAt: now);
+      final note = NoteEntity(
+        id: 'n-del',
+        content: 'To delete',
+        createdAt: now,
+      );
       await repository.saveNote(note);
 
       expect((await repository.getNotes()).length, 1);
@@ -110,8 +126,12 @@ void main() {
     });
 
     test('clearAllNotes removes all notes', () async {
-      await repository.saveNote(NoteEntity(id: 'n1', content: 'Note 1', createdAt: now));
-      await repository.saveNote(NoteEntity(id: 'n2', content: 'Note 2', createdAt: now));
+      await repository.saveNote(
+        NoteEntity(id: 'n1', content: 'Note 1', createdAt: now),
+      );
+      await repository.saveNote(
+        NoteEntity(id: 'n2', content: 'Note 2', createdAt: now),
+      );
 
       expect((await repository.getNotes()).length, 2);
 
@@ -120,7 +140,11 @@ void main() {
     });
 
     test('watchNotes emits reactive updates', () async {
-      final note = NoteEntity(id: 'n-watch', content: 'Stream note', createdAt: now);
+      final note = NoteEntity(
+        id: 'n-watch',
+        content: 'Stream note',
+        createdAt: now,
+      );
 
       expectLater(
         repository.watchNotes(),

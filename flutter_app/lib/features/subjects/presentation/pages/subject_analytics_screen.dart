@@ -21,10 +21,7 @@ import '../widgets/subject_dialog.dart';
 class SubjectAnalyticsScreen extends ConsumerWidget {
   final String subjectId;
 
-  const SubjectAnalyticsScreen({
-    super.key,
-    required this.subjectId,
-  });
+  const SubjectAnalyticsScreen({super.key, required this.subjectId});
 
   Color _parseSubjectColor(String hex) {
     try {
@@ -65,7 +62,9 @@ class SubjectAnalyticsScreen extends ConsumerWidget {
     final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.bgPrimaryDark : AppColors.bgPrimaryLight,
+      backgroundColor: isDark
+          ? AppColors.bgPrimaryDark
+          : AppColors.bgPrimaryLight,
       body: SafeArea(
         child: statsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -75,7 +74,10 @@ class SubjectAnalyticsScreen extends ConsumerWidget {
               children: [
                 Text(
                   'Failed to load subject details',
-                  style: GoogleFonts.outfit(color: AppColors.penRed, fontSize: 16),
+                  style: GoogleFonts.outfit(
+                    color: AppColors.penRed,
+                    fontSize: 16,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 AppButton.ghost(
@@ -132,12 +134,16 @@ class SubjectAnalyticsScreen extends ConsumerWidget {
             final subjectColor = _parseSubjectColor(subject.color);
             final globalMin = settingsAsync.valueOrNull?.minPercent ?? 75.0;
             final effectiveThreshold = subject.targetPercentage ?? globalMin;
-            final iconData = kAcademicIcons[subject.icon] ?? Icons.school_rounded;
+            final iconData =
+                kAcademicIcons[subject.icon] ?? Icons.school_rounded;
 
             final history = historyAsync.valueOrNull ?? const [];
 
             return ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 16.0,
+              ),
               children: [
                 // Top App Bar / Navigation Header
                 Row(
@@ -154,16 +160,23 @@ class SubjectAnalyticsScreen extends ConsumerWidget {
                       children: [
                         // Target Threshold Badge
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: subject.targetPercentage != null
                                 ? AppColors.amberSoft
-                                : (isDark ? AppColors.inputBgDark : AppColors.inputBgLight),
+                                : (isDark
+                                      ? AppColors.inputBgDark
+                                      : AppColors.inputBgLight),
                             borderRadius: BorderRadius.circular(AppRadius.full),
                             border: Border.all(
                               color: subject.targetPercentage != null
                                   ? AppColors.amber
-                                  : (isDark ? AppColors.glassBorderDark : AppColors.glassBorderLight),
+                                  : (isDark
+                                        ? AppColors.glassBorderDark
+                                        : AppColors.glassBorderLight),
                               width: 1.0,
                             ),
                           ),
@@ -174,7 +187,9 @@ class SubjectAnalyticsScreen extends ConsumerWidget {
                             style: GoogleFonts.outfit(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
-                              color: subject.targetPercentage != null ? AppColors.amber : mutedColor,
+                              color: subject.targetPercentage != null
+                                  ? AppColors.amber
+                                  : mutedColor,
                             ),
                           ),
                         ),
@@ -215,11 +230,7 @@ class SubjectAnalyticsScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(AppRadius.md),
                         border: Border.all(color: subjectColor, width: 1.5),
                       ),
-                      child: Icon(
-                        iconData,
-                        size: 24,
-                        color: subjectColor,
-                      ),
+                      child: Icon(iconData, size: 24, color: subjectColor),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -236,13 +247,21 @@ class SubjectAnalyticsScreen extends ConsumerWidget {
                               color: paperColor,
                             ),
                           ),
-                          if (subject.code != null && subject.code!.isNotEmpty) ...[
+                          if (subject.code != null &&
+                              subject.code!.isNotEmpty) ...[
                             const SizedBox(height: 2),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
-                                color: isDark ? AppColors.inputBgDark : AppColors.inputBgLight,
-                                borderRadius: BorderRadius.circular(AppRadius.xs),
+                                color: isDark
+                                    ? AppColors.inputBgDark
+                                    : AppColors.inputBgLight,
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.xs,
+                                ),
                               ),
                               child: Text(
                                 subject.code!,
@@ -295,7 +314,9 @@ class SubjectAnalyticsScreen extends ConsumerWidget {
                               style: GoogleFonts.outfit(
                                 fontSize: 28,
                                 fontWeight: FontWeight.w900,
-                                color: stats.isSafe ? AppColors.inkGreen : AppColors.penRed,
+                                color: stats.isSafe
+                                    ? AppColors.inkGreen
+                                    : AppColors.penRed,
                               ),
                             ),
                             const SizedBox(height: 6),
@@ -323,7 +344,10 @@ class SubjectAnalyticsScreen extends ConsumerWidget {
 
                 // Detailed Numerical Stats Breakdown Card
                 GlassCard(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 12.0,
+                  ),
                   child: Column(
                     children: [
                       StatRowWidget(
@@ -338,7 +362,9 @@ class SubjectAnalyticsScreen extends ConsumerWidget {
                       StatRowWidget(
                         label: 'ABSENT SESSIONS',
                         value: '${stats.absent}',
-                        valueColor: stats.absent > 0 ? StatValueColor.danger : StatValueColor.muted,
+                        valueColor: stats.absent > 0
+                            ? StatValueColor.danger
+                            : StatValueColor.muted,
                       ),
                       StatRowWidget(
                         label: 'TARGET THRESHOLD',
@@ -421,7 +447,10 @@ class SubjectAnalyticsScreen extends ConsumerWidget {
                 // Session History List or Empty State
                 if (history.isEmpty)
                   GlassCard(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 28.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0,
+                      vertical: 28.0,
+                    ),
                     child: Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -456,7 +485,13 @@ class SubjectAnalyticsScreen extends ConsumerWidget {
                   )
                 else
                   for (final record in history)
-                    _buildSessionHistoryRow(context, record, isDark, paperColor, mutedColor),
+                    _buildSessionHistoryRow(
+                      context,
+                      record,
+                      isDark,
+                      paperColor,
+                      mutedColor,
+                    ),
               ],
             );
           },
@@ -465,11 +500,15 @@ class SubjectAnalyticsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAdvisorBanner(SubjectAttendanceStats stats, double effectiveThreshold) {
+  Widget _buildAdvisorBanner(
+    SubjectAttendanceStats stats,
+    double effectiveThreshold,
+  ) {
     if (stats.conducted == 0) {
       return const AppBanner.neutral(
         title: 'New Subject',
-        message: 'No classes recorded yet. Log attendance to calculate safe bunks.',
+        message:
+            'No classes recorded yet. Log attendance to calculate safe bunks.',
       );
     }
 
@@ -492,7 +531,8 @@ class SubjectAnalyticsScreen extends ConsumerWidget {
     if (stats.isImpossible) {
       return const AppBanner.danger(
         title: 'Target Unreachable',
-        message: 'A 100% target is mathematically unreachable with recorded absences.',
+        message:
+            'A 100% target is mathematically unreachable with recorded absences.',
       );
     }
 
@@ -522,7 +562,9 @@ class SubjectAnalyticsScreen extends ConsumerWidget {
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(
-          color: isDark ? AppColors.glassBorderDark : AppColors.glassBorderLight,
+          color: isDark
+              ? AppColors.glassBorderDark
+              : AppColors.glassBorderLight,
           width: 1.0,
         ),
       ),
@@ -532,7 +574,9 @@ class SubjectAnalyticsScreen extends ConsumerWidget {
           Row(
             children: [
               Icon(
-                isPresent ? Icons.check_circle_outline_rounded : Icons.cancel_outlined,
+                isPresent
+                    ? Icons.check_circle_outline_rounded
+                    : Icons.cancel_outlined,
                 size: 20,
                 color: statusColor,
               ),

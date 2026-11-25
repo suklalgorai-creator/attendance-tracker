@@ -21,8 +21,12 @@ class DangerZoneCard extends ConsumerWidget {
         final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
 
         return AlertDialog(
-          backgroundColor: isDark ? AppColors.bgPrimaryDark : AppColors.bgPrimaryLight,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          backgroundColor: isDark
+              ? AppColors.bgPrimaryDark
+              : AppColors.bgPrimaryLight,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: Text(
             'Clear Attendance History?',
             style: GoogleFonts.outfit(
@@ -32,10 +36,7 @@ class DangerZoneCard extends ConsumerWidget {
           ),
           content: Text(
             'Clear all attendance records and notes? A local safety backup is recommended first.',
-            style: GoogleFonts.outfit(
-              fontSize: 14,
-              color: paperColor,
-            ),
+            style: GoogleFonts.outfit(fontSize: 14, color: paperColor),
           ),
           actions: [
             TextButton(
@@ -49,7 +50,9 @@ class DangerZoneCard extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.penRed,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               onPressed: () => Navigator.of(ctx).pop(true),
               child: Text(
@@ -90,10 +93,7 @@ class DangerZoneCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Danger Zone',
-            style: AppTypography.cardTitle(AppColors.penRed),
-          ),
+          Text('Danger Zone', style: AppTypography.cardTitle(AppColors.penRed)),
           const SizedBox(height: 12),
           AppButton(
             label: 'Clear attendance history',

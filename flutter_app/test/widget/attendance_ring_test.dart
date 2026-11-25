@@ -19,67 +19,63 @@ void main() {
   });
 
   group('AttendanceRing Widget Tests', () {
-    testWidgets('Renders placeholder dash and target when percent is null', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AttendanceRing(
-          percent: null,
-          minPercent: 75.0,
-          animate: false,
+    testWidgets('Renders placeholder dash and target when percent is null', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          const AttendanceRing(percent: null, minPercent: 75.0, animate: false),
         ),
-      ));
+      );
 
       expect(find.text('—'), findsOneWidget);
       expect(find.text('%'), findsNothing);
       expect(find.byType(CustomPaint), findsWidgets);
     });
 
-    testWidgets('Renders formatted percentage and target when safe', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AttendanceRing(
-          percent: 85.0,
-          minPercent: 75.0,
-          animate: false,
+    testWidgets('Renders formatted percentage and target when safe', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          const AttendanceRing(percent: 85.0, minPercent: 75.0, animate: false),
         ),
-      ));
+      );
 
       expect(find.text('85'), findsOneWidget);
       expect(find.text('%'), findsOneWidget);
     });
 
     testWidgets('Renders decimal percentage correctly', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AttendanceRing(
-          percent: 74.5,
-          minPercent: 75.0,
-          animate: false,
+      await tester.pumpWidget(
+        _wrap(
+          const AttendanceRing(percent: 74.5, minPercent: 75.0, animate: false),
         ),
-      ));
+      );
 
       expect(find.text('74.5'), findsOneWidget);
       expect(find.text('%'), findsOneWidget);
     });
 
-    testWidgets('Renders in danger state (percent < minPercent)', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AttendanceRing(
-          percent: 60.0,
-          minPercent: 75.0,
-          animate: false,
+    testWidgets('Renders in danger state (percent < minPercent)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          const AttendanceRing(percent: 60.0, minPercent: 75.0, animate: false),
         ),
-      ));
+      );
 
       expect(find.text('60'), findsOneWidget);
       expect(find.text('%'), findsOneWidget);
     });
 
     testWidgets('Animates smoothly when animate is true', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AttendanceRing(
-          percent: 90.0,
-          minPercent: 75.0,
-          animate: true,
+      await tester.pumpWidget(
+        _wrap(
+          const AttendanceRing(percent: 90.0, minPercent: 75.0, animate: true),
         ),
-      ));
+      );
 
       // Initially at 0 progress
       await tester.pump();
@@ -91,15 +87,17 @@ void main() {
     });
 
     testWidgets('Renders properly in light mode', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AttendanceRing(
-          percent: 80.0,
-          minPercent: 75.0,
-          size: 180.0,
-          animate: false,
+      await tester.pumpWidget(
+        _wrap(
+          const AttendanceRing(
+            percent: 80.0,
+            minPercent: 75.0,
+            size: 180.0,
+            animate: false,
+          ),
+          mode: ThemeMode.light,
         ),
-        mode: ThemeMode.light,
-      ));
+      );
 
       expect(find.text('80'), findsOneWidget);
       expect(find.text('%'), findsOneWidget);

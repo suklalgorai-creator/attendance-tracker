@@ -7,7 +7,7 @@ class SubjectRepositoryImpl implements SubjectRepository {
   final SubjectLocalDataSource _localDataSource;
 
   SubjectRepositoryImpl({SubjectLocalDataSource? localDataSource})
-      : _localDataSource = localDataSource ?? SubjectLocalDataSourceImpl();
+    : _localDataSource = localDataSource ?? SubjectLocalDataSourceImpl();
 
   int _compareSubjects(SubjectEntity a, SubjectEntity b) {
     final orderComparison = a.sortOrder.compareTo(b.sortOrder);
@@ -55,10 +55,9 @@ class SubjectRepositoryImpl implements SubjectRepository {
     final updated = models.map((model) {
       final index = orderedIds.indexOf(model.id);
       if (index >= 0) {
-        return SubjectModel.fromEntity(model.copyWith(
-          sortOrder: index,
-          updatedAt: now,
-        ));
+        return SubjectModel.fromEntity(
+          model.copyWith(sortOrder: index, updatedAt: now),
+        );
       }
       return model;
     }).toList();
@@ -71,10 +70,7 @@ class SubjectRepositoryImpl implements SubjectRepository {
     final subject = await _localDataSource.getSubjectById(id);
     if (subject != null) {
       final now = DateTime.now();
-      final updated = subject.copyWith(
-        deletedAt: now,
-        updatedAt: now,
-      );
+      final updated = subject.copyWith(deletedAt: now, updatedAt: now);
       await _localDataSource.saveSubject(SubjectModel.fromEntity(updated));
     }
   }

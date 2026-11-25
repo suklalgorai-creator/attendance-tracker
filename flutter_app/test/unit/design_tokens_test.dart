@@ -56,28 +56,31 @@ void main() {
       expect(AppRadius.full, 999.0);
     });
 
-    testWidgets('AppTypography hierarchy defines expected font weights and sizes', (tester) async {
-      final eyebrow = AppTypography.eyebrow(Colors.white);
-      expect(eyebrow.fontSize, 12.0);
-      expect(eyebrow.fontWeight, FontWeight.w700);
-      expect(eyebrow.letterSpacing, 1.0);
+    testWidgets(
+      'AppTypography hierarchy defines expected font weights and sizes',
+      (tester) async {
+        final eyebrow = AppTypography.eyebrow(Colors.white);
+        expect(eyebrow.fontSize, 11.0);
+        expect(eyebrow.fontWeight, FontWeight.w700);
+        expect(eyebrow.letterSpacing, 1.0);
 
-      final courseTitle = AppTypography.courseTitle(Colors.white);
-      expect(courseTitle.fontSize, 26.0);
-      expect(courseTitle.fontWeight, FontWeight.w800);
-      expect(courseTitle.letterSpacing, -0.5);
+        final courseTitle = AppTypography.courseTitle(Colors.white);
+        expect(courseTitle.fontSize, 24.0);
+        expect(courseTitle.fontWeight, FontWeight.w800);
+        expect(courseTitle.letterSpacing, -0.5);
 
-      final statValue = AppTypography.statValue(Colors.white);
-      expect(statValue.fontSize, 22.0);
-      expect(statValue.fontWeight, FontWeight.w800);
+        final statValue = AppTypography.statValue(Colors.white);
+        expect(statValue.fontSize, 20.0);
+        expect(statValue.fontWeight, FontWeight.w800);
 
-      final statLabel = AppTypography.statLabel(Colors.white);
-      expect(statLabel.fontSize, 14.0);
-      expect(statLabel.fontWeight, FontWeight.w500);
+        final statLabel = AppTypography.statLabel(Colors.white);
+        expect(statLabel.fontSize, 12.0);
+        expect(statLabel.fontWeight, FontWeight.w600);
 
-      final cardTitle = AppTypography.cardTitle(Colors.white);
-      expect(cardTitle.fontSize, 18.0);
-      expect(cardTitle.fontWeight, FontWeight.w800);
-    });
+        final cardTitle = AppTypography.cardTitle(Colors.white);
+        expect(cardTitle.fontSize, 15.0);
+        expect(cardTitle.fontWeight, FontWeight.w800);
+      },
+    );
   });
 }

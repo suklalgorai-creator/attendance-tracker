@@ -25,15 +25,17 @@ class FakeRegisterAttendanceRepository implements AttendanceRepository {
       StreamController<List<AttendanceRecordEntity>>.broadcast();
 
   @override
-  Future<List<LegacyAttendanceEntity>> getLegacyAttendance(
-      {bool includeDeleted = false}) async {
+  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({
+    bool includeDeleted = false,
+  }) async {
     if (includeDeleted) return List.from(legacyStorage);
     return legacyStorage.where((r) => !r.isDeleted).toList();
   }
 
   @override
-  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance(
-      {bool includeDeleted = false}) {
+  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({
+    bool includeDeleted = false,
+  }) {
     return _legacyStreamController.stream;
   }
 
@@ -50,7 +52,8 @@ class FakeRegisterAttendanceRepository implements AttendanceRepository {
 
   @override
   Future<void> saveLegacyAttendances(
-      List<LegacyAttendanceEntity> records) async {
+    List<LegacyAttendanceEntity> records,
+  ) async {
     for (final r in records) {
       await saveLegacyAttendance(r);
     }
@@ -84,15 +87,17 @@ class FakeRegisterAttendanceRepository implements AttendanceRepository {
   }
 
   @override
-  Future<List<AttendanceRecordEntity>> getAttendanceRecords(
-      {bool includeDeleted = false}) async {
+  Future<List<AttendanceRecordEntity>> getAttendanceRecords({
+    bool includeDeleted = false,
+  }) async {
     if (includeDeleted) return List.from(recordStorage);
     return recordStorage.where((r) => !r.isDeleted).toList();
   }
 
   @override
-  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords(
-      {bool includeDeleted = false}) {
+  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({
+    bool includeDeleted = false,
+  }) {
     return _recordsStreamController.stream;
   }
 
@@ -109,7 +114,8 @@ class FakeRegisterAttendanceRepository implements AttendanceRepository {
 
   @override
   Future<void> saveAttendanceRecords(
-      List<AttendanceRecordEntity> records) async {
+    List<AttendanceRecordEntity> records,
+  ) async {
     for (final r in records) {
       await saveAttendanceRecord(r);
     }
@@ -143,14 +149,16 @@ class FakeRegisterAttendanceRepository implements AttendanceRepository {
   }
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForDate(String date,
-          {bool includeDeleted = false}) async =>
-      [];
+  Future<List<AttendanceRecordEntity>> getRecordsForDate(
+    String date, {
+    bool includeDeleted = false,
+  }) async => [];
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForSubject(String subjectId,
-          {bool includeDeleted = false}) async =>
-      [];
+  Future<List<AttendanceRecordEntity>> getRecordsForSubject(
+    String subjectId, {
+    bool includeDeleted = false,
+  }) async => [];
 
   @override
   Future<void> clearAllAttendanceHistory() async {
@@ -227,7 +235,8 @@ void main() {
       fakeSettingsRepo.settings = initialSettings;
     }
 
-    final effectiveRouter = router ??
+    final effectiveRouter =
+        router ??
         GoRouter(
           initialLocation: '/register',
           routes: [
@@ -249,24 +258,25 @@ void main() {
         attendanceRepositoryProvider.overrideWithValue(fakeAttendanceRepo),
         settingsRepositoryProvider.overrideWithValue(fakeSettingsRepo),
       ],
-      child: MaterialApp.router(
-        routerConfig: effectiveRouter,
-      ),
+      child: MaterialApp.router(routerConfig: effectiveRouter),
     );
   }
 
   group('RegisterPage Widget Tests', () {
-    testWidgets('renders Session Register card, Leaderboard button, and ViewTogglesWidget', (tester) async {
-      await tester.pumpWidget(buildTestableWidget());
-      await tester.pumpAndSettle();
+    testWidgets(
+      'renders Session Register card, Leaderboard button, and ViewTogglesWidget',
+      (tester) async {
+        await tester.pumpWidget(buildTestableWidget());
+        await tester.pumpAndSettle();
 
-      expect(find.text('Session Register'), findsOneWidget);
-      expect(find.text('Leaderboard'), findsOneWidget);
-      expect(find.byType(ViewTogglesWidget), findsOneWidget);
-      expect(find.text('WEEK'), findsOneWidget);
-      expect(find.text('MONTH'), findsOneWidget);
-      expect(find.text('ALL'), findsOneWidget);
-    });
+        expect(find.text('Session Register'), findsOneWidget);
+        expect(find.text('Leaderboard'), findsOneWidget);
+        expect(find.byType(ViewTogglesWidget), findsOneWidget);
+        expect(find.text('WEEK'), findsOneWidget);
+        expect(find.text('MONTH'), findsOneWidget);
+        expect(find.text('ALL'), findsOneWidget);
+      },
+    );
 
     testWidgets('renders DayRow list for week by default', (tester) async {
       await tester.pumpWidget(buildTestableWidget());
@@ -276,27 +286,34 @@ void main() {
       expect(dayRows, findsWidgets);
     });
 
-    testWidgets('toggling view mode to Month and All updates active tab and row list', (tester) async {
-      await tester.pumpWidget(buildTestableWidget());
-      await tester.pumpAndSettle();
+    testWidgets(
+      'toggling view mode to Month and All updates active tab and row list',
+      (tester) async {
+        await tester.pumpWidget(buildTestableWidget());
+        await tester.pumpAndSettle();
 
-      // Tap Month
-      await tester.tap(find.text('MONTH'));
-      await tester.pumpAndSettle();
-      expect(find.byType(DayRow), findsWidgets);
+        // Tap Month
+        await tester.tap(find.text('MONTH'));
+        await tester.pumpAndSettle();
+        expect(find.byType(DayRow), findsWidgets);
 
-      // Tap All
-      await tester.tap(find.text('ALL'));
-      await tester.pumpAndSettle();
-      expect(find.byType(DayRow), findsWidgets);
-    });
+        // Tap All
+        await tester.tap(find.text('ALL'));
+        await tester.pumpAndSettle();
+        expect(find.byType(DayRow), findsWidgets);
+      },
+    );
 
-    testWidgets('renders empty state hint when no dates are available', (tester) async {
-      await tester.pumpWidget(buildTestableWidget(
-        initialSettings: const UserSettingsEntity(
-          startDate: '2099-01-01', // Future start date produces 0 class days
+    testWidgets('renders empty state hint when no dates are available', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestableWidget(
+          initialSettings: const UserSettingsEntity(
+            startDate: '2099-01-01', // Future start date produces 0 class days
+          ),
         ),
-      ));
+      );
       await tester.pumpAndSettle();
 
       expect(
@@ -305,7 +322,9 @@ void main() {
       );
     });
 
-    testWidgets('tapping Leaderboard navigates to /leaderboard', (tester) async {
+    testWidgets('tapping Leaderboard navigates to /leaderboard', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildTestableWidget());
       await tester.pumpAndSettle();
 
@@ -315,7 +334,9 @@ void main() {
       expect(find.text('Leaderboard Screen'), findsOneWidget);
     });
 
-    testWidgets('interactive attendance marking updates record and UI', (tester) async {
+    testWidgets('interactive attendance marking updates record and UI', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildTestableWidget());
       await tester.pumpAndSettle();
 
@@ -328,7 +349,9 @@ void main() {
       }
     });
 
-    testWidgets('does not overflow on narrow 320px screen width', (tester) async {
+    testWidgets('does not overflow on narrow 320px screen width', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(320, 600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);

@@ -52,8 +52,9 @@ class CalendarAnalyticsService {
     final totalAttended = attendedCount + (legacy?.attended ?? 0);
 
     // 5. Cancelled classes with no held sessions count as holiday
-    final hasCancelled = dateRecords
-        .any((record) => record.status == AttendanceStatus.cancelled);
+    final hasCancelled = dateRecords.any(
+      (record) => record.status == AttendanceStatus.cancelled,
+    );
     if (hasCancelled && totalHeld == 0) {
       return CalendarDaySummary(
         date: date,
@@ -159,7 +160,10 @@ class CalendarAnalyticsService {
   ///
   /// Guarantees that the returned date is always a Sunday (`weekday % 7 == 0`)
   /// exactly `weeksToShow - 1` weeks prior to the Sunday of the anchor week.
-  DateTime computeHeatmapStartDate(DateTime anchorDate, [int weeksToShow = 26]) {
+  DateTime computeHeatmapStartDate(
+    DateTime anchorDate, [
+    int weeksToShow = 26,
+  ]) {
     final anchor = DateTime(anchorDate.year, anchorDate.month, anchorDate.day);
     return anchor.subtract(
       Duration(days: (weeksToShow - 1) * 7 + (anchor.weekday % 7)),
@@ -169,7 +173,8 @@ class CalendarAnalyticsService {
   /// Builds the 26-week heatmap data matrix matching `Heatmap.jsx`.
   ///
   /// Returns a map of `YYYY-MM-DD -> {held: int, attended: int}` for all active dates.
-  Map<String, ({int held, int attended, bool isHoliday})> computeHeatmapRecords({
+  Map<String, ({int held, int attended, bool isHoliday})>
+  computeHeatmapRecords({
     required List<AttendanceRecordEntity> records,
     required List<LegacyAttendanceEntity> legacyRecords,
     required Map<String, bool> holidays,

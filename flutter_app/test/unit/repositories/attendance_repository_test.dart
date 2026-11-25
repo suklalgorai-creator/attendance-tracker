@@ -12,14 +12,17 @@ class FakeAttendanceLocalDataSource implements AttendanceLocalDataSource {
   final List<AttendanceRecordModel> _records = [];
   final List<LegacyAttendanceModel> _legacy = [];
 
-  final _recordsController = StreamController<List<AttendanceRecordModel>>.broadcast();
-  final _legacyController = StreamController<List<LegacyAttendanceModel>>.broadcast();
+  final _recordsController =
+      StreamController<List<AttendanceRecordModel>>.broadcast();
+  final _legacyController =
+      StreamController<List<LegacyAttendanceModel>>.broadcast();
 
   void _notifyRecords() => _recordsController.add(List.unmodifiable(_records));
   void _notifyLegacy() => _legacyController.add(List.unmodifiable(_legacy));
 
   @override
-  Future<List<AttendanceRecordModel>> getAttendanceRecords() async => List.from(_records);
+  Future<List<AttendanceRecordModel>> getAttendanceRecords() async =>
+      List.from(_records);
 
   @override
   Stream<List<AttendanceRecordModel>> watchAttendanceRecords() async* {
@@ -39,7 +42,9 @@ class FakeAttendanceLocalDataSource implements AttendanceLocalDataSource {
   }
 
   @override
-  Future<void> saveAttendanceRecords(List<AttendanceRecordModel> records) async {
+  Future<void> saveAttendanceRecords(
+    List<AttendanceRecordModel> records,
+  ) async {
     _records.clear();
     _records.addAll(records);
     _notifyRecords();
@@ -58,7 +63,8 @@ class FakeAttendanceLocalDataSource implements AttendanceLocalDataSource {
   }
 
   @override
-  Future<List<LegacyAttendanceModel>> getLegacyAttendance() async => List.from(_legacy);
+  Future<List<LegacyAttendanceModel>> getLegacyAttendance() async =>
+      List.from(_legacy);
 
   @override
   Stream<List<LegacyAttendanceModel>> watchLegacyAttendance() async* {
@@ -78,7 +84,9 @@ class FakeAttendanceLocalDataSource implements AttendanceLocalDataSource {
   }
 
   @override
-  Future<void> saveLegacyAttendances(List<LegacyAttendanceModel> records) async {
+  Future<void> saveLegacyAttendances(
+    List<LegacyAttendanceModel> records,
+  ) async {
     _legacy.clear();
     _legacy.addAll(records);
     _notifyLegacy();
@@ -116,38 +124,41 @@ void main() {
       repository = AttendanceRepositoryImpl(localDataSource: fakeDataSource);
     });
 
-    test('saveAttendanceRecord and getAttendanceRecords excluding deleted by default', () async {
-      final rec1 = AttendanceRecordEntity(
-        id: 'r1',
-        date: '2026-03-01',
-        subjectId: 'sub-1',
-        sessionId: 's1',
-        status: AttendanceStatus.present,
-        createdAt: now,
-        updatedAt: now,
-      );
+    test(
+      'saveAttendanceRecord and getAttendanceRecords excluding deleted by default',
+      () async {
+        final rec1 = AttendanceRecordEntity(
+          id: 'r1',
+          date: '2026-03-01',
+          subjectId: 'sub-1',
+          sessionId: 's1',
+          status: AttendanceStatus.present,
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      final rec2 = AttendanceRecordEntity(
-        id: 'r2',
-        date: '2026-03-01',
-        subjectId: 'sub-2',
-        sessionId: 's2',
-        status: AttendanceStatus.absent,
-        createdAt: now,
-        updatedAt: now,
-        deletedAt: now,
-      );
+        final rec2 = AttendanceRecordEntity(
+          id: 'r2',
+          date: '2026-03-01',
+          subjectId: 'sub-2',
+          sessionId: 's2',
+          status: AttendanceStatus.absent,
+          createdAt: now,
+          updatedAt: now,
+          deletedAt: now,
+        );
 
-      await repository.saveAttendanceRecord(rec1);
-      await repository.saveAttendanceRecord(rec2);
+        await repository.saveAttendanceRecord(rec1);
+        await repository.saveAttendanceRecord(rec2);
 
-      final active = await repository.getAttendanceRecords();
-      expect(active.length, 1);
-      expect(active.first.id, 'r1');
+        final active = await repository.getAttendanceRecords();
+        expect(active.length, 1);
+        expect(active.first.id, 'r1');
 
-      final all = await repository.getAttendanceRecords(includeDeleted: true);
-      expect(all.length, 2);
-    });
+        final all = await repository.getAttendanceRecords(includeDeleted: true);
+        expect(all.length, 2);
+      },
+    );
 
     test('getRecordsForDate filters records matching date', () async {
       final r1 = AttendanceRecordEntity(
@@ -205,30 +216,35 @@ void main() {
       expect(mathRecords.first.id, 'r1');
     });
 
-    test('deleteAttendanceRecord and restoreAttendanceRecord semantics', () async {
-      final r1 = AttendanceRecordEntity(
-        id: 'rec-del',
-        date: '2026-03-01',
-        sessionId: 's1',
-        status: AttendanceStatus.present,
-        createdAt: now,
-        updatedAt: now,
-      );
+    test(
+      'deleteAttendanceRecord and restoreAttendanceRecord semantics',
+      () async {
+        final r1 = AttendanceRecordEntity(
+          id: 'rec-del',
+          date: '2026-03-01',
+          sessionId: 's1',
+          status: AttendanceStatus.present,
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      await repository.saveAttendanceRecord(r1);
-      await repository.deleteAttendanceRecord('rec-del');
+        await repository.saveAttendanceRecord(r1);
+        await repository.deleteAttendanceRecord('rec-del');
 
-      expect((await repository.getAttendanceRecords()).isEmpty, isTrue);
+        expect((await repository.getAttendanceRecords()).isEmpty, isTrue);
 
-      final deletedList = await repository.getAttendanceRecords(includeDeleted: true);
-      expect(deletedList.length, 1);
-      expect(deletedList.first.isDeleted, isTrue);
+        final deletedList = await repository.getAttendanceRecords(
+          includeDeleted: true,
+        );
+        expect(deletedList.length, 1);
+        expect(deletedList.first.isDeleted, isTrue);
 
-      await repository.restoreAttendanceRecord('rec-del');
-      final restoredList = await repository.getAttendanceRecords();
-      expect(restoredList.length, 1);
-      expect(restoredList.first.isDeleted, isFalse);
-    });
+        await repository.restoreAttendanceRecord('rec-del');
+        final restoredList = await repository.getAttendanceRecords();
+        expect(restoredList.length, 1);
+        expect(restoredList.first.isDeleted, isFalse);
+      },
+    );
 
     test('hardDeleteAttendanceRecord permanently removes record', () async {
       final r1 = AttendanceRecordEntity(
@@ -243,81 +259,109 @@ void main() {
       await repository.saveAttendanceRecord(r1);
       await repository.hardDeleteAttendanceRecord('rec-hard');
 
-      expect((await repository.getAttendanceRecords(includeDeleted: true)).isEmpty, isTrue);
-    });
-
-    test('Legacy attendance CRUD, soft delete, restore, and hard delete', () async {
-      final leg1 = LegacyAttendanceEntity(
-        id: 'leg-1',
-        date: '2026-02-01',
-        held: 5,
-        attended: 4,
-        createdAt: now,
-        updatedAt: now,
+      expect(
+        (await repository.getAttendanceRecords(includeDeleted: true)).isEmpty,
+        isTrue,
       );
-
-      await repository.saveLegacyAttendance(leg1);
-      expect((await repository.getLegacyAttendance()).length, 1);
-
-      await repository.deleteLegacyAttendance('leg-1');
-      expect((await repository.getLegacyAttendance()).isEmpty, isTrue);
-      expect((await repository.getLegacyAttendance(includeDeleted: true)).length, 1);
-
-      await repository.restoreLegacyAttendance('leg-1');
-      expect((await repository.getLegacyAttendance()).length, 1);
-
-      await repository.hardDeleteLegacyAttendance('leg-1');
-      expect((await repository.getLegacyAttendance(includeDeleted: true)).isEmpty, isTrue);
     });
 
-    test('clearAllAttendanceHistory empties both session and legacy records', () async {
-      await repository.saveAttendanceRecord(AttendanceRecordEntity(
-        id: 'r1',
-        date: '2026-03-01',
-        sessionId: 's1',
-        status: AttendanceStatus.present,
-        createdAt: now,
-        updatedAt: now,
-      ));
+    test(
+      'Legacy attendance CRUD, soft delete, restore, and hard delete',
+      () async {
+        final leg1 = LegacyAttendanceEntity(
+          id: 'leg-1',
+          date: '2026-02-01',
+          held: 5,
+          attended: 4,
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      await repository.saveLegacyAttendance(LegacyAttendanceEntity(
-        id: 'l1',
-        date: '2026-02-01',
-        held: 2,
-        attended: 2,
-        createdAt: now,
-        updatedAt: now,
-      ));
+        await repository.saveLegacyAttendance(leg1);
+        expect((await repository.getLegacyAttendance()).length, 1);
 
-      expect((await repository.getAttendanceRecords()).length, 1);
-      expect((await repository.getLegacyAttendance()).length, 1);
+        await repository.deleteLegacyAttendance('leg-1');
+        expect((await repository.getLegacyAttendance()).isEmpty, isTrue);
+        expect(
+          (await repository.getLegacyAttendance(includeDeleted: true)).length,
+          1,
+        );
 
-      await repository.clearAllAttendanceHistory();
+        await repository.restoreLegacyAttendance('leg-1');
+        expect((await repository.getLegacyAttendance()).length, 1);
 
-      expect((await repository.getAttendanceRecords(includeDeleted: true)).isEmpty, isTrue);
-      expect((await repository.getLegacyAttendance(includeDeleted: true)).isEmpty, isTrue);
-    });
+        await repository.hardDeleteLegacyAttendance('leg-1');
+        expect(
+          (await repository.getLegacyAttendance(includeDeleted: true)).isEmpty,
+          isTrue,
+        );
+      },
+    );
 
-    test('watchAttendanceRecords and watchLegacyAttendance stream events', () async {
-      final record = AttendanceRecordEntity(
-        id: 'r-stream',
-        date: '2026-03-01',
-        sessionId: 's1',
-        status: AttendanceStatus.present,
-        createdAt: now,
-        updatedAt: now,
-      );
+    test(
+      'clearAllAttendanceHistory empties both session and legacy records',
+      () async {
+        await repository.saveAttendanceRecord(
+          AttendanceRecordEntity(
+            id: 'r1',
+            date: '2026-03-01',
+            sessionId: 's1',
+            status: AttendanceStatus.present,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
 
-      expectLater(
-        repository.watchAttendanceRecords(),
-        emitsInOrder([
-          [],
-          [record],
-        ]),
-      );
+        await repository.saveLegacyAttendance(
+          LegacyAttendanceEntity(
+            id: 'l1',
+            date: '2026-02-01',
+            held: 2,
+            attended: 2,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
 
-      await pumpEventQueue();
-      await repository.saveAttendanceRecord(record);
-    });
+        expect((await repository.getAttendanceRecords()).length, 1);
+        expect((await repository.getLegacyAttendance()).length, 1);
+
+        await repository.clearAllAttendanceHistory();
+
+        expect(
+          (await repository.getAttendanceRecords(includeDeleted: true)).isEmpty,
+          isTrue,
+        );
+        expect(
+          (await repository.getLegacyAttendance(includeDeleted: true)).isEmpty,
+          isTrue,
+        );
+      },
+    );
+
+    test(
+      'watchAttendanceRecords and watchLegacyAttendance stream events',
+      () async {
+        final record = AttendanceRecordEntity(
+          id: 'r-stream',
+          date: '2026-03-01',
+          sessionId: 's1',
+          status: AttendanceStatus.present,
+          createdAt: now,
+          updatedAt: now,
+        );
+
+        expectLater(
+          repository.watchAttendanceRecords(),
+          emitsInOrder([
+            [],
+            [record],
+          ]),
+        );
+
+        await pumpEventQueue();
+        await repository.saveAttendanceRecord(record);
+      },
+    );
   });
 }

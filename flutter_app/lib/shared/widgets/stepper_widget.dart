@@ -43,10 +43,12 @@ class StepperWidget extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
     final inputBg = isDark ? AppColors.inputBgDark : AppColors.inputBgLight;
-    final borderColor =
-        isDark ? AppColors.ruleBrightDark : AppColors.ruleBrightLight;
-    final splashColor =
-        isDark ? AppColors.ruleBrightDark : AppColors.ruleBrightLight;
+    final borderColor = isDark
+        ? AppColors.ruleBrightDark
+        : AppColors.ruleBrightLight;
+    final splashColor = isDark
+        ? AppColors.ruleBrightDark
+        : AppColors.ruleBrightLight;
 
     final canDecrease = enabled && value > min;
     final canIncrease = enabled && value < max;

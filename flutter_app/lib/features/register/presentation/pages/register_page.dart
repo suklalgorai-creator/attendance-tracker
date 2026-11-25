@@ -11,6 +11,7 @@ import '../../../../shared/widgets/glass_card.dart';
 import '../../../../shared/widgets/view_toggles_widget.dart';
 import '../providers/register_providers.dart';
 import '../widgets/day_row.dart';
+import '../../../sync/presentation/providers/sync_providers.dart';
 
 /// Main Register screen replicating `react_app/src/pages/RegisterPage.jsx`.
 ///
@@ -31,6 +32,8 @@ class RegisterPage extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
     final today = AppDateUtils.todayStr();
+    final globalSettings = ref.watch(globalSettingsProvider).valueOrNull;
+    final holidays = globalSettings?['holidays'];
 
     return Center(
       child: ConstrainedBox(
@@ -67,7 +70,9 @@ class RegisterPage extends ConsumerWidget {
                           AppButton.ghost(
                             label: 'Leaderboard',
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 10.0, vertical: 6.0),
+                              horizontal: 10.0,
+                              vertical: 6.0,
+                            ),
                             fontSize: 12.0,
                             onPressed: () => context.go('/leaderboard'),
                           ),
@@ -83,9 +88,7 @@ class RegisterPage extends ConsumerWidget {
 
                   if (state.errorMessage != null) ...[
                     const SizedBox(height: 12.0),
-                    AppBanner.danger(
-                      message: state.errorMessage!,
-                    ),
+                    AppBanner.danger(message: state.errorMessage!),
                   ],
 
                   const SizedBox(height: 16.0),
@@ -112,22 +115,26 @@ class RegisterPage extends ConsumerWidget {
                     ...state.visibleDates.map((dateStr) {
                       final legacyRecord = state.legacyByDate[dateStr];
                       final isToday = dateStr == today;
+                      final isHoliday =
+                          holidays is Map &&
+                          holidays[dateStr] != null &&
+                          holidays[dateStr] != false;
                       return DayRow(
                         key: ValueKey(dateStr),
                         dateStr: dateStr,
                         legacyRecord: legacyRecord,
                         isToday: isToday,
-                        isHoliday: false,
-                        onSaveDaily: ({
-                          required date,
-                          required held,
-                          required attended,
-                        }) =>
-                            controller.saveDailyAttendance(
-                          date: date,
-                          held: held,
-                          attended: attended,
-                        ),
+                        isHoliday: isHoliday,
+                        onSaveDaily:
+                            ({
+                              required date,
+                              required held,
+                              required attended,
+                            }) => controller.saveDailyAttendance(
+                              date: date,
+                              held: held,
+                              attended: attended,
+                            ),
                         onDeleteDaily: (id) =>
                             controller.deleteDailyAttendance(id),
                       );

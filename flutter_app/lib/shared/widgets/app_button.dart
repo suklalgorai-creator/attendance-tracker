@@ -3,12 +3,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_radius.dart';
 import '../../core/constants/app_typography.dart';
 
-enum AppButtonVariant {
-  present,
-  absent,
-  ghost,
-  clear,
-}
+enum AppButtonVariant { present, absent, ghost, clear }
 
 /// Standardized Button matching React CSS `.btn-present`, `.btn-absent`, `.btn-ghost`, `.btn-clear`
 class AppButton extends StatelessWidget {
@@ -115,7 +110,9 @@ class AppButton extends StatelessWidget {
         bg = isDark ? AppColors.ruleBrightDark : AppColors.ruleBrightLight;
         fg = paperColor;
         border = Border.all(
-          color: isDark ? AppColors.glassBorderDark : AppColors.glassBorderLight,
+          color: isDark
+              ? AppColors.glassBorderDark
+              : AppColors.glassBorderLight,
           width: 1,
         );
         break;
@@ -129,10 +126,11 @@ class AppButton extends StatelessWidget {
         break;
     }
 
-    final buttonPadding = padding ??
+    final buttonPadding =
+        padding ??
         (isWide
-            ? const EdgeInsets.symmetric(vertical: 16, horizontal: 20)
-            : const EdgeInsets.symmetric(vertical: 12, horizontal: 16));
+            ? const EdgeInsets.symmetric(vertical: 14, horizontal: 18)
+            : const EdgeInsets.symmetric(vertical: 11, horizontal: 15));
 
     final content = AnimatedContainer(
       duration: const Duration(milliseconds: 200),
@@ -159,16 +157,13 @@ class AppButton extends StatelessWidget {
                   mainAxisSize: isWide ? MainAxisSize.max : MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (icon != null) ...[
-                      icon!,
-                      const SizedBox(width: 8),
-                    ],
+                    if (icon != null) ...[icon!, const SizedBox(width: 8)],
                     Text(
                       label,
                       style: AppTypography.labelLarge.copyWith(
                         color: fg,
                         fontWeight: FontWeight.w700,
-                        fontSize: fontSize ?? 14.5,
+                        fontSize: fontSize ?? 14.0,
                       ),
                     ),
                   ],
@@ -182,7 +177,9 @@ class AppButton extends StatelessWidget {
       child: InkWell(
         onTap: isLoading ? null : onPressed,
         borderRadius: BorderRadius.circular(AppRadius.card - 2),
-        child: isWide ? SizedBox(width: double.infinity, child: content) : content,
+        child: isWide
+            ? SizedBox(width: double.infinity, child: content)
+            : content,
       ),
     );
   }

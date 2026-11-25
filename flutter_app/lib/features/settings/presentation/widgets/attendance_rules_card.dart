@@ -18,7 +18,8 @@ class AttendanceRulesCard extends ConsumerStatefulWidget {
   const AttendanceRulesCard({super.key, required this.settings});
 
   @override
-  ConsumerState<AttendanceRulesCard> createState() => _AttendanceRulesCardState();
+  ConsumerState<AttendanceRulesCard> createState() =>
+      _AttendanceRulesCardState();
 }
 
 class _AttendanceRulesCardState extends ConsumerState<AttendanceRulesCard> {
@@ -38,7 +39,9 @@ class _AttendanceRulesCardState extends ConsumerState<AttendanceRulesCard> {
     final currentText = _minPercentController.text;
     final parsed = double.tryParse(currentText);
     if (parsed == null || (parsed - widget.settings.minPercent).abs() > 0.05) {
-      _minPercentController.text = widget.settings.minPercent.toStringAsFixed(1);
+      _minPercentController.text = widget.settings.minPercent.toStringAsFixed(
+        1,
+      );
     }
   }
 
@@ -98,17 +101,16 @@ class _AttendanceRulesCardState extends ConsumerState<AttendanceRulesCard> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
     final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
-    final borderColor = isDark ? AppColors.glassBorderDark : AppColors.glassBorderLight;
+    final borderColor = isDark
+        ? AppColors.glassBorderDark
+        : AppColors.glassBorderLight;
     final inputBg = isDark ? AppColors.inputBgDark : AppColors.inputBgLight;
 
     return GlassCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Attendance Rules',
-            style: AppTypography.cardTitle(paperColor),
-          ),
+          Text('Attendance Rules', style: AppTypography.cardTitle(paperColor)),
           const SizedBox(height: 16),
           // Classes started on
           Text(
@@ -136,12 +138,18 @@ class _AttendanceRulesCardState extends ConsumerState<AttendanceRulesCard> {
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.outfit(
                         fontSize: 15,
-                        color: widget.settings.startDate.isNotEmpty ? paperColor : mutedColor,
+                        color: widget.settings.startDate.isNotEmpty
+                            ? paperColor
+                            : mutedColor,
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Icon(Icons.calendar_today_rounded, size: 18, color: mutedColor),
+                  Icon(
+                    Icons.calendar_today_rounded,
+                    size: 18,
+                    color: mutedColor,
+                  ),
                 ],
               ),
             ),
@@ -159,12 +167,21 @@ class _AttendanceRulesCardState extends ConsumerState<AttendanceRulesCard> {
                 width: 100,
                 child: TextField(
                   controller: _minPercentController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: paperColor),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  style: GoogleFonts.outfit(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: paperColor,
+                  ),
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: inputBg,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide(color: borderColor),
@@ -175,13 +192,18 @@ class _AttendanceRulesCardState extends ConsumerState<AttendanceRulesCard> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: AppColors.amber, width: 2),
+                      borderSide: const BorderSide(
+                        color: AppColors.amber,
+                        width: 2,
+                      ),
                     ),
                   ),
                   onChanged: (val) {
                     final numVal = double.tryParse(val);
                     if (numVal != null) {
-                      ref.read(settingsControllerProvider.notifier).updateMinPercent(numVal);
+                      ref
+                          .read(settingsControllerProvider.notifier)
+                          .updateMinPercent(numVal);
                     }
                   },
                 ),
@@ -189,7 +211,11 @@ class _AttendanceRulesCardState extends ConsumerState<AttendanceRulesCard> {
               const SizedBox(width: 10),
               Text(
                 '%',
-                style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w800, color: paperColor),
+                style: GoogleFonts.outfit(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: paperColor,
+                ),
               ),
             ],
           ),
@@ -203,7 +229,9 @@ class _AttendanceRulesCardState extends ConsumerState<AttendanceRulesCard> {
           DayPickerWidget(
             selectedDays: widget.settings.classDays,
             onDaysChanged: (days) {
-              ref.read(settingsControllerProvider.notifier).updateClassDays(days);
+              ref
+                  .read(settingsControllerProvider.notifier)
+                  .updateClassDays(days);
             },
           ),
           const SizedBox(height: 20),
@@ -237,7 +265,10 @@ class _AttendanceRulesCardState extends ConsumerState<AttendanceRulesCard> {
                         const SizedBox(height: 2),
                         Text(
                           'Configure weekly recurring subject timetable',
-                          style: GoogleFonts.outfit(fontSize: 12, color: mutedColor),
+                          style: GoogleFonts.outfit(
+                            fontSize: 12,
+                            color: mutedColor,
+                          ),
                         ),
                       ],
                     ),

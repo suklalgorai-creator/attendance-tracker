@@ -1,14 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../data/datasources/auth_remote_datasource.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'auth_state.dart';
 
 /// Riverpod StateNotifier managing the authentication and onboarding state machine.
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _authRepository;
+  final Future<void> Function(String uid)? _onAuthenticated;
   int _currentEpoch = 0;
 
-  AuthNotifier(this._authRepository)
-      : super(_computeInitialState(_authRepository)) {
+  AuthNotifier(
+    this._authRepository, {
+    Future<void> Function(String uid)? onAuthenticated,
+  }) : _onAuthenticated = onAuthenticated,
+       super(_computeInitialState(_authRepository)) {
     init();
   }
 
@@ -48,10 +53,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final user = await _authRepository.getCurrentUser();
       if (epoch != _currentEpoch) return;
-      final isOnboarded = await _authRepository.isOnboardingComplete();
+      var isOnboarded = await _authRepository.isOnboardingComplete();
       if (epoch != _currentEpoch) return;
 
       if (user != null) {
+        if (!user.isGuest && !isOnboarded && _onAuthenticated != null) {
+          try {
+            await _onAuthenticated(user.id);
+          } catch (_) {}
+          if (epoch != _currentEpoch) return;
+          isOnboarded = await _authRepository.isOnboardingComplete();
+          if (epoch != _currentEpoch) return;
+        }
         if (user.isGuest) {
           state = AuthState(
             status: AuthStatus.guest,
@@ -87,6 +100,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final user = await _authRepository.signInWithGoogle();
       if (epoch != _currentEpoch) return;
+      if (_onAuthenticated != null) {
+        try {
+          await _onAuthenticated(user.id);
+        } catch (_) {}
+        if (epoch != _currentEpoch) return;
+      }
       final isOnboarded = await _authRepository.isOnboardingComplete();
       if (epoch != _currentEpoch) return;
       state = AuthState(
@@ -94,12 +113,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
         user: user,
         isOnboardingComplete: isOnboarded,
       );
-    } catch (e) {
+    } on AuthCancelledException {
       if (epoch != _currentEpoch) return;
       state = state.copyWith(
-        status: AuthStatus.error,
-        errorMessage: e.toString(),
+        status: AuthStatus.unauthenticated,
+        clearError: true,
       );
+    } catch (e) {
+      if (epoch != _currentEpoch) return;
+      final msg = e.toString().replaceFirst(RegExp(r'^Exception:\s*'), '');
+      state = state.copyWith(status: AuthStatus.error, errorMessage: msg);
     }
   }
 

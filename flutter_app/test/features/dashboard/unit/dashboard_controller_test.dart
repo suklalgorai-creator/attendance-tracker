@@ -27,17 +27,26 @@ class FakeAttendanceRepository implements AttendanceRepository {
   Future<void> deleteLegacyAttendance(String id) async {}
 
   @override
-  Future<List<AttendanceRecordEntity>> getAttendanceRecords({bool includeDeleted = false}) async =>
-      List.from(savedRecords);
+  Future<List<AttendanceRecordEntity>> getAttendanceRecords({
+    bool includeDeleted = false,
+  }) async => List.from(savedRecords);
 
   @override
-  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({bool includeDeleted = false}) async => [];
+  Future<List<LegacyAttendanceEntity>> getLegacyAttendance({
+    bool includeDeleted = false,
+  }) async => [];
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForDate(String date, {bool includeDeleted = false}) async => [];
+  Future<List<AttendanceRecordEntity>> getRecordsForDate(
+    String date, {
+    bool includeDeleted = false,
+  }) async => [];
 
   @override
-  Future<List<AttendanceRecordEntity>> getRecordsForSubject(String subjectId, {bool includeDeleted = false}) async => [];
+  Future<List<AttendanceRecordEntity>> getRecordsForSubject(
+    String subjectId, {
+    bool includeDeleted = false,
+  }) async => [];
 
   @override
   Future<void> hardDeleteAttendanceRecord(String id) async {}
@@ -52,22 +61,27 @@ class FakeAttendanceRepository implements AttendanceRepository {
   Future<void> restoreLegacyAttendance(String id) async {}
 
   @override
-  Future<void> saveAttendanceRecords(List<AttendanceRecordEntity> records) async =>
-      savedRecords.addAll(records);
+  Future<void> saveAttendanceRecords(
+    List<AttendanceRecordEntity> records,
+  ) async => savedRecords.addAll(records);
 
   @override
   Future<void> saveLegacyAttendance(LegacyAttendanceEntity record) async {}
 
   @override
-  Future<void> saveLegacyAttendances(List<LegacyAttendanceEntity> records) async {}
+  Future<void> saveLegacyAttendances(
+    List<LegacyAttendanceEntity> records,
+  ) async {}
 
   @override
-  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({bool includeDeleted = false}) =>
-      Stream.value(savedRecords);
+  Stream<List<AttendanceRecordEntity>> watchAttendanceRecords({
+    bool includeDeleted = false,
+  }) => Stream.value(savedRecords);
 
   @override
-  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({bool includeDeleted = false}) =>
-      Stream.value([]);
+  Stream<List<LegacyAttendanceEntity>> watchLegacyAttendance({
+    bool includeDeleted = false,
+  }) => Stream.value([]);
 }
 
 void main() {
@@ -80,41 +94,53 @@ void main() {
   });
 
   group('DashboardController Unit Tests', () {
-    test('markPresent saves a record with AttendanceStatus.present and updates lastLoggedRecord', () async {
-      await controller.markPresent('sub_math');
+    test(
+      'markPresent saves a record with AttendanceStatus.present and updates lastLoggedRecord',
+      () async {
+        await controller.markPresent('sub_math');
 
-      expect(repository.savedRecords.length, 1);
-      final record = repository.savedRecords.first;
-      expect(record.subjectId, 'sub_math');
-      expect(record.status, AttendanceStatus.present);
-      expect(controller.lastLoggedRecord, equals(record));
-    });
+        expect(repository.savedRecords.length, 1);
+        final record = repository.savedRecords.first;
+        expect(record.subjectId, 'sub_math');
+        expect(record.status, AttendanceStatus.present);
+        expect(controller.lastLoggedRecord, equals(record));
+      },
+    );
 
-    test('markAbsent saves a record with AttendanceStatus.absent and updates lastLoggedRecord', () async {
-      await controller.markAbsent('sub_physics');
+    test(
+      'markAbsent saves a record with AttendanceStatus.absent and updates lastLoggedRecord',
+      () async {
+        await controller.markAbsent('sub_physics');
 
-      expect(repository.savedRecords.length, 1);
-      final record = repository.savedRecords.first;
-      expect(record.subjectId, 'sub_physics');
-      expect(record.status, AttendanceStatus.absent);
-      expect(controller.lastLoggedRecord, equals(record));
-    });
+        expect(repository.savedRecords.length, 1);
+        final record = repository.savedRecords.first;
+        expect(record.subjectId, 'sub_physics');
+        expect(record.status, AttendanceStatus.absent);
+        expect(controller.lastLoggedRecord, equals(record));
+      },
+    );
 
-    test('undoLastAction removes previously logged record and resets lastLoggedRecord', () async {
-      await controller.markPresent('sub_chemistry');
-      final loggedRecord = controller.lastLoggedRecord;
-      expect(loggedRecord, isNotNull);
+    test(
+      'undoLastAction removes previously logged record and resets lastLoggedRecord',
+      () async {
+        await controller.markPresent('sub_chemistry');
+        final loggedRecord = controller.lastLoggedRecord;
+        expect(loggedRecord, isNotNull);
 
-      final success = await controller.undoLastAction();
-      expect(success, isTrue);
-      expect(repository.deletedRecordIds, contains(loggedRecord!.id));
-      expect(controller.lastLoggedRecord, isNull);
-    });
+        final success = await controller.undoLastAction();
+        expect(success, isTrue);
+        expect(repository.deletedRecordIds, contains(loggedRecord!.id));
+        expect(controller.lastLoggedRecord, isNull);
+      },
+    );
 
-    test('undoLastAction returns false when no record was previously logged', () async {
-      final success = await controller.undoLastAction();
-      expect(success, isFalse);
-      expect(repository.deletedRecordIds, isEmpty);
-    });
+    test(
+      'undoLastAction returns false when no record was previously logged',
+      () async {
+        final success = await controller.undoLastAction();
+        expect(success, isFalse);
+        expect(repository.deletedRecordIds, isEmpty);
+      },
+    );
   });
 }

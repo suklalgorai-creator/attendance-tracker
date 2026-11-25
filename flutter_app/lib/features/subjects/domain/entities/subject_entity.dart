@@ -51,8 +51,9 @@ class SubjectEntity {
       code: clearCode ? null : (code ?? this.code),
       color: color ?? this.color,
       icon: icon ?? this.icon,
-      targetPercentage:
-          clearTargetPercentage ? null : (targetPercentage ?? this.targetPercentage),
+      targetPercentage: clearTargetPercentage
+          ? null
+          : (targetPercentage ?? this.targetPercentage),
       sortOrder: sortOrder ?? this.sortOrder,
       active: active ?? this.active,
       createdAt: createdAt ?? this.createdAt,

@@ -41,8 +41,9 @@ class CalendarViewWidget extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
     final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
-    final ruleBrightColor =
-        isDark ? AppColors.ruleBrightDark : AppColors.ruleBrightLight;
+    final ruleBrightColor = isDark
+        ? AppColors.ruleBrightDark
+        : AppColors.ruleBrightLight;
 
     final year = focusedDate.year;
     final month = focusedDate.month;
@@ -230,10 +231,7 @@ class CalendarViewWidget extends ConsumerWidget {
           // Empty padding cell
           dayCellWidgets.add(
             const Expanded(
-              child: AspectRatio(
-                aspectRatio: 1.0,
-                child: SizedBox.shrink(),
-              ),
+              child: AspectRatio(aspectRatio: 1.0, child: SizedBox.shrink()),
             ),
           );
         } else {
@@ -269,10 +267,7 @@ class CalendarViewWidget extends ConsumerWidget {
       );
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: rowWidgets,
-    );
+    return Column(mainAxisSize: MainAxisSize.min, children: rowWidgets);
   }
 
   Widget _buildDayCell({
@@ -320,7 +315,8 @@ class CalendarViewWidget extends ConsumerWidget {
       case CalendarDayType.present:
       case CalendarDayType.absent:
       case CalendarDayType.partial:
-        tooltipMsg = '${summary.date}: ${summary.attended}/${summary.held} attended';
+        tooltipMsg =
+            '${summary.date}: ${summary.attended}/${summary.held} attended';
         break;
     }
 
@@ -330,12 +326,7 @@ class CalendarViewWidget extends ConsumerWidget {
         decoration: BoxDecoration(
           color: cellBgColor,
           shape: BoxShape.circle,
-          border: isToday
-              ? Border.all(
-                  color: paperColor,
-                  width: 2.0,
-                )
-              : null,
+          border: isToday ? Border.all(color: paperColor, width: 2.0) : null,
         ),
         alignment: Alignment.center,
         child: Text(
@@ -405,11 +396,7 @@ class _DashedRulePainter extends CustomPainter {
     double startX = 0.0;
 
     while (startX < size.width) {
-      canvas.drawLine(
-        Offset(startX, 0),
-        Offset(startX + dashWidth, 0),
-        paint,
-      );
+      canvas.drawLine(Offset(startX, 0), Offset(startX + dashWidth, 0), paint);
       startX += dashWidth + dashSpace;
     }
   }

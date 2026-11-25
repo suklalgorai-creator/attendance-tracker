@@ -28,9 +28,9 @@ class RegisterController extends StateNotifier<RegisterState> {
     Stream<List<AttendanceRecordEntity>>? recordsStream,
     Stream<UserSettingsEntity>? settingsStream,
     RegisterViewMode initialViewMode = RegisterViewMode.week,
-  })  : _attendanceRepository = attendanceRepository,
-        _settingsRepository = settingsRepository,
-        super(RegisterState(viewMode: initialViewMode, isLoading: true)) {
+  }) : _attendanceRepository = attendanceRepository,
+       _settingsRepository = settingsRepository,
+       super(RegisterState(viewMode: initialViewMode, isLoading: true)) {
     Stream<List<LegacyAttendanceEntity>> safeLegacy() {
       if (legacyStream != null) return legacyStream;
       try {
@@ -98,12 +98,10 @@ class RegisterController extends StateNotifier<RegisterState> {
         final initialSettings = await _settingsRepository.getSettings();
         _settings = initialSettings;
       }
-      final initialLegacy =
-          await _attendanceRepository.getLegacyAttendance();
+      final initialLegacy = await _attendanceRepository.getLegacyAttendance();
       _legacyRecords = initialLegacy.where((r) => !r.isDeleted).toList();
 
-      final initialRecords =
-          await _attendanceRepository.getAttendanceRecords();
+      final initialRecords = await _attendanceRepository.getAttendanceRecords();
       _attendanceRecords = initialRecords.where((r) => !r.isDeleted).toList();
       _recompute();
     } catch (_) {
@@ -132,8 +130,11 @@ class RegisterController extends StateNotifier<RegisterState> {
         if (!r.isDeleted && r.date.isNotEmpty) r.date,
     };
 
-    final classDates =
-        AppDateUtils.classDayRangeDesc(startDate, today, classDays);
+    final classDates = AppDateUtils.classDayRangeDesc(
+      startDate,
+      today,
+      classDays,
+    );
     final fullHistory = <String>{...classDates, ...knownDates}.toList()
       ..sort((a, b) => b.compareTo(a));
 
@@ -142,16 +143,22 @@ class RegisterController extends StateNotifier<RegisterState> {
 
     final visibleDates = switch (state.viewMode) {
       RegisterViewMode.all => fullHistory,
-      RegisterViewMode.month => fullHistory
-          .where((d) =>
-              d.compareTo(monthRange.start) >= 0 &&
-              d.compareTo(monthRange.end) <= 0)
-          .toList(),
-      RegisterViewMode.week => fullHistory
-          .where((d) =>
-              d.compareTo(weekRange.start) >= 0 &&
-              d.compareTo(weekRange.end) <= 0)
-          .toList(),
+      RegisterViewMode.month =>
+        fullHistory
+            .where(
+              (d) =>
+                  d.compareTo(monthRange.start) >= 0 &&
+                  d.compareTo(monthRange.end) <= 0,
+            )
+            .toList(),
+      RegisterViewMode.week =>
+        fullHistory
+            .where(
+              (d) =>
+                  d.compareTo(weekRange.start) >= 0 &&
+                  d.compareTo(weekRange.end) <= 0,
+            )
+            .toList(),
     };
 
     final legacyByDate = <String, LegacyAttendanceEntity>{

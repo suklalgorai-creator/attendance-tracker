@@ -3,9 +3,9 @@ import '../../features/sync/presentation/providers/sync_providers.dart';
 import '../services/notification_service.dart';
 import 'repository_providers.dart';
 
-/// Provider for [NotificationService].
+/// Provider for [NotificationService] using the real local notifications implementation.
 final notificationServiceProvider = Provider<NotificationService>((ref) {
-  final service = DefaultNotificationService();
+  final service = FlutterLocalNotificationServiceImpl();
   service.initialize();
   return service;
 });
@@ -31,5 +31,33 @@ final notificationSchedulerProvider = Provider<void>((ref) {
       isEnabled: settings.pushNotificationsEnabled,
       holidays: holidays,
     );
+  });
+});
+
+/// Reconciles DailyFlow task reminders with the OS notification scheduler
+/// whenever tasks are loaded or modified.
+final dailyFlowReminderSchedulerProvider = Provider<void>((ref) {
+  final notificationService = ref.watch(notificationServiceProvider);
+  final tasksAsync = ref.watch(dailyFlowTasksStreamProvider);
+
+  tasksAsync.whenData((tasks) async {
+    final now = DateTime.now();
+    for (final task in tasks) {
+      if (task.reminderAt != null &&
+          !task.status.isTerminal &&
+          !task.isDeleted &&
+          task.reminderAt!.isAfter(now)) {
+        await notificationService.scheduleTaskReminder(
+          taskId: task.id,
+          title: 'DailyFlow: ${task.title}',
+          body: task.notes.trim().isNotEmpty
+              ? task.notes.trim()
+              : 'Scheduled ${task.priority.label.toLowerCase()} priority task (${task.estimatedMinutes}m)',
+          reminderAt: task.reminderAt!,
+        );
+      } else {
+        await notificationService.cancelTaskReminder(task.id);
+      }
+    }
   });
 });

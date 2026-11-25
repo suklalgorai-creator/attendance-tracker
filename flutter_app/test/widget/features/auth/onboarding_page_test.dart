@@ -15,7 +15,8 @@ class MockSettingsRepository implements SettingsRepository {
   UserSettingsEntity? savedSettings;
 
   @override
-  Future<UserSettingsEntity> getSettings() async => savedSettings ?? const UserSettingsEntity();
+  Future<UserSettingsEntity> getSettings() async =>
+      savedSettings ?? const UserSettingsEntity();
 
   @override
   Stream<UserSettingsEntity> watchSettings() => const Stream.empty();
@@ -47,7 +48,8 @@ class MockAuthRepository implements AuthRepository {
   Future<AuthUserEntity?> getCurrentUser() async => null;
 
   @override
-  Future<AuthUserEntity> signInWithGoogle() async => const AuthUserEntity(id: 'test');
+  Future<AuthUserEntity> signInWithGoogle() async =>
+      const AuthUserEntity(id: 'test');
 
   @override
   Future<AuthUserEntity> signInAsGuest() async => AuthUserEntity.guest();
@@ -70,7 +72,9 @@ void main() {
   });
 
   group('OnboardingPage Widget Tests', () {
-    testWidgets('Renders all fields, labels, suggestion chips, and CTA button', (tester) async {
+    testWidgets('Renders all fields, labels, suggestion chips, and CTA button', (
+      tester,
+    ) async {
       final mockSettings = MockSettingsRepository();
       final mockAuth = MockAuthRepository();
 
@@ -80,16 +84,16 @@ void main() {
             settingsRepositoryProvider.overrideWithValue(mockSettings),
             authRepositoryProvider.overrideWithValue(mockAuth),
           ],
-          child: const MaterialApp(
-            home: OnboardingPage(),
-          ),
+          child: const MaterialApp(home: OnboardingPage()),
         ),
       );
       await tester.pumpAndSettle();
 
       expect(find.text('Set up your register'), findsOneWidget);
       expect(
-        find.text('A daily attendance tracker that shows exactly how safe — or how behind — you are.'),
+        find.text(
+          'A daily attendance tracker that shows exactly how safe — or how behind — you are.',
+        ),
         findsOneWidget,
       );
       expect(find.text('Degree / Program name (optional)'), findsOneWidget);
@@ -100,71 +104,75 @@ void main() {
       expect(find.text('Start tracking'), findsOneWidget);
     });
 
-    testWidgets('Tapping program and semester suggestion chips populates inputs', (tester) async {
-      final mockSettings = MockSettingsRepository();
-      final mockAuth = MockAuthRepository();
+    testWidgets(
+      'Tapping program and semester suggestion chips populates inputs',
+      (tester) async {
+        final mockSettings = MockSettingsRepository();
+        final mockAuth = MockAuthRepository();
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            settingsRepositoryProvider.overrideWithValue(mockSettings),
-            authRepositoryProvider.overrideWithValue(mockAuth),
-          ],
-          child: const MaterialApp(
-            home: OnboardingPage(),
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              settingsRepositoryProvider.overrideWithValue(mockSettings),
+              authRepositoryProvider.overrideWithValue(mockAuth),
+            ],
+            child: const MaterialApp(home: OnboardingPage()),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      // Tap 'B.Tech CSE' chip
-      await tester.tap(find.text('B.Tech CSE'));
-      await tester.pumpAndSettle();
-      expect(find.text('B.Tech CSE'), findsWidgets);
+        // Tap 'B.Tech CSE' chip
+        await tester.tap(find.text('B.Tech CSE'));
+        await tester.pumpAndSettle();
+        expect(find.text('B.Tech CSE'), findsWidgets);
 
-      // Tap 'Semester 3' chip
-      await tester.tap(find.text('Semester 3'));
-      await tester.pumpAndSettle();
-      expect(find.text('Semester 3'), findsWidgets);
-    });
+        // Tap 'Semester 3' chip
+        await tester.tap(find.text('Semester 3'));
+        await tester.pumpAndSettle();
+        expect(find.text('Semester 3'), findsWidgets);
+      },
+    );
 
-    testWidgets('Submitting form saves settings and marks onboarding completed', (tester) async {
-      final mockSettings = MockSettingsRepository();
-      final mockAuth = MockAuthRepository();
+    testWidgets(
+      'Submitting form saves settings and marks onboarding completed',
+      (tester) async {
+        final mockSettings = MockSettingsRepository();
+        final mockAuth = MockAuthRepository();
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            settingsRepositoryProvider.overrideWithValue(mockSettings),
-            authRepositoryProvider.overrideWithValue(mockAuth),
-            authNotifierProvider.overrideWith((ref) => AuthNotifier(mockAuth)),
-          ],
-          child: const MaterialApp(
-            home: OnboardingPage(),
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              settingsRepositoryProvider.overrideWithValue(mockSettings),
+              authRepositoryProvider.overrideWithValue(mockAuth),
+              authNotifierProvider.overrideWith(
+                (ref) => AuthNotifier(mockAuth),
+              ),
+            ],
+            child: const MaterialApp(home: OnboardingPage()),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      // Select Program & Semester chips
-      await tester.tap(find.text('B.Tech IT'));
-      await tester.pumpAndSettle();
+        // Select Program & Semester chips
+        await tester.tap(find.text('B.Tech IT'));
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Semester 2'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('Semester 2'));
+        await tester.pumpAndSettle();
 
-      // Scroll into view and tap 'Start tracking'
-      await tester.ensureVisible(find.text('Start tracking'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Start tracking'));
-      await tester.pumpAndSettle();
+        // Scroll into view and tap 'Start tracking'
+        await tester.ensureVisible(find.text('Start tracking'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Start tracking'));
+        await tester.pumpAndSettle();
 
-      expect(mockSettings.savedSettings, isNotNull);
-      expect(mockSettings.savedSettings!.programName, 'B.Tech IT');
-      expect(mockSettings.savedSettings!.courseName, 'Semester 2');
-      expect(mockSettings.savedSettings!.minPercent, 75.0);
-      expect(mockSettings.savedSettings!.classDays, [1, 2, 3, 4, 5]);
-      expect(mockAuth.onboardingCompleted, isTrue);
-    });
+        expect(mockSettings.savedSettings, isNotNull);
+        expect(mockSettings.savedSettings!.programName, 'B.Tech IT');
+        expect(mockSettings.savedSettings!.courseName, 'Semester 2');
+        expect(mockSettings.savedSettings!.minPercent, 75.0);
+        expect(mockSettings.savedSettings!.classDays, [1, 2, 3, 4, 5]);
+        expect(mockAuth.onboardingCompleted, isTrue);
+      },
+    );
   });
 }

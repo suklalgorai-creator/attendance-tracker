@@ -1,10 +1,4 @@
-enum SyncStatus {
-  idle,
-  syncing,
-  synced,
-  offlineWarning,
-  error,
-}
+enum SyncStatus { idle, syncing, synced, offlineWarning, error }
 
 class SyncState {
   final SyncStatus status;
@@ -48,7 +42,8 @@ class SyncState {
           hasPendingChanges == other.hasPendingChanges;
 
   @override
-  int get hashCode => Object.hash(status, lastSyncedAt, message, hasPendingChanges);
+  int get hashCode =>
+      Object.hash(status, lastSyncedAt, message, hasPendingChanges);
 
   @override
   String toString() =>

@@ -28,7 +28,10 @@ class MockAuthRepository implements AuthRepository {
   @override
   Future<AuthUserEntity> signInWithGoogle() async {
     googleSignInCalled = true;
-    return const AuthUserEntity(id: 'google_test', displayName: 'Google Tester');
+    return const AuthUserEntity(
+      id: 'google_test',
+      displayName: 'Google Tester',
+    );
   }
 
   @override
@@ -77,17 +80,15 @@ void main() {
   });
 
   group('AuthPage Widget Tests', () {
-    testWidgets('Renders title, subtitle, Google button, and Guest button', (tester) async {
+    testWidgets('Renders title, subtitle, Google button, and Guest button', (
+      tester,
+    ) async {
       final mockRepo = MockAuthRepository();
 
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [
-            authRepositoryProvider.overrideWithValue(mockRepo),
-          ],
-          child: const MaterialApp(
-            home: AuthPage(),
-          ),
+          overrides: [authRepositoryProvider.overrideWithValue(mockRepo)],
+          child: const MaterialApp(home: AuthPage()),
         ),
       );
       await tester.pumpAndSettle();
@@ -98,17 +99,15 @@ void main() {
       expect(find.text('Skip for now (Use as Guest)'), findsOneWidget);
     });
 
-    testWidgets('Tapping Continue with Google triggers signInWithGoogle', (tester) async {
+    testWidgets('Tapping Continue with Google triggers signInWithGoogle', (
+      tester,
+    ) async {
       final mockRepo = MockAuthRepository();
 
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [
-            authRepositoryProvider.overrideWithValue(mockRepo),
-          ],
-          child: const MaterialApp(
-            home: AuthPage(),
-          ),
+          overrides: [authRepositoryProvider.overrideWithValue(mockRepo)],
+          child: const MaterialApp(home: AuthPage()),
         ),
       );
       await tester.pumpAndSettle();
@@ -119,17 +118,15 @@ void main() {
       expect(mockRepo.googleSignInCalled, isTrue);
     });
 
-    testWidgets('Tapping Skip for now (Use as Guest) triggers signInAsGuest', (tester) async {
+    testWidgets('Tapping Skip for now (Use as Guest) triggers signInAsGuest', (
+      tester,
+    ) async {
       final mockRepo = MockAuthRepository();
 
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [
-            authRepositoryProvider.overrideWithValue(mockRepo),
-          ],
-          child: const MaterialApp(
-            home: AuthPage(),
-          ),
+          overrides: [authRepositoryProvider.overrideWithValue(mockRepo)],
+          child: const MaterialApp(home: AuthPage()),
         ),
       );
       await tester.pumpAndSettle();
@@ -140,7 +137,9 @@ void main() {
       expect(mockRepo.guestSignInCalled, isTrue);
     });
 
-    testWidgets('Displays error banner when auth state has error message', (tester) async {
+    testWidgets('Displays error banner when auth state has error message', (
+      tester,
+    ) async {
       final mockRepo = MockAuthRepository();
 
       await tester.pumpWidget(
@@ -148,31 +147,37 @@ void main() {
           overrides: [
             authRepositoryProvider.overrideWithValue(mockRepo),
             authNotifierProvider.overrideWith(
-              (ref) => TestErrorNotifier(mockRepo, 'Authentication failed: network timeout'),
+              (ref) => TestErrorNotifier(
+                mockRepo,
+                'Authentication failed: network timeout',
+              ),
             ),
           ],
-          child: const MaterialApp(
-            home: AuthPage(),
-          ),
+          child: const MaterialApp(home: AuthPage()),
         ),
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Authentication failed: network timeout'), findsOneWidget);
+      expect(
+        find.text('Authentication failed: network timeout'),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('Displays Connecting... when loading state is active', (tester) async {
+    testWidgets('Displays Connecting... when loading state is active', (
+      tester,
+    ) async {
       final mockRepo = MockAuthRepository();
 
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
             authRepositoryProvider.overrideWithValue(mockRepo),
-            authNotifierProvider.overrideWith((ref) => TestLoadingNotifier(mockRepo)),
+            authNotifierProvider.overrideWith(
+              (ref) => TestLoadingNotifier(mockRepo),
+            ),
           ],
-          child: const MaterialApp(
-            home: AuthPage(),
-          ),
+          child: const MaterialApp(home: AuthPage()),
         ),
       );
       await tester.pump();

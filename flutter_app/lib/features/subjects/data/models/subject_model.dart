@@ -60,7 +60,9 @@ class SubjectModel extends SubjectEntity {
       name: (map['name'] as String?)?.trim() ?? '',
       code: (map['code'] as String?)?.trim(),
       color: (map['color'] as String?)?.trim() ?? '#10B981',
-      icon: (rawIcon != null && rawIcon.trim().isNotEmpty) ? rawIcon.trim() : 'school',
+      icon: (rawIcon != null && rawIcon.trim().isNotEmpty)
+          ? rawIcon.trim()
+          : 'school',
       targetPercentage: targetPercentage,
       sortOrder: sortOrder,
       active: map['active'] as bool? ?? true,

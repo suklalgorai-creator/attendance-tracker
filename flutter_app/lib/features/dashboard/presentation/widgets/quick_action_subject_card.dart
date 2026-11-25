@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../shared/widgets/app_button.dart';
+import '../../../../shared/widgets/glass_card.dart';
 import '../../domain/models/subject_attendance_stats.dart';
 
 /// Interactive subject card supporting single-tap "+ Present" and "- Absent"
@@ -48,7 +49,9 @@ class QuickActionSubjectCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
+    final surfaceColor = isDark
+        ? AppColors.surfaceDark
+        : AppColors.surfaceLight;
     final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
     final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
     final subjectColor = _parseColor(stats.subject.color);
@@ -85,159 +88,183 @@ class QuickActionSubjectCard extends StatelessWidget {
       chipText = AppColors.penRed;
     }
 
-    final cardBorderColor = isDark ? AppColors.glassBorderDark : AppColors.glassBorderLight;
-
     return Container(
-      margin: const EdgeInsets.only(bottom: 12.0),
-      decoration: BoxDecoration(
-        color: surfaceColor,
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: cardBorderColor, width: 1.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+      margin: const EdgeInsets.only(bottom: 10.0),
+      child: CustomPaint(
+        foregroundPainter: const PrismBorderPainter(
+          radius: AppRadius.card,
+          strokeWidth: 1.5,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: surfaceColor,
+            borderRadius: BorderRadius.circular(AppRadius.card),
+            boxShadow: [
+              BoxShadow(
+                color: isDark
+                    ? AppColors.cardShadowDark
+                    : AppColors.cardShadowLight,
+                blurRadius: 20,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppRadius.card),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header: Subject Color Pill + Name + Safe/Recovery Chip
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(AppRadius.card),
+              child: Padding(
+                padding: const EdgeInsets.all(14.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: subjectColor,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: subjectColor.withValues(alpha: 0.4),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
+                    // Header: Subject Color Pill + Name + Safe/Recovery Chip
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: subjectColor,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: subjectColor.withValues(alpha: 0.4),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            stats.subject.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.outfit(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: paperColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0,
+                            vertical: 3.0,
+                          ),
+                          decoration: BoxDecoration(
+                            color: chipBg,
+                            borderRadius: BorderRadius.circular(AppRadius.md),
+                          ),
+                          child: Text(
+                            chipLabel,
+                            style: GoogleFonts.outfit(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: chipText,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        stats.subject.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.outfit(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: paperColor,
+
+                    const SizedBox(height: 10),
+
+                    // Metrics Row: Percentage and Conducted/Present Count
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            percentageText,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.outfit(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              color: stats.isSafe
+                                  ? AppColors.inkGreen
+                                  : AppColors.penRed,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            '${stats.present} / ${stats.conducted} classes',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.outfit(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w500,
+                              color: mutedColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // Progress Bar
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: stats.percentage != null
+                            ? (stats.percentage! / 100.0).clamp(0.0, 1.0)
+                            : 0.0,
+                        minHeight: 5,
+                        backgroundColor: isDark
+                            ? AppColors.ruleDark
+                            : AppColors.ruleLight,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          stats.conducted == 0
+                              ? mutedColor
+                              : (stats.isSafe
+                                    ? AppColors.inkGreen
+                                    : AppColors.penRed),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
-                      decoration: BoxDecoration(
-                        color: chipBg,
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                      ),
-                      child: Text(
-                        chipLabel,
-                        style: GoogleFonts.outfit(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: chipText,
+
+                    const SizedBox(height: 12),
+
+                    // Quick Action Buttons: "+ Present" and "- Absent"
+                    Row(
+                      children: [
+                        Expanded(
+                          child: AppButton.present(
+                            label: '+ Present',
+                            onPressed: _handlePresent,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 12,
+                            ),
+                            fontSize: 12.5,
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: AppButton.absent(
+                            label: '- Absent',
+                            onPressed: _handleAbsent,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 12,
+                            ),
+                            fontSize: 12.5,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 12),
-
-                // Metrics Row: Percentage and Conducted/Present Count
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        percentageText,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.outfit(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: stats.isSafe ? AppColors.inkGreen : AppColors.penRed,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        '${stats.present} / ${stats.conducted} classes',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.outfit(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: mutedColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 8),
-
-                // Progress Bar
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: stats.percentage != null
-                        ? (stats.percentage! / 100.0).clamp(0.0, 1.0)
-                        : 0.0,
-                    minHeight: 6,
-                    backgroundColor: isDark ? AppColors.ruleDark : AppColors.ruleLight,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      stats.conducted == 0
-                          ? mutedColor
-                          : (stats.isSafe ? AppColors.inkGreen : AppColors.penRed),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // Quick Action Buttons: "+ Present" and "- Absent"
-                Row(
-                  children: [
-                    Expanded(
-                      child: AppButton.present(
-                        label: '+ Present',
-                        onPressed: _handlePresent,
-                        fontSize: 13.0,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: AppButton.absent(
-                        label: '- Absent',
-                        onPressed: _handleAbsent,
-                        fontSize: 13.0,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
         ),

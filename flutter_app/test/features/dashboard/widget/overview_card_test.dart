@@ -20,7 +20,9 @@ void main() {
   });
 
   group('OverviewCard Widget Tests', () {
-    testWidgets('Renders conducted and present counts with percentage', (tester) async {
+    testWidgets('Renders conducted and present counts with percentage', (
+      tester,
+    ) async {
       const stats = DashboardStats(
         conducted: 24,
         present: 20,
@@ -41,18 +43,29 @@ void main() {
       expect(find.text('Can miss 2 classes'), findsOneWidget);
     });
 
-    testWidgets('Renders null percentage and no attendance status for 0 conducted', (tester) async {
-      final stats = DashboardStats.empty(minPercent: 75.0);
+    testWidgets(
+      'Renders null percentage and no attendance status for 0 conducted',
+      (tester) async {
+        final stats = DashboardStats.empty(minPercent: 75.0);
 
-      await tester.pumpWidget(_wrap(OverviewCard(stats: stats)));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(_wrap(OverviewCard(stats: stats)));
+        await tester.pumpAndSettle();
 
-      expect(find.text('0'), findsNWidgets(2)); // Conducted and Present both 0
-      expect(find.text('No attendance recorded'), findsOneWidget);
-      expect(find.text('—'), findsOneWidget); // Ring center text for null percent
-    });
+        expect(
+          find.text('0'),
+          findsNWidgets(2),
+        ); // Conducted and Present both 0
+        expect(find.text('No attendance recorded'), findsOneWidget);
+        expect(
+          find.text('—'),
+          findsOneWidget,
+        ); // Ring center text for null percent
+      },
+    );
 
-    testWidgets('Renders danger status text when attendance < minPercent', (tester) async {
+    testWidgets('Renders danger status text when attendance < minPercent', (
+      tester,
+    ) async {
       const stats = DashboardStats(
         conducted: 10,
         present: 6,
@@ -85,10 +98,9 @@ void main() {
         isSafe: true,
       );
 
-      await tester.pumpWidget(_wrap(OverviewCard(
-        stats: stats,
-        onTap: () => tapped = true,
-      )));
+      await tester.pumpWidget(
+        _wrap(OverviewCard(stats: stats, onTap: () => tapped = true)),
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.byType(OverviewCard));

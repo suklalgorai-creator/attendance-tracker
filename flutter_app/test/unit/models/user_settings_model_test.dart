@@ -66,10 +66,7 @@ void main() {
     });
 
     test('creates model from entity via fromEntity', () {
-      const entity = UserSettingsEntity(
-        name: 'Taylor',
-        minPercent: 85.0,
-      );
+      const entity = UserSettingsEntity(name: 'Taylor', minPercent: 85.0);
 
       final model = UserSettingsModel.fromEntity(entity);
 

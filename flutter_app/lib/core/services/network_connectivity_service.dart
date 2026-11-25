@@ -18,7 +18,7 @@ class FakeNetworkConnectivityService implements NetworkConnectivityService {
   bool _currentStatus;
 
   FakeNetworkConnectivityService({bool initialOnline = true})
-      : _currentStatus = initialOnline;
+    : _currentStatus = initialOnline;
 
   @override
   Stream<bool> get onConnectivityChanged => _controller.stream;
@@ -46,7 +46,7 @@ class NetworkConnectivityServiceImpl implements NetworkConnectivityService {
   StreamSubscription<List<ConnectivityResult>>? _subscription;
 
   NetworkConnectivityServiceImpl({Connectivity? connectivity})
-      : _connectivity = connectivity ?? Connectivity() {
+    : _connectivity = connectivity ?? Connectivity() {
     _subscription = _connectivity.onConnectivityChanged.listen(_handleResults);
   }
 

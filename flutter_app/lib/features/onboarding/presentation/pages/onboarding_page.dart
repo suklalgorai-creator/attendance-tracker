@@ -7,6 +7,7 @@ import '../../../../core/providers/repository_providers.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/day_picker_widget.dart';
+import '../../../../shared/widgets/mesh_backdrop.dart';
 import '../../../auth/presentation/controllers/auth_providers.dart';
 import '../../../settings/domain/entities/user_settings_entity.dart';
 
@@ -136,7 +137,9 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     try {
       final rawMin = double.tryParse(_minPercentController.text.trim()) ?? 75.0;
       final clampedMin = rawMin.clamp(1.0, 100.0);
-      final finalDays = _classDays.isNotEmpty ? _classDays : const [1, 2, 3, 4, 5];
+      final finalDays = _classDays.isNotEmpty
+          ? _classDays
+          : const [1, 2, 3, 4, 5];
       final formattedDate = DateFormat('yyyy-MM-dd').format(_startDate);
 
       final settings = UserSettingsEntity(
@@ -167,10 +170,16 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
 
     return Scaffold(
       backgroundColor: bgColor,
-      body: SafeArea(
-        child: Center(
+      body: Stack(
+        children: [
+          const Positioned.fill(child: MeshBackdrop()),
+          SafeArea(
+            child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 36.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20.0,
+              vertical: 36.0,
+            ),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 480),
               child: Column(
@@ -180,8 +189,14 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   ShaderMask(
                     shaderCallback: (bounds) => LinearGradient(
                       colors: isDark
-                          ? [AppColors.textGradientStartDark, AppColors.textGradientEndDark]
-                          : [AppColors.textGradientStartLight, AppColors.textGradientEndLight],
+                          ? [
+                              AppColors.textGradientStartDark,
+                              AppColors.textGradientEndDark,
+                            ]
+                          : [
+                              AppColors.textGradientStartLight,
+                              AppColors.textGradientEndLight,
+                            ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                     ).createShader(bounds),
@@ -189,25 +204,24 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                       'Set up your register',
                       textAlign: TextAlign.center,
                       style: AppTypography.displayMedium.copyWith(
-                        fontSize: 34,
+                        fontSize: 28,
                         fontWeight: FontWeight.w800,
-                        letterSpacing: -1.0,
+                        letterSpacing: -0.8,
                         color: Colors.white,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
 
                   // Subtitle
                   Text(
                     'A daily attendance tracker that shows exactly how safe — or how behind — you are.',
                     textAlign: TextAlign.center,
-                    style: AppTypography.bodyLarge(mutedColor).copyWith(
-                      fontSize: 16,
-                      height: 1.5,
-                    ),
+                    style: AppTypography.bodyLarge(
+                      mutedColor,
+                    ).copyWith(fontSize: 14.5, height: 1.45),
                   ),
-                  const SizedBox(height: 36),
+                  const SizedBox(height: 28),
 
                   // Field 1: Degree / Program name
                   AppTextField(
@@ -368,6 +382,8 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             ),
           ),
         ),
+      ),
+        ],
       ),
     );
   }

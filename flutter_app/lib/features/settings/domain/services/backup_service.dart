@@ -43,12 +43,12 @@ class BackupService {
     required AttendanceRepository attendanceRepository,
     required NotesRepository notesRepository,
     Box? settingsBoxOverride,
-  })  : _settingsRepository = settingsRepository,
-        _subjectRepository = subjectRepository,
-        _timetableRepository = timetableRepository,
-        _attendanceRepository = attendanceRepository,
-        _notesRepository = notesRepository,
-        _settingsBoxOverride = settingsBoxOverride;
+  }) : _settingsRepository = settingsRepository,
+       _subjectRepository = subjectRepository,
+       _timetableRepository = timetableRepository,
+       _attendanceRepository = attendanceRepository,
+       _notesRepository = notesRepository,
+       _settingsBoxOverride = settingsBoxOverride;
 
   Box get _settingsBox {
     if (_settingsBoxOverride != null) return _settingsBoxOverride;
@@ -63,11 +63,15 @@ class BackupService {
   Future<Map<String, dynamic>> createBackup() async {
     final settings = await _settingsRepository.getSettings();
     final subjects = await _subjectRepository.getSubjects(includeDeleted: true);
-    final timetable = await _timetableRepository.getTimetable(includeDeleted: true);
-    final attendanceRecords =
-        await _attendanceRepository.getAttendanceRecords(includeDeleted: true);
-    final legacyAttendance =
-        await _attendanceRepository.getLegacyAttendance(includeDeleted: true);
+    final timetable = await _timetableRepository.getTimetable(
+      includeDeleted: true,
+    );
+    final attendanceRecords = await _attendanceRepository.getAttendanceRecords(
+      includeDeleted: true,
+    );
+    final legacyAttendance = await _attendanceRepository.getLegacyAttendance(
+      includeDeleted: true,
+    );
     final notes = await _notesRepository.getNotes();
 
     final nowIso = DateTime.now().toUtc().toIso8601String();
@@ -75,8 +79,9 @@ class BackupService {
     // Map timetable to string keys ("0".."6")
     final timetableMap = <String, List<Map<String, dynamic>>>{};
     timetable.forEach((day, sessions) {
-      timetableMap[day.toString()] =
-          sessions.map((s) => TimetableModel.fromEntity(s).toMap()).toList();
+      timetableMap[day.toString()] = sessions
+          .map((s) => TimetableModel.fromEntity(s).toMap())
+          .toList();
     });
 
     final data = <String, dynamic>{
@@ -90,11 +95,15 @@ class BackupService {
       'reminderTime': settings.reminderTime,
       'pushNotificationsEnabled': settings.pushNotificationsEnabled,
       'timetable': timetableMap,
-      'subjects': subjects.map((s) => SubjectModel.fromEntity(s).toMap()).toList(),
-      'attendanceRecords':
-          attendanceRecords.map((r) => AttendanceRecordModel.fromEntity(r).toMap()).toList(),
-      'legacyAttendance':
-          legacyAttendance.map((l) => LegacyAttendanceModel.fromEntity(l).toMap()).toList(),
+      'subjects': subjects
+          .map((s) => SubjectModel.fromEntity(s).toMap())
+          .toList(),
+      'attendanceRecords': attendanceRecords
+          .map((r) => AttendanceRecordModel.fromEntity(r).toMap())
+          .toList(),
+      'legacyAttendance': legacyAttendance
+          .map((l) => LegacyAttendanceModel.fromEntity(l).toMap())
+          .toList(),
       'notes': notes.map((n) => NoteModel.fromEntity(n).toMap()).toList(),
       'quarantine': <dynamic>[],
       'updatedAt': nowIso,
@@ -122,7 +131,9 @@ class BackupService {
   /// Parses and validates backup JSON string or raw bytes with exact React error messages.
   BackupParseResult parseBackup(dynamic input) {
     if (input == null) {
-      return BackupParseResult.failure('Backup file is empty or exceeds the 5 MB safety limit.');
+      return BackupParseResult.failure(
+        'Backup file is empty or exceeds the 5 MB safety limit.',
+      );
     }
 
     String jsonText;
@@ -131,33 +142,46 @@ class BackupService {
     if (input is Uint8List) {
       byteLength = input.length;
       if (byteLength == 0 || byteLength > maxBackupBytes) {
-        return BackupParseResult.failure('Backup file is empty or exceeds the 5 MB safety limit.');
+        return BackupParseResult.failure(
+          'Backup file is empty or exceeds the 5 MB safety limit.',
+        );
       }
       try {
         jsonText = utf8.decode(input);
       } catch (_) {
-        return BackupParseResult.failure('This file is not valid JSON. Existing data was not changed.');
+        return BackupParseResult.failure(
+          'This file is not valid JSON. Existing data was not changed.',
+        );
       }
     } else if (input is String) {
       jsonText = input;
       byteLength = utf8.encode(input).length;
       if (input.trim().isEmpty || byteLength > maxBackupBytes) {
-        return BackupParseResult.failure('Backup file is empty or exceeds the 5 MB safety limit.');
+        return BackupParseResult.failure(
+          'Backup file is empty or exceeds the 5 MB safety limit.',
+        );
       }
     } else {
-      return BackupParseResult.failure('Backup file is empty or exceeds the 5 MB safety limit.');
+      return BackupParseResult.failure(
+        'Backup file is empty or exceeds the 5 MB safety limit.',
+      );
     }
 
     dynamic parsed;
     try {
       parsed = jsonDecode(jsonText);
     } catch (_) {
-      return BackupParseResult.failure('This file is not valid JSON. Existing data was not changed.');
+      return BackupParseResult.failure(
+        'This file is not valid JSON. Existing data was not changed.',
+      );
     }
 
-    if (parsed is! Map || parsed['format'] != backupFormat || parsed['data'] == null) {
+    if (parsed is! Map ||
+        parsed['format'] != backupFormat ||
+        parsed['data'] == null) {
       return BackupParseResult.failure(
-          'This is not a College Attendance Tracker backup. Existing data was not changed.');
+        'This is not a College Attendance Tracker backup. Existing data was not changed.',
+      );
     }
 
     final schemaVersionNum = parsed['schemaVersion'];
@@ -167,13 +191,15 @@ class BackupService {
 
     if (schemaVersion > currentSchemaVersion) {
       return BackupParseResult.failure(
-          'This backup is from a newer app version and cannot be restored safely.');
+        'This backup is from a newer app version and cannot be restored safely.',
+      );
     }
 
     final rawData = parsed['data'];
     if (rawData is! Map) {
       return BackupParseResult.failure(
-          'This is not a College Attendance Tracker backup. Existing data was not changed.');
+        'This is not a College Attendance Tracker backup. Existing data was not changed.',
+      );
     }
 
     final normalized = _normalizeBackupData(Map<String, dynamic>.from(rawData));
@@ -203,7 +229,11 @@ class BackupService {
           subjectIds.add(id);
           subjects.add(Map<String, dynamic>.from(s));
         } else {
-          quarantine.add({'kind': 'subject', 'value': s, 'reason': 'Invalid subject format'});
+          quarantine.add({
+            'kind': 'subject',
+            'value': s,
+            'reason': 'Invalid subject format',
+          });
         }
       }
     }
@@ -223,21 +253,24 @@ class BackupService {
             if (item is Map) {
               final sessionMap = Map<String, dynamic>.from(item);
               daySessions.add(sessionMap);
-              if (sessionMap['deletedAt'] == null && sessionMap['active'] != false) {
+              if (sessionMap['deletedAt'] == null &&
+                  sessionMap['active'] != false) {
                 activeSessionsCount++;
               }
             } else if (item is String && item.trim().isNotEmpty) {
               // Legacy V1 string session format
               final name = item.trim();
               var existingSub = subjects.firstWhere(
-                (sub) => sub['name']?.toString().toLowerCase() == name.toLowerCase(),
+                (sub) =>
+                    sub['name']?.toString().toLowerCase() == name.toLowerCase(),
                 orElse: () => {},
               );
               String subId;
               if (existingSub.isNotEmpty) {
                 subId = existingSub['id'].toString();
               } else {
-                subId = 'legacy-subject-${name.toLowerCase().hashCode.toRadixString(36)}';
+                subId =
+                    'legacy-subject-${name.toLowerCase().hashCode.toRadixString(36)}';
                 final newSub = {
                   'id': subId,
                   'name': name.length > 120 ? name.substring(0, 120) : name,
@@ -273,14 +306,21 @@ class BackupService {
     int activeAttendanceRecords = 0;
     if (raw['attendanceRecords'] is List) {
       for (final r in raw['attendanceRecords'] as List) {
-        if (r is Map && r['id'] != null && r['date'] != null && r['sessionId'] != null) {
+        if (r is Map &&
+            r['id'] != null &&
+            r['date'] != null &&
+            r['sessionId'] != null) {
           final recordMap = Map<String, dynamic>.from(r);
           attendanceRecords.add(recordMap);
           if (recordMap['deletedAt'] == null) {
             activeAttendanceRecords++;
           }
         } else {
-          quarantine.add({'kind': 'attendance-record', 'value': r, 'reason': 'Invalid attendance record'});
+          quarantine.add({
+            'kind': 'attendance-record',
+            'value': r,
+            'reason': 'Invalid attendance record',
+          });
         }
       }
     }
@@ -290,14 +330,22 @@ class BackupService {
     int activeLegacyRecords = 0;
     if (raw['legacyAttendance'] is List) {
       for (final l in raw['legacyAttendance'] as List) {
-        if (l is Map && l['id'] != null && l['date'] != null && l['held'] != null && l['attended'] != null) {
+        if (l is Map &&
+            l['id'] != null &&
+            l['date'] != null &&
+            l['held'] != null &&
+            l['attended'] != null) {
           final legMap = Map<String, dynamic>.from(l);
           legacyAttendance.add(legMap);
           if (legMap['deletedAt'] == null) {
             activeLegacyRecords++;
           }
         } else {
-          quarantine.add({'kind': 'legacy-attendance', 'value': l, 'reason': 'Invalid legacy record'});
+          quarantine.add({
+            'kind': 'legacy-attendance',
+            'value': l,
+            'reason': 'Invalid legacy record',
+          });
         }
       }
     }
@@ -307,9 +355,17 @@ class BackupService {
       final recordsMap = raw['records'] as Map;
       recordsMap.forEach((dateKey, val) {
         if (val is Map) {
-          final held = (val['held'] is num) ? (val['held'] as num).toInt() : null;
-          final attended = (val['attended'] is num) ? (val['attended'] as num).toInt() : null;
-          if (held != null && attended != null && held >= 0 && attended >= 0 && attended <= held) {
+          final held = (val['held'] is num)
+              ? (val['held'] as num).toInt()
+              : null;
+          final attended = (val['attended'] is num)
+              ? (val['attended'] as num).toInt()
+              : null;
+          if (held != null &&
+              attended != null &&
+              held >= 0 &&
+              attended >= 0 &&
+              attended <= held) {
             final legMap = {
               'id': 'legacy-$dateKey',
               'date': dateKey.toString(),
@@ -318,7 +374,8 @@ class BackupService {
               'createdAt': nowIso,
               'updatedAt': nowIso,
               'deletedAt': null,
-              'note': 'Migrated from the v1 daily aggregate. Subject/session detail was not available.',
+              'note':
+                  'Migrated from the v1 daily aggregate. Subject/session detail was not available.',
             };
             legacyAttendance.add(legMap);
             activeLegacyRecords++;
@@ -327,7 +384,7 @@ class BackupService {
               'kind': 'legacy-record',
               'date': dateKey,
               'value': val,
-              'reason': 'Invalid legacy totals'
+              'reason': 'Invalid legacy totals',
             });
           }
         }
@@ -338,7 +395,9 @@ class BackupService {
     final notes = <Map<String, dynamic>>[];
     if (raw['notes'] is List) {
       for (final n in raw['notes'] as List) {
-        if (n is Map && n['id'] != null && (n['content'] != null || n['text'] != null)) {
+        if (n is Map &&
+            n['id'] != null &&
+            (n['content'] != null || n['text'] != null)) {
           notes.add(Map<String, dynamic>.from(n));
         }
       }
@@ -360,7 +419,9 @@ class BackupService {
       'programName': raw['programName']?.toString() ?? '',
       'courseName': raw['courseName']?.toString() ?? '',
       'startDate': raw['startDate']?.toString() ?? '',
-      'minPercent': (raw['minPercent'] is num) ? (raw['minPercent'] as num).toDouble() : 75.0,
+      'minPercent': (raw['minPercent'] is num)
+          ? (raw['minPercent'] as num).toDouble()
+          : 75.0,
       'classDays': raw['classDays'] is List
           ? (raw['classDays'] as List).map((e) => (e as num).toInt()).toList()
           : [1, 2, 3, 4, 5],
@@ -375,11 +436,7 @@ class BackupService {
       'updatedAt': nowIso,
     };
 
-    return {
-      'data': normalizedData,
-      'summary': summary,
-      'warnings': warnings,
-    };
+    return {'data': normalizedData, 'summary': summary, 'warnings': warnings};
   }
 
   // ==========================================
@@ -403,7 +460,9 @@ class BackupService {
   // ==========================================
 
   /// Restores application state from a parsed backup map with snapshot safeguard.
-  Future<BackupRestoreResult> restoreBackup(Map<String, dynamic> backupData) async {
+  Future<BackupRestoreResult> restoreBackup(
+    Map<String, dynamic> backupData,
+  ) async {
     final safeguardSaved = await savePreRestoreBackup();
     if (!safeguardSaved) {
       return BackupRestoreResult.failure('Unable to create safety backup.');
@@ -422,10 +481,13 @@ class BackupService {
             ? (backupData['minPercent'] as num).toDouble()
             : 75.0,
         classDays: backupData['classDays'] is List
-            ? (backupData['classDays'] as List).map((e) => (e as num).toInt()).toList()
+            ? (backupData['classDays'] as List)
+                  .map((e) => (e as num).toInt())
+                  .toList()
             : const [1, 2, 3, 4, 5],
         reminderTime: backupData['reminderTime']?.toString() ?? '18:00',
-        pushNotificationsEnabled: backupData['pushNotificationsEnabled'] == true,
+        pushNotificationsEnabled:
+            backupData['pushNotificationsEnabled'] == true,
       );
       await _settingsRepository.saveSettings(settings);
 
@@ -442,7 +504,9 @@ class BackupService {
             targetPercentage: (map['targetPercentage'] is num)
                 ? (map['targetPercentage'] as num).toDouble()
                 : null,
-            sortOrder: (map['sortOrder'] is num) ? (map['sortOrder'] as num).toInt() : 0,
+            sortOrder: (map['sortOrder'] is num)
+                ? (map['sortOrder'] as num).toInt()
+                : 0,
             active: map['active'] != false,
             createdAt: map['createdAt'] != null
                 ? DateTime.tryParse(map['createdAt'].toString()) ?? now
@@ -491,37 +555,45 @@ class BackupService {
 
       // 4. Restore Attendance Records
       if (backupData['attendanceRecords'] is List) {
-        final attendanceEntities = (backupData['attendanceRecords'] as List).map((r) {
-          final map = Map<String, dynamic>.from(r as Map);
-          return AttendanceRecordEntity(
-            id: map['id'].toString(),
-            date: map['date'].toString(),
-            sessionId: map['sessionId'].toString(),
-            subjectId: map['subjectId']?.toString() ?? '__daily__',
-            status: AttendanceStatus.fromString(map['status']?.toString() ?? 'PRESENT'),
-            createdAt: map['createdAt'] != null
-                ? DateTime.tryParse(map['createdAt'].toString()) ?? now
-                : now,
-            updatedAt: map['updatedAt'] != null
-                ? DateTime.tryParse(map['updatedAt'].toString()) ?? now
-                : now,
-            deletedAt: map['deletedAt'] != null
-                ? DateTime.tryParse(map['deletedAt'].toString())
-                : null,
-          );
-        }).toList();
+        final attendanceEntities = (backupData['attendanceRecords'] as List)
+            .map((r) {
+              final map = Map<String, dynamic>.from(r as Map);
+              return AttendanceRecordEntity(
+                id: map['id'].toString(),
+                date: map['date'].toString(),
+                sessionId: map['sessionId'].toString(),
+                subjectId: map['subjectId']?.toString() ?? '__daily__',
+                status: AttendanceStatus.fromString(
+                  map['status']?.toString() ?? 'PRESENT',
+                ),
+                createdAt: map['createdAt'] != null
+                    ? DateTime.tryParse(map['createdAt'].toString()) ?? now
+                    : now,
+                updatedAt: map['updatedAt'] != null
+                    ? DateTime.tryParse(map['updatedAt'].toString()) ?? now
+                    : now,
+                deletedAt: map['deletedAt'] != null
+                    ? DateTime.tryParse(map['deletedAt'].toString())
+                    : null,
+              );
+            })
+            .toList();
         await _attendanceRepository.saveAttendanceRecords(attendanceEntities);
       }
 
       // 5. Restore Legacy Attendance
       if (backupData['legacyAttendance'] is List) {
-        final legacyEntities = (backupData['legacyAttendance'] as List).map((l) {
+        final legacyEntities = (backupData['legacyAttendance'] as List).map((
+          l,
+        ) {
           final map = Map<String, dynamic>.from(l as Map);
           return LegacyAttendanceEntity(
             id: map['id'].toString(),
             date: map['date'].toString(),
             held: (map['held'] is num) ? (map['held'] as num).toInt() : 0,
-            attended: (map['attended'] is num) ? (map['attended'] as num).toInt() : 0,
+            attended: (map['attended'] is num)
+                ? (map['attended'] as num).toInt()
+                : 0,
             createdAt: map['createdAt'] != null
                 ? DateTime.tryParse(map['createdAt'].toString()) ?? now
                 : now,
@@ -557,7 +629,9 @@ class BackupService {
 
       return BackupRestoreResult.success();
     } catch (_) {
-      return BackupRestoreResult.failure('Restore failed; existing data was not changed.');
+      return BackupRestoreResult.failure(
+        'Restore failed; existing data was not changed.',
+      );
     }
   }
 

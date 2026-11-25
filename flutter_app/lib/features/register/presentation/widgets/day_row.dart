@@ -25,7 +25,8 @@ class DayRow extends StatelessWidget {
     required String date,
     required int held,
     required int attended,
-  }) onSaveDaily;
+  })
+  onSaveDaily;
   final void Function(String id) onDeleteDaily;
 
   const DayRow({
@@ -51,8 +52,9 @@ class DayRow extends StatelessWidget {
     final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
     final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
     final ruleColor = isDark ? AppColors.ruleDark : AppColors.ruleLight;
-    final ruleBright =
-        isDark ? AppColors.ruleBrightDark : AppColors.ruleBrightLight;
+    final ruleBright = isDark
+        ? AppColors.ruleBrightDark
+        : AppColors.ruleBrightLight;
     final inputBg = isDark ? AppColors.inputBgDark : AppColors.inputBgLight;
 
     if (isHoliday) {
@@ -89,7 +91,10 @@ class DayRow extends StatelessWidget {
         children: [
           // Header section
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 14.0,
+              vertical: 12.0,
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -113,7 +118,9 @@ class DayRow extends StatelessWidget {
                           const SizedBox(width: 8.0),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0, vertical: 3.0),
+                              horizontal: 8.0,
+                              vertical: 3.0,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.inkGreen,
                               borderRadius: BorderRadius.circular(999.0),
@@ -183,13 +190,12 @@ class DayRow extends StatelessWidget {
                         child: AppButton.present(
                           label: 'Present',
                           padding: const EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 8.0),
-                          fontSize: 13.0,
-                          onPressed: () => onSaveDaily(
-                            date: dateStr,
-                            held: 1,
-                            attended: 1,
+                            vertical: 10.0,
+                            horizontal: 8.0,
                           ),
+                          fontSize: 13.0,
+                          onPressed: () =>
+                              onSaveDaily(date: dateStr, held: 1, attended: 1),
                         ),
                       ),
                       const SizedBox(width: 8.0),
@@ -197,13 +203,12 @@ class DayRow extends StatelessWidget {
                         child: AppButton.absent(
                           label: 'Absent',
                           padding: const EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 8.0),
-                          fontSize: 13.0,
-                          onPressed: () => onSaveDaily(
-                            date: dateStr,
-                            held: 1,
-                            attended: 0,
+                            vertical: 10.0,
+                            horizontal: 8.0,
                           ),
+                          fontSize: 13.0,
+                          onPressed: () =>
+                              onSaveDaily(date: dateStr, held: 1, attended: 0),
                         ),
                       ),
                     ],
@@ -216,13 +221,12 @@ class DayRow extends StatelessWidget {
                         child: AppButton.ghost(
                           label: 'Holiday / No class',
                           padding: const EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 8.0),
-                          fontSize: 13.0,
-                          onPressed: () => onSaveDaily(
-                            date: dateStr,
-                            held: 0,
-                            attended: 0,
+                            vertical: 10.0,
+                            horizontal: 8.0,
                           ),
+                          fontSize: 13.0,
+                          onPressed: () =>
+                              onSaveDaily(date: dateStr, held: 0, attended: 0),
                         ),
                       ),
                       if (legacyRecord != null) ...[
@@ -232,7 +236,9 @@ class DayRow extends StatelessWidget {
                           child: AppButton.clear(
                             label: 'Clear',
                             padding: const EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 8.0),
+                              vertical: 10.0,
+                              horizontal: 8.0,
+                            ),
                             fontSize: 13.0,
                             onPressed: () => onDeleteDaily(legacyRecord!.id),
                           ),
@@ -248,10 +254,7 @@ class DayRow extends StatelessWidget {
     );
 
     if (future) {
-      return Opacity(
-        opacity: 0.65,
-        child: rowContent,
-      );
+      return Opacity(opacity: 0.65, child: rowContent);
     }
 
     return rowContent;

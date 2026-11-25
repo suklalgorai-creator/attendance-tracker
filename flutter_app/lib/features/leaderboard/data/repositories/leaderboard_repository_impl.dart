@@ -58,7 +58,8 @@ class LeaderboardRepositoryImpl implements LeaderboardRepository {
     // If current user has attendance data, inject or update them in the leaderboard
     if (currentUserPercent != null) {
       final effectiveId = currentUserId ?? 'current-user-local';
-      final effectiveName = (currentUserName != null && currentUserName.trim().isNotEmpty)
+      final effectiveName =
+          (currentUserName != null && currentUserName.trim().isNotEmpty)
           ? currentUserName.trim()
           : 'You';
 
@@ -80,7 +81,9 @@ class LeaderboardRepositoryImpl implements LeaderboardRepository {
     // Sort matching React line 24:
     // b.attendancePercent - a.attendancePercent || a.displayName.localeCompare(b.displayName)
     entries.sort((a, b) {
-      final percentComparison = b.attendancePercent.compareTo(a.attendancePercent);
+      final percentComparison = b.attendancePercent.compareTo(
+        a.attendancePercent,
+      );
       if (percentComparison != 0) {
         return percentComparison;
       }

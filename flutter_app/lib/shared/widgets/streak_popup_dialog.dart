@@ -11,11 +11,7 @@ class StreakPopupDialog extends StatefulWidget {
   final int streak;
   final VoidCallback? onClose;
 
-  const StreakPopupDialog({
-    super.key,
-    required this.streak,
-    this.onClose,
-  });
+  const StreakPopupDialog({super.key, required this.streak, this.onClose});
 
   @override
   State<StreakPopupDialog> createState() => _StreakPopupDialogState();
@@ -35,16 +31,15 @@ class _StreakPopupDialogState extends State<StreakPopupDialog>
       duration: const Duration(seconds: 1),
     )..repeat(reverse: true);
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _rotationAnimation = Tween<double>(
       begin: -8.0 * (math.pi / 180.0),
       end: 8.0 * (math.pi / 180.0),
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -56,7 +51,9 @@ class _StreakPopupDialogState extends State<StreakPopupDialog>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
+    final surfaceColor = isDark
+        ? AppColors.surfaceDark
+        : AppColors.surfaceLight;
     final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
     final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
 
@@ -72,12 +69,17 @@ class _StreakPopupDialogState extends State<StreakPopupDialog>
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 40,
+                ),
                 decoration: BoxDecoration(
                   color: surfaceColor,
                   borderRadius: BorderRadius.circular(AppRadius.card),
                   border: Border.all(
-                    color: isDark ? AppColors.glassBorderDark : AppColors.glassBorderLight,
+                    color: isDark
+                        ? AppColors.glassBorderDark
+                        : AppColors.glassBorderLight,
                     width: 1.5,
                   ),
                   boxShadow: [
@@ -149,7 +151,8 @@ class _StreakPopupDialogState extends State<StreakPopupDialog>
                     AppButton.present(
                       label: 'Awesome',
                       isWide: true,
-                      onPressed: widget.onClose ?? () => Navigator.of(context).pop(),
+                      onPressed:
+                          widget.onClose ?? () => Navigator.of(context).pop(),
                     ),
                   ],
                 ),
@@ -188,10 +191,7 @@ Future<T?> showStreakDialog<T>(
       );
       return Transform.scale(
         scale: Tween<double>(begin: 0.8, end: 1.0).evaluate(curved),
-        child: Opacity(
-          opacity: anim1.value,
-          child: child,
-        ),
+        child: Opacity(opacity: anim1.value, child: child),
       );
     },
   );

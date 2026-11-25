@@ -72,39 +72,54 @@ void main() {
       repository = SubjectRepositoryImpl(localDataSource: fakeDataSource);
     });
 
-    test('saveSubject and getSubjects (excluding deleted by default)', () async {
-      final subject1 = SubjectEntity(
-        id: 'sub-1',
-        name: 'Calculus',
-        color: '#10B981',
-        createdAt: now,
-        updatedAt: now,
-      );
+    test(
+      'saveSubject and getSubjects (excluding deleted by default)',
+      () async {
+        final subject1 = SubjectEntity(
+          id: 'sub-1',
+          name: 'Calculus',
+          color: '#10B981',
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      final subject2 = SubjectEntity(
-        id: 'sub-2',
-        name: 'Data Structures',
-        color: '#3B82F6',
-        createdAt: now,
-        updatedAt: now,
-        deletedAt: now,
-      );
+        final subject2 = SubjectEntity(
+          id: 'sub-2',
+          name: 'Data Structures',
+          color: '#3B82F6',
+          createdAt: now,
+          updatedAt: now,
+          deletedAt: now,
+        );
 
-      await repository.saveSubject(subject1);
-      await repository.saveSubject(subject2);
+        await repository.saveSubject(subject1);
+        await repository.saveSubject(subject2);
 
-      final activeOnly = await repository.getSubjects();
-      expect(activeOnly.length, 1);
-      expect(activeOnly.first.id, 'sub-1');
+        final activeOnly = await repository.getSubjects();
+        expect(activeOnly.length, 1);
+        expect(activeOnly.first.id, 'sub-1');
 
-      final allIncludingDeleted = await repository.getSubjects(includeDeleted: true);
-      expect(allIncludingDeleted.length, 2);
-    });
+        final allIncludingDeleted = await repository.getSubjects(
+          includeDeleted: true,
+        );
+        expect(allIncludingDeleted.length, 2);
+      },
+    );
 
     test('saveSubjects batch replaces subjects list', () async {
       final list = [
-        SubjectEntity(id: 's1', name: 'Subject 1', createdAt: now, updatedAt: now),
-        SubjectEntity(id: 's2', name: 'Subject 2', createdAt: now, updatedAt: now),
+        SubjectEntity(
+          id: 's1',
+          name: 'Subject 1',
+          createdAt: now,
+          updatedAt: now,
+        ),
+        SubjectEntity(
+          id: 's2',
+          name: 'Subject 2',
+          createdAt: now,
+          updatedAt: now,
+        ),
       ];
 
       await repository.saveSubjects(list);
@@ -112,77 +127,107 @@ void main() {
       expect(retrieved.length, 2);
     });
 
-    test('getSubjects returns subjects sorted by sortOrder then createdAt', () async {
-      final subA = SubjectEntity(
-        id: 's-a',
-        name: 'Math',
-        sortOrder: 2,
-        createdAt: now.add(const Duration(minutes: 5)),
-        updatedAt: now,
-      );
-      final subB = SubjectEntity(
-        id: 's-b',
-        name: 'Physics',
-        sortOrder: 1,
-        createdAt: now.add(const Duration(minutes: 10)),
-        updatedAt: now,
-      );
-      final subC = SubjectEntity(
-        id: 's-c',
-        name: 'Chemistry',
-        sortOrder: 1,
-        createdAt: now,
-        updatedAt: now,
-      );
+    test(
+      'getSubjects returns subjects sorted by sortOrder then createdAt',
+      () async {
+        final subA = SubjectEntity(
+          id: 's-a',
+          name: 'Math',
+          sortOrder: 2,
+          createdAt: now.add(const Duration(minutes: 5)),
+          updatedAt: now,
+        );
+        final subB = SubjectEntity(
+          id: 's-b',
+          name: 'Physics',
+          sortOrder: 1,
+          createdAt: now.add(const Duration(minutes: 10)),
+          updatedAt: now,
+        );
+        final subC = SubjectEntity(
+          id: 's-c',
+          name: 'Chemistry',
+          sortOrder: 1,
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      await repository.saveSubject(subA);
-      await repository.saveSubject(subB);
-      await repository.saveSubject(subC);
+        await repository.saveSubject(subA);
+        await repository.saveSubject(subB);
+        await repository.saveSubject(subC);
 
-      final retrieved = await repository.getSubjects();
-      expect(retrieved.map((s) => s.id).toList(), ['s-c', 's-b', 's-a']);
-    });
+        final retrieved = await repository.getSubjects();
+        expect(retrieved.map((s) => s.id).toList(), ['s-c', 's-b', 's-a']);
+      },
+    );
 
-    test('reorderSubjects updates sortOrder of subjects according to provided ID list', () async {
-      final sub1 = SubjectEntity(id: 's1', name: 'First', sortOrder: 0, createdAt: now, updatedAt: now);
-      final sub2 = SubjectEntity(id: 's2', name: 'Second', sortOrder: 1, createdAt: now, updatedAt: now);
-      final sub3 = SubjectEntity(id: 's3', name: 'Third', sortOrder: 2, createdAt: now, updatedAt: now);
+    test(
+      'reorderSubjects updates sortOrder of subjects according to provided ID list',
+      () async {
+        final sub1 = SubjectEntity(
+          id: 's1',
+          name: 'First',
+          sortOrder: 0,
+          createdAt: now,
+          updatedAt: now,
+        );
+        final sub2 = SubjectEntity(
+          id: 's2',
+          name: 'Second',
+          sortOrder: 1,
+          createdAt: now,
+          updatedAt: now,
+        );
+        final sub3 = SubjectEntity(
+          id: 's3',
+          name: 'Third',
+          sortOrder: 2,
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      await repository.saveSubjects([sub1, sub2, sub3]);
+        await repository.saveSubjects([sub1, sub2, sub3]);
 
-      await repository.reorderSubjects(['s3', 's1', 's2']);
+        await repository.reorderSubjects(['s3', 's1', 's2']);
 
-      final reordered = await repository.getSubjects();
-      expect(reordered.map((s) => s.id).toList(), ['s3', 's1', 's2']);
-      expect(reordered[0].sortOrder, 0);
-      expect(reordered[1].sortOrder, 1);
-      expect(reordered[2].sortOrder, 2);
-    });
+        final reordered = await repository.getSubjects();
+        expect(reordered.map((s) => s.id).toList(), ['s3', 's1', 's2']);
+        expect(reordered[0].sortOrder, 0);
+        expect(reordered[1].sortOrder, 1);
+        expect(reordered[2].sortOrder, 2);
+      },
+    );
 
-    test('deleteSubject performs soft-deletion and updates updatedAt', () async {
-      final subject = SubjectEntity(
-        id: 'sub-del',
-        name: 'Chemistry',
-        createdAt: now,
-        updatedAt: now,
-      );
+    test(
+      'deleteSubject performs soft-deletion and updates updatedAt',
+      () async {
+        final subject = SubjectEntity(
+          id: 'sub-del',
+          name: 'Chemistry',
+          createdAt: now,
+          updatedAt: now,
+        );
 
-      await repository.saveSubject(subject);
-      expect((await repository.getSubjects()).length, 1);
+        await repository.saveSubject(subject);
+        expect((await repository.getSubjects()).length, 1);
 
-      await repository.deleteSubject('sub-del');
+        await repository.deleteSubject('sub-del');
 
-      // Excluded from standard query
-      final active = await repository.getSubjects();
-      expect(active.isEmpty, isTrue);
+        // Excluded from standard query
+        final active = await repository.getSubjects();
+        expect(active.isEmpty, isTrue);
 
-      // Present in includeDeleted query with deletedAt set
-      final all = await repository.getSubjects(includeDeleted: true);
-      expect(all.length, 1);
-      expect(all.first.isDeleted, isTrue);
-      expect(all.first.deletedAt, isNotNull);
-      expect(all.first.updatedAt.isAfter(now) || all.first.updatedAt == now, isTrue);
-    });
+        // Present in includeDeleted query with deletedAt set
+        final all = await repository.getSubjects(includeDeleted: true);
+        expect(all.length, 1);
+        expect(all.first.isDeleted, isTrue);
+        expect(all.first.deletedAt, isNotNull);
+        expect(
+          all.first.updatedAt.isAfter(now) || all.first.updatedAt == now,
+          isTrue,
+        );
+      },
+    );
 
     test('restoreSubject clears deletedAt and updates updatedAt', () async {
       final subject = SubjectEntity(
@@ -220,8 +265,19 @@ void main() {
     });
 
     test('getSubjectById returns active subject or null if deleted', () async {
-      final active = SubjectEntity(id: 's-act', name: 'Active', createdAt: now, updatedAt: now);
-      final deleted = SubjectEntity(id: 's-del', name: 'Deleted', createdAt: now, updatedAt: now, deletedAt: now);
+      final active = SubjectEntity(
+        id: 's-act',
+        name: 'Active',
+        createdAt: now,
+        updatedAt: now,
+      );
+      final deleted = SubjectEntity(
+        id: 's-del',
+        name: 'Deleted',
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: now,
+      );
 
       await repository.saveSubject(active);
       await repository.saveSubject(deleted);
@@ -232,7 +288,12 @@ void main() {
     });
 
     test('watchSubjects emits stream events on changes', () async {
-      final subject = SubjectEntity(id: 's-watch', name: 'Watcher', createdAt: now, updatedAt: now);
+      final subject = SubjectEntity(
+        id: 's-watch',
+        name: 'Watcher',
+        createdAt: now,
+        updatedAt: now,
+      );
 
       expectLater(
         repository.watchSubjects(),

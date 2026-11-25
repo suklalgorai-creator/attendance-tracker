@@ -37,7 +37,8 @@ class UserSettingsModel extends UserSettingsEntity {
           ? (map['classDays'] as List).map((e) => (e as num).toInt()).toList()
           : const [1, 2, 3, 4, 5],
       reminderTime: (map['reminderTime'] as String?)?.trim() ?? '18:00',
-      pushNotificationsEnabled: map['pushNotificationsEnabled'] as bool? ?? false,
+      pushNotificationsEnabled:
+          map['pushNotificationsEnabled'] as bool? ?? false,
     );
   }
 

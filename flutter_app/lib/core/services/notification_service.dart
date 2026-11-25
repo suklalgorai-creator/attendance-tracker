@@ -15,6 +15,19 @@ abstract class NotificationService {
     Map<String, dynamic> holidays = const {},
   });
   Future<void> cancelAllReminders();
+  Future<void> scheduleNoteReminder({
+    required String noteId,
+    required String content,
+    required DateTime reminderDate,
+  });
+  Future<void> cancelNoteReminder(String noteId);
+  Future<void> scheduleTaskReminder({
+    required String taskId,
+    required String title,
+    required String body,
+    required DateTime reminderAt,
+  });
+  Future<void> cancelTaskReminder(String taskId);
   Future<String?> requestFCMToken();
   Future<bool> requestNotificationPermissions();
 }
@@ -78,6 +91,59 @@ class DefaultNotificationService implements NotificationService {
   }
 
   @override
+  Future<void> scheduleNoteReminder({
+    required String noteId,
+    required String content,
+    required DateTime reminderDate,
+  }) async {
+    await cancelNoteReminder(noteId);
+    if (!reminderDate.isAfter(DateTime.now())) return;
+    final id = 20000 + (noteId.hashCode.abs() % 100000);
+    _scheduledReminders.add(
+      ScheduledNotificationInfo(
+        id: id,
+        scheduledTime: reminderDate,
+        title: 'Sticky Note Reminder 📝',
+        body: content.length > 100 ? content.substring(0, 100) : content,
+      ),
+    );
+  }
+
+  @override
+  Future<void> cancelNoteReminder(String noteId) async {
+    final id = 20000 + (noteId.hashCode.abs() % 100000);
+    _scheduledReminders.removeWhere((r) => r.id == id);
+  }
+
+  static int defaultTaskNotificationId(String taskId) =>
+      30000 + (taskId.hashCode.abs() % 100000);
+
+  @override
+  Future<void> scheduleTaskReminder({
+    required String taskId,
+    required String title,
+    required String body,
+    required DateTime reminderAt,
+  }) async {
+    await cancelTaskReminder(taskId);
+    if (!reminderAt.isAfter(DateTime.now())) return;
+    _scheduledReminders.add(
+      ScheduledNotificationInfo(
+        id: defaultTaskNotificationId(taskId),
+        scheduledTime: reminderAt,
+        title: title,
+        body: body.length > 120 ? body.substring(0, 120) : body,
+      ),
+    );
+  }
+
+  @override
+  Future<void> cancelTaskReminder(String taskId) async {
+    final id = defaultTaskNotificationId(taskId);
+    _scheduledReminders.removeWhere((r) => r.id == id);
+  }
+
+  @override
   Future<void> scheduleAttendanceReminder({
     required String reminderTime,
     required List<int> classDays,
@@ -110,12 +176,14 @@ class DefaultNotificationService implements NotificationService {
         continue;
       }
 
-      _scheduledReminders.add(ScheduledNotificationInfo(
-        id: 1000 + dayOfWeek,
-        scheduledTime: scheduledDate,
-        title: 'Attendance Reminder 📝',
-        body: "Don't forget to mark your classes for today!",
-      ));
+      _scheduledReminders.add(
+        ScheduledNotificationInfo(
+          id: 1000 + dayOfWeek,
+          scheduledTime: scheduledDate,
+          title: 'Attendance Reminder 📝',
+          body: "Don't forget to mark your classes for today!",
+        ),
+      );
     }
   }
 
@@ -135,7 +203,13 @@ class DefaultNotificationService implements NotificationService {
   }) {
     // targetDayOfWeek: 0 = Sun, 1 = Mon ... 6 = Sat
     for (int i = 0; i < 7; i++) {
-      final candidate = DateTime(now.year, now.month, now.day + i, hour, minute);
+      final candidate = DateTime(
+        now.year,
+        now.month,
+        now.day + i,
+        hour,
+        minute,
+      );
       final candidateDayOfWeek = candidate.weekday % 7;
       if (candidateDayOfWeek == targetDayOfWeek) {
         if (candidate.isAfter(now)) {
@@ -144,7 +218,13 @@ class DefaultNotificationService implements NotificationService {
       }
     }
     // Next week if already passed today
-    final nextWeekDay = DateTime(now.year, now.month, now.day + 7, hour, minute);
+    final nextWeekDay = DateTime(
+      now.year,
+      now.month,
+      now.day + 7,
+      hour,
+      minute,
+    );
     return nextWeekDay;
   }
 }
@@ -157,7 +237,7 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
   FlutterLocalNotificationServiceImpl({
     FlutterLocalNotificationsPlugin? notificationsPlugin,
   }) : _notificationsPlugin =
-            notificationsPlugin ?? FlutterLocalNotificationsPlugin();
+           notificationsPlugin ?? FlutterLocalNotificationsPlugin();
 
   @override
   Future<void> initialize() async {
@@ -167,7 +247,9 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
       tz.initializeTimeZones();
     } catch (_) {}
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     const darwinSettings = DarwinInitializationSettings();
     const initSettings = InitializationSettings(
       android: androidSettings,
@@ -176,9 +258,7 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
     );
 
     try {
-      await _notificationsPlugin.initialize(
-        settings: initSettings,
-      );
+      await _notificationsPlugin.initialize(settings: initSettings);
       _initialized = true;
     } catch (_) {
       // Safe fallback on desktop/unsupported platforms
@@ -188,15 +268,19 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
   @override
   Future<bool> requestNotificationPermissions() async {
     try {
-      final androidPlatform = _notificationsPlugin.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
+      final androidPlatform = _notificationsPlugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       if (androidPlatform != null) {
         final granted = await androidPlatform.requestNotificationsPermission();
         return granted ?? false;
       }
 
-      final iosPlatform = _notificationsPlugin.resolvePlatformSpecificImplementation<
-          IOSFlutterLocalNotificationsPlugin>();
+      final iosPlatform = _notificationsPlugin
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >();
       if (iosPlatform != null) {
         final granted = await iosPlatform.requestPermissions(
           alert: true,
@@ -219,6 +303,100 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
   Future<void> cancelAllReminders() async {
     try {
       await _notificationsPlugin.cancelAll();
+    } catch (_) {}
+  }
+
+  static int noteNotificationId(String noteId) =>
+      20000 + (noteId.hashCode.abs() % 100000);
+
+  @override
+  Future<void> scheduleNoteReminder({
+    required String noteId,
+    required String content,
+    required DateTime reminderDate,
+  }) async {
+    await cancelNoteReminder(noteId);
+    if (!reminderDate.isAfter(DateTime.now())) return;
+
+    try {
+      final tzScheduled = tz.TZDateTime.from(reminderDate, tz.local);
+      const notificationDetails = NotificationDetails(
+        android: AndroidNotificationDetails(
+          'sticky_note_reminders',
+          'Sticky Note Reminders',
+          channelDescription: 'Reminders for sticky notes',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(),
+      );
+
+      final body = content.length > 100 ? content.substring(0, 100) : content;
+      await _notificationsPlugin.zonedSchedule(
+        id: noteNotificationId(noteId),
+        title: 'Sticky Note Reminder 📝',
+        body: body,
+        scheduledDate: tzScheduled,
+        notificationDetails: notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      );
+    } catch (_) {
+      // Safe fallback in headless/test/desktop environments
+    }
+  }
+
+  @override
+  Future<void> cancelNoteReminder(String noteId) async {
+    try {
+      await _notificationsPlugin.cancel(id: noteNotificationId(noteId));
+    } catch (_) {}
+  }
+
+  static int taskNotificationId(String taskId) =>
+      30000 + (taskId.hashCode.abs() % 100000);
+
+  @override
+  Future<void> scheduleTaskReminder({
+    required String taskId,
+    required String title,
+    required String body,
+    required DateTime reminderAt,
+  }) async {
+    await cancelTaskReminder(taskId);
+    if (!reminderAt.isAfter(DateTime.now())) return;
+
+    try {
+      final tzScheduled = tz.TZDateTime.from(reminderAt, tz.local);
+      const notificationDetails = NotificationDetails(
+        android: AndroidNotificationDetails(
+          'dailyflow_task_reminders',
+          'DailyFlow Task Reminders',
+          channelDescription: 'Scheduled reminders for DailyFlow tasks',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(),
+      );
+
+      final truncatedBody = body.length > 120 ? body.substring(0, 120) : body;
+      await _notificationsPlugin.zonedSchedule(
+        id: taskNotificationId(taskId),
+        title: title,
+        body: truncatedBody,
+        scheduledDate: tzScheduled,
+        notificationDetails: notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        payload: 'dailyflow:$taskId',
+      );
+    } catch (_) {
+      // Safe fallback in headless/test/desktop environments
+    }
+  }
+
+  @override
+  Future<void> cancelTaskReminder(String taskId) async {
+    try {
+      await _notificationsPlugin.cancel(id: taskNotificationId(taskId));
     } catch (_) {}
   }
 

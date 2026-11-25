@@ -58,12 +58,7 @@ class SubjectDialog extends ConsumerStatefulWidget {
   final VoidCallback? onSaved;
   final VoidCallback? onDeleted;
 
-  const SubjectDialog({
-    super.key,
-    this.subject,
-    this.onSaved,
-    this.onDeleted,
-  });
+  const SubjectDialog({super.key, this.subject, this.onSaved, this.onDeleted});
 
   bool get isEdit => subject != null;
 
@@ -122,7 +117,9 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
     });
 
     try {
-      final code = _codeController.text.trim().isEmpty ? null : _codeController.text.trim();
+      final code = _codeController.text.trim().isEmpty
+          ? null
+          : _codeController.text.trim();
       final target = _hasCustomTarget ? _targetPercentage : null;
 
       if (widget.isEdit) {
@@ -135,9 +132,13 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
           targetPercentage: target,
           clearTargetPercentage: !_hasCustomTarget,
         );
-        await ref.read(subjectControllerProvider.notifier).updateSubject(updated);
+        await ref
+            .read(subjectControllerProvider.notifier)
+            .updateSubject(updated);
       } else {
-        await ref.read(subjectControllerProvider.notifier).addSubject(
+        await ref
+            .read(subjectControllerProvider.notifier)
+            .addSubject(
               name: rawName,
               code: code,
               color: _selectedColor,
@@ -171,11 +172,15 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
         final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
 
         return AlertDialog(
-          backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+          backgroundColor: isDark
+              ? AppColors.surfaceDark
+              : AppColors.surfaceLight,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.card),
             side: BorderSide(
-              color: isDark ? AppColors.glassBorderDark : AppColors.glassBorderLight,
+              color: isDark
+                  ? AppColors.glassBorderDark
+                  : AppColors.glassBorderLight,
             ),
           ),
           title: Text(
@@ -187,10 +192,7 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
           ),
           content: Text(
             'Are you sure you want to delete "${widget.subject!.name}"? Your past attendance history for this subject will be preserved.',
-            style: GoogleFonts.outfit(
-              color: mutedColor,
-              fontSize: 14,
-            ),
+            style: GoogleFonts.outfit(color: mutedColor, fontSize: 14),
           ),
           actions: [
             TextButton(
@@ -223,7 +225,9 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
         _isLoading = true;
       });
 
-      await ref.read(subjectControllerProvider.notifier).deleteSubject(widget.subject!.id);
+      await ref
+          .read(subjectControllerProvider.notifier)
+          .deleteSubject(widget.subject!.id);
       widget.onDeleted?.call();
       if (mounted) {
         Navigator.of(context).pop();
@@ -234,7 +238,9 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
+    final surfaceColor = isDark
+        ? AppColors.surfaceDark
+        : AppColors.surfaceLight;
     final paperColor = isDark ? AppColors.paperDark : AppColors.paperLight;
     final mutedColor = isDark ? AppColors.mutedDark : AppColors.mutedLight;
 
@@ -255,7 +261,9 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
                   color: surfaceColor,
                   borderRadius: BorderRadius.circular(AppRadius.card),
                   border: Border.all(
-                    color: isDark ? AppColors.glassBorderDark : AppColors.glassBorderLight,
+                    color: isDark
+                        ? AppColors.glassBorderDark
+                        : AppColors.glassBorderLight,
                     width: 1.5,
                   ),
                   boxShadow: [
@@ -335,7 +343,8 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
                         runSpacing: 8,
                         children: kSubjectColors.map((hex) {
                           final color = parseHexColor(hex);
-                          final isSelected = _selectedColor.toUpperCase() == hex.toUpperCase();
+                          final isSelected =
+                              _selectedColor.toUpperCase() == hex.toUpperCase();
 
                           return GestureDetector(
                             key: Key('color_swatch_$hex'),
@@ -352,7 +361,9 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
                                 color: color,
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: isSelected ? Colors.white : Colors.transparent,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : Colors.transparent,
                                   width: 2.5,
                                 ),
                                 boxShadow: [
@@ -409,14 +420,18 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
                               decoration: BoxDecoration(
                                 color: isSelected
                                     ? activeColor.withValues(alpha: 0.2)
-                                    : (isDark ? AppColors.inputBgDark : AppColors.inputBgLight),
-                                borderRadius: BorderRadius.circular(AppRadius.sm),
+                                    : (isDark
+                                          ? AppColors.inputBgDark
+                                          : AppColors.inputBgLight),
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.sm,
+                                ),
                                 border: Border.all(
                                   color: isSelected
                                       ? activeColor
                                       : (isDark
-                                          ? AppColors.glassBorderDark
-                                          : AppColors.glassBorderLight),
+                                            ? AppColors.glassBorderDark
+                                            : AppColors.glassBorderLight),
                                   width: isSelected ? 2.0 : 1.0,
                                 ),
                               ),
@@ -481,9 +496,13 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
                             Expanded(
                               child: SliderTheme(
                                 data: SliderTheme.of(context).copyWith(
-                                  activeTrackColor: parseHexColor(_selectedColor),
+                                  activeTrackColor: parseHexColor(
+                                    _selectedColor,
+                                  ),
                                   thumbColor: parseHexColor(_selectedColor),
-                                  inactiveTrackColor: isDark ? AppColors.ruleDark : AppColors.ruleLight,
+                                  inactiveTrackColor: isDark
+                                      ? AppColors.ruleDark
+                                      : AppColors.ruleLight,
                                 ),
                                 child: Slider(
                                   key: const Key('target_slider'),
@@ -501,10 +520,17 @@ class _SubjectDialogState extends ConsumerState<SubjectDialog> {
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
-                                color: parseHexColor(_selectedColor).withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(AppRadius.sm),
+                                color: parseHexColor(
+                                  _selectedColor,
+                                ).withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.sm,
+                                ),
                               ),
                               child: Text(
                                 '${_targetPercentage.toInt()}%',
@@ -576,19 +602,13 @@ Future<T?> showSubjectDialog<T>(
     barrierLabel: 'Subject Dialog',
     barrierColor: Colors.black.withValues(alpha: 0.6),
     transitionDuration: const Duration(milliseconds: 300),
-    pageBuilder: (ctx, anim1, anim2) => SubjectDialog(
-      subject: subject,
-      onSaved: onSaved,
-      onDeleted: onDeleted,
-    ),
+    pageBuilder: (ctx, anim1, anim2) =>
+        SubjectDialog(subject: subject, onSaved: onSaved, onDeleted: onDeleted),
     transitionBuilder: (ctx, anim1, anim2, child) {
       final curved = CurvedAnimation(parent: anim1, curve: Curves.easeOutCubic);
       return Transform.scale(
         scale: Tween<double>(begin: 0.9, end: 1.0).evaluate(curved),
-        child: Opacity(
-          opacity: anim1.value,
-          child: child,
-        ),
+        child: Opacity(opacity: anim1.value, child: child),
       );
     },
   );

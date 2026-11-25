@@ -25,17 +25,17 @@ class DashboardStats {
   });
 
   factory DashboardStats.empty({double minPercent = 75.0}) => DashboardStats(
-        conducted: 0,
-        present: 0,
-        absent: 0,
-        percentage: null,
-        minPercent: minPercent,
-        canMiss: 0,
-        needToAttend: 0,
-        isImpossible: false,
-        isSafe: true,
-        unmarkedPastSessions: 0,
-      );
+    conducted: 0,
+    present: 0,
+    absent: 0,
+    percentage: null,
+    minPercent: minPercent,
+    canMiss: 0,
+    needToAttend: 0,
+    isImpossible: false,
+    isSafe: true,
+    unmarkedPastSessions: 0,
+  );
 
   @override
   bool operator ==(Object other) =>
