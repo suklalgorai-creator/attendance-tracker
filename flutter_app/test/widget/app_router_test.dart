@@ -70,6 +70,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            showSplashProvider.overrideWithValue(false),
             authRepositoryProvider.overrideWithValue(mockRepo),
             authNotifierProvider.overrideWith((ref) => AuthNotifier(mockRepo)),
           ],
@@ -96,7 +97,8 @@ void main() {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
-              authRepositoryProvider.overrideWithValue(mockRepo),
+              showSplashProvider.overrideWithValue(false),
+            authRepositoryProvider.overrideWithValue(mockRepo),
               authNotifierProvider.overrideWith(
                 (ref) => AuthNotifier(mockRepo),
               ),
@@ -123,7 +125,8 @@ void main() {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
-              authRepositoryProvider.overrideWithValue(mockRepo),
+              showSplashProvider.overrideWithValue(false),
+            authRepositoryProvider.overrideWithValue(mockRepo),
               authNotifierProvider.overrideWith(
                 (ref) => AuthNotifier(mockRepo),
               ),
@@ -161,7 +164,8 @@ void main() {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
-              authRepositoryProvider.overrideWithValue(mockRepo),
+              showSplashProvider.overrideWithValue(false),
+            authRepositoryProvider.overrideWithValue(mockRepo),
               authNotifierProvider.overrideWith(
                 (ref) => AuthNotifier(mockRepo),
               ),
@@ -191,7 +195,8 @@ void main() {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
-              authRepositoryProvider.overrideWithValue(mockRepo),
+              showSplashProvider.overrideWithValue(false),
+            authRepositoryProvider.overrideWithValue(mockRepo),
               authNotifierProvider.overrideWith(
                 (ref) => AuthNotifier(mockRepo),
               ),
@@ -234,7 +239,8 @@ void main() {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
-              authRepositoryProvider.overrideWithValue(mockRepo),
+              showSplashProvider.overrideWithValue(false),
+            authRepositoryProvider.overrideWithValue(mockRepo),
               authNotifierProvider.overrideWith(
                 (ref) => AuthNotifier(mockRepo),
               ),
@@ -282,6 +288,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            showSplashProvider.overrideWithValue(false),
             authRepositoryProvider.overrideWithValue(mockRepo),
             authNotifierProvider.overrideWith((ref) => AuthNotifier(mockRepo)),
           ],
@@ -315,6 +322,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            showSplashProvider.overrideWithValue(false),
             authRepositoryProvider.overrideWithValue(mockRepo),
             authNotifierProvider.overrideWith((ref) => AuthNotifier(mockRepo)),
           ],
@@ -345,7 +353,8 @@ void main() {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
-              authRepositoryProvider.overrideWithValue(mockRepo),
+              showSplashProvider.overrideWithValue(false),
+            authRepositoryProvider.overrideWithValue(mockRepo),
               authNotifierProvider.overrideWith(
                 (ref) => AuthNotifier(mockRepo),
               ),

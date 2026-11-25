@@ -11,6 +11,7 @@ import '../../features/notes/presentation/notes_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/register/presentation/register_page.dart';
 import '../../features/settings/presentation/settings_page.dart';
+import '../../features/splash/presentation/pages/splash_page.dart';
 import '../../features/subjects/presentation/pages/subject_analytics_screen.dart';
 import '../../features/timetable/presentation/pages/timetable_page.dart';
 import '../../shared/widgets/app_shell.dart';
@@ -54,6 +55,11 @@ class RouterNotifier extends ChangeNotifier {
 
     final isAuthedOrGuest = authState.isAuthenticated || authState.isGuest;
 
+    // Allow splash to play without redirect
+    if (loc == '/splash') {
+      return null;
+    }
+
     // Rule 1: Unauthenticated and not guest -> redirect to /auth
     if (!isAuthedOrGuest) {
       return loc == '/auth' ? null : '/auth';
@@ -78,16 +84,28 @@ final routerNotifierProvider = Provider<RouterNotifier>((ref) {
   return RouterNotifier(ref);
 });
 
+/// Controls whether the app starts on `/splash` (true in production, false in router tests).
+final showSplashProvider = Provider<bool>((ref) => true);
+
 /// Declarative GoRouter configuration replicating react_app routing and guard structure.
 final appRouterProvider = Provider<GoRouter>((ref) {
   final routerNotifier = ref.watch(routerNotifierProvider);
+  final showSplash = ref.watch(showSplashProvider);
 
   return GoRouter(
     navigatorKey: rootNavigatorKey,
     refreshListenable: routerNotifier,
     redirect: routerNotifier.redirect,
-    initialLocation: '/',
+    initialLocation: showSplash ? '/splash' : '/',
     routes: [
+      // Splash screen (animated logo intro)
+      GoRoute(
+        path: '/splash',
+        name: 'splash',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const SplashPage(),
+      ),
+
       // Top-level Authentication Route
       GoRoute(
         path: '/auth',
