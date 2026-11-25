@@ -34,7 +34,9 @@ class PrismBorderPainter extends CustomPainter {
           Color(0x6610B981), // Emerald 40% (loop back)
         ],
         stops: [0.0, 0.25, 0.5, 0.75, 1.0],
-        transform: GradientRotation(-1.5707963267948966), // -pi/2 (starts at top 12 o'clock)
+        transform: GradientRotation(
+          -1.5707963267948966,
+        ), // -pi/2 (starts at top 12 o'clock)
       ).createShader(rect);
 
     canvas.drawRRect(rrect, paint);

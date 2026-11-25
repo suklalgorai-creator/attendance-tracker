@@ -38,9 +38,7 @@ Future<bool> handleAttendanceNotificationAction(
   }
 
   final dataSource = localDataSource ?? AttendanceLocalDataSourceImpl();
-  final existing = await dataSource.getLegacyRecordById(
-    'daily-$effectiveDate',
-  );
+  final existing = await dataSource.getLegacyRecordById('daily-$effectiveDate');
   final now = DateTime.now().toUtc();
   final isPresent = actionId == attendanceActionPresent;
 
@@ -62,8 +60,21 @@ Future<void> notificationTapBackground(NotificationResponse response) async {
   try {
     await handleAttendanceNotificationAction(response);
   } catch (e) {
-    debugPrint('[NOTIFICATION] Background action error: $e');
+    if (kDebugMode) {
+      debugPrint('[NOTIFICATION] Background action error: $e');
+    }
   }
+}
+
+/// Deterministic 31-bit FNV-1a hash so notification IDs remain identical
+/// across isolates, restarts, and platforms (unlike Dart String.hashCode).
+int _stableNotificationHash(String input) {
+  var hash = 0x811c9dc5;
+  for (final unit in input.codeUnits) {
+    hash ^= unit;
+    hash = (hash * 0x01000193) & 0x7fffffff;
+  }
+  return hash;
 }
 
 String _buildMorningBriefingBody({
@@ -196,7 +207,7 @@ class DefaultNotificationService implements NotificationService {
   }) async {
     await cancelNoteReminder(noteId);
     if (!reminderDate.isAfter(DateTime.now())) return;
-    final id = 20000 + (noteId.hashCode.abs() % 100000);
+    final id = 100000 + (_stableNotificationHash(noteId) % 100000);
     _scheduledReminders.add(
       ScheduledNotificationInfo(
         id: id,
@@ -209,12 +220,12 @@ class DefaultNotificationService implements NotificationService {
 
   @override
   Future<void> cancelNoteReminder(String noteId) async {
-    final id = 20000 + (noteId.hashCode.abs() % 100000);
+    final id = 100000 + (_stableNotificationHash(noteId) % 100000);
     _scheduledReminders.removeWhere((r) => r.id == id);
   }
 
   static int defaultTaskNotificationId(String taskId) =>
-      30000 + (taskId.hashCode.abs() % 100000);
+      200000 + (_stableNotificationHash(taskId) % 100000);
 
   @override
   Future<void> scheduleTaskReminder({
@@ -242,7 +253,7 @@ class DefaultNotificationService implements NotificationService {
   }
 
   static int defaultFollowUpNotificationId(String taskId) =>
-      50000 + (taskId.hashCode.abs() % 100000);
+      300000 + (_stableNotificationHash(taskId) % 100000);
 
   @override
   Future<void> schedulePendingTaskFollowUp({
@@ -282,6 +293,7 @@ class DefaultNotificationService implements NotificationService {
     int todayTaskCount = 0,
     int pendingCarryoverCount = 0,
   }) async {
+    await initialize();
     await cancelDailyFlowRoutineReminders();
     if (!isEnabled) return;
 
@@ -291,12 +303,7 @@ class DefaultNotificationService implements NotificationService {
       pendingCarryoverCount: pendingCarryoverCount,
     );
     final items = <(int, String, String, String)>[
-      (
-        40001,
-        morningTime,
-        'Good Morning — DailyFlow ☀️',
-        morningBody,
-      ),
+      (40001, morningTime, 'Good Morning — DailyFlow ☀️', morningBody),
       (
         40002,
         eveningTime,
@@ -427,6 +434,7 @@ class DefaultNotificationService implements NotificationService {
 class FlutterLocalNotificationServiceImpl implements NotificationService {
   final FlutterLocalNotificationsPlugin _notificationsPlugin;
   bool _initialized = false;
+  Future<void>? _initializingFuture;
 
   FlutterLocalNotificationServiceImpl({
     FlutterLocalNotificationsPlugin? notificationsPlugin,
@@ -434,16 +442,19 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
            notificationsPlugin ?? FlutterLocalNotificationsPlugin();
 
   @override
-  Future<void> initialize() async {
-    if (_initialized) return;
+  Future<void> initialize() {
+    if (_initialized) return Future.value();
+    return _initializingFuture ??= _performInitialize();
+  }
 
+  Future<void> _performInitialize() async {
     try {
       tz.initializeTimeZones();
       _configureLocalTimeZone();
     } catch (_) {}
 
     const androidSettings = AndroidInitializationSettings(
-      '@mipmap/ic_launcher',
+      '@mipmap/launcher_icon',
     );
     const darwinSettings = DarwinInitializationSettings();
     const initSettings = InitializationSettings(
@@ -463,11 +474,13 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
       _initialized = true;
     } catch (_) {
       // Safe fallback on desktop/unsupported platforms
+      _initializingFuture = null;
     }
   }
 
   @override
   Future<bool> requestNotificationPermissions() async {
+    await initialize();
     try {
       final androidPlatform = _notificationsPlugin
           .resolvePlatformSpecificImplementation<
@@ -516,7 +529,7 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
   }
 
   static int noteNotificationId(String noteId) =>
-      20000 + (noteId.hashCode.abs() % 100000);
+      100000 + (_stableNotificationHash(noteId) % 100000);
 
   @override
   Future<void> scheduleNoteReminder({
@@ -524,6 +537,7 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
     required String content,
     required DateTime reminderDate,
   }) async {
+    await initialize();
     await cancelNoteReminder(noteId);
     if (!reminderDate.isAfter(DateTime.now())) return;
 
@@ -541,13 +555,13 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
       );
 
       final body = content.length > 100 ? content.substring(0, 100) : content;
-      await _notificationsPlugin.zonedSchedule(
+      await _zonedScheduleWithFallback(
         id: noteNotificationId(noteId),
         title: 'Sticky Note Reminder 📝',
         body: body,
         scheduledDate: tzScheduled,
         notificationDetails: notificationDetails,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        payload: 'note:$noteId',
       );
     } catch (_) {
       // Safe fallback in headless/test/desktop environments
@@ -562,7 +576,7 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
   }
 
   static int taskNotificationId(String taskId) =>
-      30000 + (taskId.hashCode.abs() % 100000);
+      200000 + (_stableNotificationHash(taskId) % 100000);
 
   @override
   Future<void> scheduleTaskReminder({
@@ -571,6 +585,7 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
     required String body,
     required DateTime reminderAt,
   }) async {
+    await initialize();
     await cancelTaskReminder(taskId);
     if (!reminderAt.isAfter(DateTime.now())) return;
 
@@ -588,13 +603,12 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
       );
 
       final truncatedBody = body.length > 120 ? body.substring(0, 120) : body;
-      await _notificationsPlugin.zonedSchedule(
+      await _zonedScheduleWithFallback(
         id: taskNotificationId(taskId),
         title: title,
         body: truncatedBody,
         scheduledDate: tzScheduled,
         notificationDetails: notificationDetails,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         payload: 'dailyflow:$taskId',
       );
     } catch (_) {
@@ -610,7 +624,7 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
   }
 
   static int followUpNotificationId(String taskId) =>
-      50000 + (taskId.hashCode.abs() % 100000);
+      300000 + (_stableNotificationHash(taskId) % 100000);
 
   @override
   Future<void> schedulePendingTaskFollowUp({
@@ -618,6 +632,7 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
     required String title,
     required DateTime followUpAt,
   }) async {
+    await initialize();
     await cancelPendingTaskFollowUp(taskId);
     if (!followUpAt.isAfter(DateTime.now())) return;
 
@@ -625,9 +640,9 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
       final tzScheduled = tz.TZDateTime.from(followUpAt, tz.local);
       const notificationDetails = NotificationDetails(
         android: AndroidNotificationDetails(
-          'dailyflow_task_reminders',
-          'DailyFlow Task Reminders',
-          channelDescription: 'Scheduled reminders for DailyFlow tasks',
+          'dailyflow_followup_reminders',
+          'DailyFlow Pending Task Follow-Ups',
+          channelDescription: 'Follow-up reminders for pending DailyFlow tasks',
           importance: Importance.defaultImportance,
           priority: Priority.defaultPriority,
         ),
@@ -670,6 +685,7 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
     int todayTaskCount = 0,
     int pendingCarryoverCount = 0,
   }) async {
+    await initialize();
     await cancelDailyFlowRoutineReminders();
     if (!isEnabled) return;
 
@@ -789,6 +805,7 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
     Map<String, dynamic> holidays = const {},
     bool isTodayMarked = false,
   }) async {
+    await initialize();
     await cancelAttendanceReminders();
 
     if (!isEnabled || classDays.isEmpty) return;
@@ -846,28 +863,14 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
           iOS: DarwinNotificationDetails(),
         );
 
-        try {
-          await _notificationsPlugin.zonedSchedule(
-            id: 1000 + dayOfWeek,
-            title: 'Attendance Reminder 📝',
-            body: "Don't forget to mark your classes for today!",
-            scheduledDate: tzScheduled,
-            notificationDetails: notificationDetails,
-            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-            payload: 'attendance_reminder:$dateKey',
-          );
-        } catch (_) {
-          // Fallback to inexact scheduling if exact alarms permission is denied
-          await _notificationsPlugin.zonedSchedule(
-            id: 1000 + dayOfWeek,
-            title: 'Attendance Reminder 📝',
-            body: "Don't forget to mark your classes for today!",
-            scheduledDate: tzScheduled,
-            notificationDetails: notificationDetails,
-            androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-            payload: 'attendance_reminder:$dateKey',
-          );
-        }
+        await _zonedScheduleWithFallback(
+          id: 1000 + dayOfWeek,
+          title: 'Attendance Reminder 📝',
+          body: "Don't forget to mark your classes for today!",
+          scheduledDate: tzScheduled,
+          notificationDetails: notificationDetails,
+          payload: 'attendance_reminder:$dateKey',
+        );
       } catch (_) {
         // Fallback or test environment
       }

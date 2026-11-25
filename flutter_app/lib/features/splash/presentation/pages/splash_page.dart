@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../shared/widgets/mesh_backdrop.dart';
 
 /// Animated splash screen shown once on cold start.
 /// Displays the app logo with a zoom-in + fade animation over the mesh-style
@@ -23,6 +26,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
   late final Animation<double> _logoOpacity;
   late final Animation<double> _textOpacity;
   late final Animation<Offset> _textSlide;
+  final List<Timer> _timers = [];
 
   @override
   void initState() {
@@ -36,53 +40,56 @@ class _SplashPageState extends ConsumerState<SplashPage>
     _logoScale = Tween<double>(begin: 0.6, end: 1.0).animate(
       CurvedAnimation(parent: _logoController, curve: Curves.easeOutBack),
     );
-    _logoOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _logoController, curve: Curves.easeIn),
-    );
+    _logoOpacity = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _logoController, curve: Curves.easeIn));
 
     // Text animation: fade + slide up after logo, 600ms
     _textController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-    _textOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _textController, curve: Curves.easeIn),
-    );
+    _textOpacity = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeIn));
     _textSlide = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _textController, curve: Curves.easeOut),
-    );
+    ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
 
     _startAnimation();
   }
 
-  Future<void> _startAnimation() async {
-    // Small initial delay for native splash to fade
-    await Future<void>.delayed(const Duration(milliseconds: 200));
-    if (!mounted) return;
+  void _startAnimation() {
+    _timers.add(
+      Timer(const Duration(milliseconds: 200), () {
+        if (!mounted) return;
+        _logoController.forward();
+      }),
+    );
 
-    // Start logo animation
-    _logoController.forward();
-    await Future<void>.delayed(const Duration(milliseconds: 400));
-    if (!mounted) return;
+    _timers.add(
+      Timer(const Duration(milliseconds: 600), () {
+        if (!mounted) return;
+        _textController.forward();
+      }),
+    );
 
-    // Start text animation
-    _textController.forward();
-
-    // Hold the splash for a moment
-    await Future<void>.delayed(const Duration(milliseconds: 1200));
-    if (!mounted) return;
-
-    // Navigate to main app
-    if (context.mounted) {
-      context.go('/');
-    }
+    _timers.add(
+      Timer(const Duration(milliseconds: 1800), () {
+        if (!mounted || !context.mounted) return;
+        context.go('/');
+      }),
+    );
   }
 
   @override
   void dispose() {
+    for (final timer in _timers) {
+      timer.cancel();
+    }
     _logoController.dispose();
     _textController.dispose();
     super.dispose();
@@ -91,74 +98,11 @@ class _SplashPageState extends ConsumerState<SplashPage>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? AppColors.bgPrimaryDark : AppColors.bgPrimaryLight;
-
-    // Mesh gradient orb colors
-    final mesh1 = isDark
-        ? const Color(0x2610B981)
-        : const Color(0x6634D399);
-    final mesh2 = isDark
-        ? const Color(0x26F43F5E)
-        : const Color(0x4DFB7185);
-    final mesh3 = isDark
-        ? const Color(0x263B82F6)
-        : const Color(0x6660A5FA);
 
     return Scaffold(
-      backgroundColor: bgColor,
       body: Stack(
         children: [
-          // Mesh backdrop (matches MeshBackdrop)
-          Positioned.fill(
-            child: IgnorePointer(
-              child: Stack(
-                children: [
-                  Positioned(
-                    top: -120,
-                    left: -100,
-                    width: 520,
-                    height: 440,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [mesh1, Colors.transparent],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    right: -140,
-                    bottom: -120,
-                    width: 500,
-                    height: 440,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [mesh2, Colors.transparent],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 180,
-                    left: 80,
-                    width: 400,
-                    height: 400,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [mesh3, Colors.transparent],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          const Positioned.fill(child: MeshBackdrop()),
 
           // Centered logo + text
           Center(
@@ -184,9 +128,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                       borderRadius: BorderRadius.circular(28),
                       boxShadow: [
                         BoxShadow(
-                          color: (isDark
-                                  ? AppColors.inkGreen
-                                  : AppColors.amber)
+                          color: (isDark ? AppColors.inkGreen : AppColors.amber)
                               .withValues(alpha: 0.3),
                           blurRadius: 40,
                           spreadRadius: 4,

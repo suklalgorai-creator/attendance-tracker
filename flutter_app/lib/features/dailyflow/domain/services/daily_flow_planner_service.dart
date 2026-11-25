@@ -177,9 +177,7 @@ class DailyFlowPlannerService {
       executedSecs += t.totalElapsedSecondsAt(effectiveNow);
     }
 
-    final statsBySubjectId = {
-      for (final s in subjectStats) s.subject.id: s,
-    };
+    final statsBySubjectId = {for (final s in subjectStats) s.subject.id: s};
 
     final candidates = dayTasks
         .where(

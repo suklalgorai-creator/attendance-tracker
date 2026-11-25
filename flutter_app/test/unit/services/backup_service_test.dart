@@ -696,5 +696,48 @@ void main() {
         expect(subjects.any((s) => s.name == 'Preserved Subject'), isTrue);
       },
     );
+
+    test(
+      'restoreBackup preserves DailyFlow settings and savePreRestoreBackup prunes snapshots to max 3',
+      () async {
+        await settingsRepo.saveSettings(
+          const UserSettingsEntity(
+            name: 'Existing User',
+            dailyFlowMorningTime: '06:30',
+            dailyFlowEveningTime: '21:45',
+            dailyFlowSmartRemindersEnabled: false,
+            dailyFlowFollowUpsEnabled: false,
+            dailyFlowPlanningHorizonDays: 14,
+          ),
+        );
+
+        // Older backup map without dailyFlow* fields
+        final result = await backupService.restoreBackup({
+          'name': 'Restored Name',
+          'minPercent': 80,
+          'classDays': [1, 2, 3, 4, 5],
+        });
+        expect(result.ok, isTrue);
+
+        final restoredSettings = await settingsRepo.getSettings();
+        expect(restoredSettings.name, 'Restored Name');
+        expect(restoredSettings.dailyFlowMorningTime, '06:30');
+        expect(restoredSettings.dailyFlowEveningTime, '21:45');
+        expect(restoredSettings.dailyFlowSmartRemindersEnabled, isFalse);
+        expect(restoredSettings.dailyFlowFollowUpsEnabled, isFalse);
+        expect(restoredSettings.dailyFlowPlanningHorizonDays, 14);
+
+        // Create multiple pre-restore snapshots and ensure pruning caps at 3
+        for (var i = 0; i < 5; i++) {
+          await backupService.savePreRestoreBackup();
+          await Future<void>.delayed(const Duration(milliseconds: 2));
+        }
+        final remainingSnapshots = settingsBox.keys
+            .whereType<String>()
+            .where((k) => k.startsWith('pre_restore_'))
+            .toList();
+        expect(remainingSnapshots.length, lessThanOrEqualTo(3));
+      },
+    );
   });
 }

@@ -25,11 +25,7 @@ class DailySubtaskModel extends DailySubtaskEntity {
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'title': title,
-      'isDone': isDone,
-    };
+    return {'id': id, 'title': title, 'isDone': isDone};
   }
 }
 

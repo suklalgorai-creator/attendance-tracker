@@ -144,11 +144,7 @@ class DailySubtaskEntity {
     this.isDone = false,
   });
 
-  DailySubtaskEntity copyWith({
-    String? id,
-    String? title,
-    bool? isDone,
-  }) {
+  DailySubtaskEntity copyWith({String? id, String? title, bool? isDone}) {
     return DailySubtaskEntity(
       id: id ?? this.id,
       title: title ?? this.title,

@@ -175,214 +175,218 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
           const Positioned.fill(child: MeshBackdrop()),
           SafeArea(
             child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20.0,
-              vertical: 36.0,
-            ),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Title: Set up your register (Gradient Text)
-                  ShaderMask(
-                    shaderCallback: (bounds) => LinearGradient(
-                      colors: isDark
-                          ? [
-                              AppColors.textGradientStartDark,
-                              AppColors.textGradientEndDark,
-                            ]
-                          : [
-                              AppColors.textGradientStartLight,
-                              AppColors.textGradientEndLight,
-                            ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ).createShader(bounds),
-                    child: Text(
-                      'Set up your register',
-                      textAlign: TextAlign.center,
-                      style: AppTypography.displayMedium.copyWith(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.8,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Subtitle
-                  Text(
-                    'A daily attendance tracker that shows exactly how safe — or how behind — you are.',
-                    textAlign: TextAlign.center,
-                    style: AppTypography.bodyLarge(
-                      mutedColor,
-                    ).copyWith(fontSize: 14.5, height: 1.45),
-                  ),
-                  const SizedBox(height: 28),
-
-                  // Field 1: Degree / Program name
-                  AppTextField(
-                    controller: _programController,
-                    label: 'Degree / Program name (optional)',
-                    hint: 'e.g. B.Tech CSE',
-                    onSubmitted: (val) {
-                      _programController.text = _toTitleCase(val);
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  // Suggestion Chips for Program
-                  SizedBox(
-                    height: 34,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: defaultPrograms.length,
-                      separatorBuilder: (_, _) => const SizedBox(width: 8),
-                      itemBuilder: (context, index) {
-                        final program = defaultPrograms[index];
-                        return ActionChip(
-                          label: Text(program),
-                          labelStyle: AppTypography.bodySmall(
-                            isDark ? AppColors.mutedDark : AppColors.mutedLight,
-                          ),
-                          backgroundColor: isDark
-                              ? AppColors.surfaceHoverDark
-                              : AppColors.surfaceLight,
-                          side: BorderSide(
-                            color: isDark
-                                ? AppColors.glassBorderDark
-                                : AppColors.glassBorderLight,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _programController.text = program;
-                            });
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Field 2: Semester name
-                  AppTextField(
-                    controller: _courseController,
-                    label: 'Semester name (optional)',
-                    hint: 'e.g. Semester 3',
-                    onSubmitted: (val) {
-                      _courseController.text = _toTitleCase(val);
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  // Suggestion Chips for Semester
-                  SizedBox(
-                    height: 34,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: defaultSemesters.length,
-                      separatorBuilder: (_, _) => const SizedBox(width: 8),
-                      itemBuilder: (context, index) {
-                        final semester = defaultSemesters[index];
-                        return ActionChip(
-                          label: Text(semester),
-                          labelStyle: AppTypography.bodySmall(
-                            isDark ? AppColors.mutedDark : AppColors.mutedLight,
-                          ),
-                          backgroundColor: isDark
-                              ? AppColors.surfaceHoverDark
-                              : AppColors.surfaceLight,
-                          side: BorderSide(
-                            color: isDark
-                                ? AppColors.glassBorderDark
-                                : AppColors.glassBorderLight,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _courseController.text = semester;
-                            });
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Field 3: Classes started on
-                  GestureDetector(
-                    onTap: _pickStartDate,
-                    child: AbsorbPointer(
-                      child: AppTextField(
-                        controller: _startDateController,
-                        label: 'Classes started on',
-                        hint: 'YYYY-MM-DD',
-                        readOnly: true,
-                        suffixIcon: const Icon(
-                          Icons.calendar_month_rounded,
-                          color: AppColors.inkGreen,
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Field 4: Minimum attendance required
-                  AppTextField(
-                    controller: _minPercentController,
-                    label: 'Minimum attendance required',
-                    hint: '75',
-                    keyboardType: TextInputType.number,
-                    suffixIcon: Center(
-                      widthFactor: 1.0,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 16.0),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 36.0,
+                ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 480),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Title: Set up your register (Gradient Text)
+                      ShaderMask(
+                        shaderCallback: (bounds) => LinearGradient(
+                          colors: isDark
+                              ? [
+                                  AppColors.textGradientStartDark,
+                                  AppColors.textGradientEndDark,
+                                ]
+                              : [
+                                  AppColors.textGradientStartLight,
+                                  AppColors.textGradientEndLight,
+                                ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ).createShader(bounds),
                         child: Text(
-                          '%',
-                          style: AppTypography.labelLarge.copyWith(
-                            color: mutedColor,
+                          'Set up your register',
+                          textAlign: TextAlign.center,
+                          style: AppTypography.displayMedium.copyWith(
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.8,
+                            color: Colors.white,
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
+                      const SizedBox(height: 10),
 
-                  // Field 5: Which days do you have class?
-                  Text(
-                    'Which days do you have class?',
-                    style: AppTypography.inputLabel(
-                      isDark ? AppColors.mutedDark : AppColors.mutedLight,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  DayPickerWidget(
-                    selectedDays: _classDays,
-                    onDaysChanged: (days) {
-                      setState(() {
-                        _classDays = days;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 36),
+                      // Subtitle
+                      Text(
+                        'A daily attendance tracker that shows exactly how safe — or how behind — you are.',
+                        textAlign: TextAlign.center,
+                        style: AppTypography.bodyLarge(
+                          mutedColor,
+                        ).copyWith(fontSize: 14.5, height: 1.45),
+                      ),
+                      const SizedBox(height: 28),
 
-                  // Submit Button: Start tracking
-                  AppButton(
-                    label: 'Start tracking',
-                    variant: AppButtonVariant.present,
-                    isWide: true,
-                    isLoading: _isSubmitting,
-                    padding: const EdgeInsets.symmetric(vertical: 18.0),
-                    fontSize: 16,
-                    onPressed: _handleStartTracking,
+                      // Field 1: Degree / Program name
+                      AppTextField(
+                        controller: _programController,
+                        label: 'Degree / Program name (optional)',
+                        hint: 'e.g. B.Tech CSE',
+                        onSubmitted: (val) {
+                          _programController.text = _toTitleCase(val);
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      // Suggestion Chips for Program
+                      SizedBox(
+                        height: 34,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: defaultPrograms.length,
+                          separatorBuilder: (_, _) => const SizedBox(width: 8),
+                          itemBuilder: (context, index) {
+                            final program = defaultPrograms[index];
+                            return ActionChip(
+                              label: Text(program),
+                              labelStyle: AppTypography.bodySmall(
+                                isDark
+                                    ? AppColors.mutedDark
+                                    : AppColors.mutedLight,
+                              ),
+                              backgroundColor: isDark
+                                  ? AppColors.surfaceHoverDark
+                                  : AppColors.surfaceLight,
+                              side: BorderSide(
+                                color: isDark
+                                    ? AppColors.glassBorderDark
+                                    : AppColors.glassBorderLight,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _programController.text = program;
+                                });
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Field 2: Semester name
+                      AppTextField(
+                        controller: _courseController,
+                        label: 'Semester name (optional)',
+                        hint: 'e.g. Semester 3',
+                        onSubmitted: (val) {
+                          _courseController.text = _toTitleCase(val);
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      // Suggestion Chips for Semester
+                      SizedBox(
+                        height: 34,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: defaultSemesters.length,
+                          separatorBuilder: (_, _) => const SizedBox(width: 8),
+                          itemBuilder: (context, index) {
+                            final semester = defaultSemesters[index];
+                            return ActionChip(
+                              label: Text(semester),
+                              labelStyle: AppTypography.bodySmall(
+                                isDark
+                                    ? AppColors.mutedDark
+                                    : AppColors.mutedLight,
+                              ),
+                              backgroundColor: isDark
+                                  ? AppColors.surfaceHoverDark
+                                  : AppColors.surfaceLight,
+                              side: BorderSide(
+                                color: isDark
+                                    ? AppColors.glassBorderDark
+                                    : AppColors.glassBorderLight,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _courseController.text = semester;
+                                });
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Field 3: Classes started on
+                      GestureDetector(
+                        onTap: _pickStartDate,
+                        child: AbsorbPointer(
+                          child: AppTextField(
+                            controller: _startDateController,
+                            label: 'Classes started on',
+                            hint: 'YYYY-MM-DD',
+                            readOnly: true,
+                            suffixIcon: const Icon(
+                              Icons.calendar_month_rounded,
+                              color: AppColors.inkGreen,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Field 4: Minimum attendance required
+                      AppTextField(
+                        controller: _minPercentController,
+                        label: 'Minimum attendance required',
+                        hint: '75',
+                        keyboardType: TextInputType.number,
+                        suffixIcon: Center(
+                          widthFactor: 1.0,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 16.0),
+                            child: Text(
+                              '%',
+                              style: AppTypography.labelLarge.copyWith(
+                                color: mutedColor,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Field 5: Which days do you have class?
+                      Text(
+                        'Which days do you have class?',
+                        style: AppTypography.inputLabel(
+                          isDark ? AppColors.mutedDark : AppColors.mutedLight,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      DayPickerWidget(
+                        selectedDays: _classDays,
+                        onDaysChanged: (days) {
+                          setState(() {
+                            _classDays = days;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 36),
+
+                      // Submit Button: Start tracking
+                      AppButton(
+                        label: 'Start tracking',
+                        variant: AppButtonVariant.present,
+                        isWide: true,
+                        isLoading: _isSubmitting,
+                        padding: const EdgeInsets.symmetric(vertical: 18.0),
+                        fontSize: 16,
+                        onPressed: _handleStartTracking,
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
         ],
       ),
     );

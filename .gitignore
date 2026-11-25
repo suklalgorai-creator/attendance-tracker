@@ -27,6 +27,19 @@ dist-ssr/
 .pub/
 build/
 **/build/
+coverage/
+**/coverage/
+
+# Android Local & Signing Artifacts
+**/android/local.properties
+**/android/.gradle/
+**/android/.cxx/
+**/android/key.properties
+*.jks
+*.keystore
+*.p12
+*.apk
+*.aab
 
 # Editor & OS files
 .vscode/*

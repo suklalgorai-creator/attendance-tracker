@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../../core/providers/notification_providers.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../domain/entities/user_settings_entity.dart';
 import '../../domain/models/backup_models.dart';
@@ -53,6 +54,7 @@ final backupServiceProvider = Provider<BackupService>((ref) {
     timetableRepository: ref.watch(timetableRepositoryProvider),
     attendanceRepository: ref.watch(attendanceRepositoryProvider),
     notesRepository: ref.watch(notesRepositoryProvider),
+    dailyFlowRepository: ref.watch(dailyFlowRepositoryProvider),
   );
 });
 
@@ -139,8 +141,18 @@ class SettingsController extends StateNotifier<SettingsState> {
   }
 
   Future<void> togglePushNotifications() async {
-    await updateSettings(
-      (c) => c.copyWith(pushNotificationsEnabled: !c.pushNotificationsEnabled),
+    final settingsRepo = _ref.read(settingsRepositoryProvider);
+    final current = await settingsRepo.getSettings();
+    final nextEnabled = !current.pushNotificationsEnabled;
+    if (nextEnabled) {
+      try {
+        await _ref
+            .read(notificationServiceProvider)
+            .requestNotificationPermissions();
+      } catch (_) {}
+    }
+    await settingsRepo.saveSettings(
+      current.copyWith(pushNotificationsEnabled: nextEnabled),
     );
   }
 

@@ -28,8 +28,7 @@ class DailyFlowLocalDataSourceImpl implements DailyFlowLocalDataSource {
         return rawData
             .whereType<Map>()
             .map(
-              (item) =>
-                  DailyTaskModel.fromMap(Map<String, dynamic>.from(item)),
+              (item) => DailyTaskModel.fromMap(Map<String, dynamic>.from(item)),
             )
             .toList();
       }

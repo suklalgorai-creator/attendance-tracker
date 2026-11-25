@@ -9,6 +9,8 @@ import '../../../attendance/domain/entities/attendance_record_entity.dart';
 import '../../../attendance/domain/entities/attendance_status.dart';
 import '../../../attendance/domain/entities/legacy_attendance_entity.dart';
 import '../../../attendance/domain/repositories/attendance_repository.dart';
+import '../../../dailyflow/data/models/daily_task_model.dart';
+import '../../../dailyflow/domain/repositories/daily_flow_repository.dart';
 import '../../../notes/data/models/note_model.dart';
 import '../../../notes/domain/entities/note_entity.dart';
 import '../../../notes/domain/repositories/notes_repository.dart';
@@ -34,6 +36,7 @@ class BackupService {
   final TimetableRepository _timetableRepository;
   final AttendanceRepository _attendanceRepository;
   final NotesRepository _notesRepository;
+  final DailyFlowRepository? _dailyFlowRepository;
   final Box? _settingsBoxOverride;
 
   BackupService({
@@ -42,12 +45,14 @@ class BackupService {
     required TimetableRepository timetableRepository,
     required AttendanceRepository attendanceRepository,
     required NotesRepository notesRepository,
+    DailyFlowRepository? dailyFlowRepository,
     Box? settingsBoxOverride,
   }) : _settingsRepository = settingsRepository,
        _subjectRepository = subjectRepository,
        _timetableRepository = timetableRepository,
        _attendanceRepository = attendanceRepository,
        _notesRepository = notesRepository,
+       _dailyFlowRepository = dailyFlowRepository,
        _settingsBoxOverride = settingsBoxOverride;
 
   Box get _settingsBox {
@@ -73,6 +78,9 @@ class BackupService {
       includeDeleted: true,
     );
     final notes = await _notesRepository.getNotes();
+    final dailyFlowTasks = _dailyFlowRepository != null
+        ? await _dailyFlowRepository.getTasks()
+        : null;
 
     final nowIso = DateTime.now().toUtc().toIso8601String();
 
@@ -94,6 +102,11 @@ class BackupService {
       'classDays': settings.classDays,
       'reminderTime': settings.reminderTime,
       'pushNotificationsEnabled': settings.pushNotificationsEnabled,
+      'dailyFlowMorningTime': settings.dailyFlowMorningTime,
+      'dailyFlowEveningTime': settings.dailyFlowEveningTime,
+      'dailyFlowSmartRemindersEnabled': settings.dailyFlowSmartRemindersEnabled,
+      'dailyFlowFollowUpsEnabled': settings.dailyFlowFollowUpsEnabled,
+      'dailyFlowPlanningHorizonDays': settings.dailyFlowPlanningHorizonDays,
       'timetable': timetableMap,
       'subjects': subjects
           .map((s) => SubjectModel.fromEntity(s).toMap())
@@ -105,6 +118,10 @@ class BackupService {
           .map((l) => LegacyAttendanceModel.fromEntity(l).toMap())
           .toList(),
       'notes': notes.map((n) => NoteModel.fromEntity(n).toMap()).toList(),
+      if (dailyFlowTasks != null)
+        'dailyFlowTasks': dailyFlowTasks
+            .map((t) => DailyTaskModel.fromEntity(t).toMap())
+            .toList(),
       'quarantine': <dynamic>[],
       'updatedAt': nowIso,
       'settingsUpdatedAt': nowIso,
@@ -443,12 +460,30 @@ class BackupService {
   // PRE-RESTORE SAFETY SNAPSHOT
   // ==========================================
 
-  /// Creates a local safety snapshot before executing restore or danger zone operations.
+  /// Creates a local safety snapshot before executing restore or danger zone operations,
+  /// pruning older snapshots beyond the most recent 3 to prevent unbounded Hive box growth.
   Future<bool> savePreRestoreBackup() async {
     try {
       final currentBackup = await createBackup();
       final key = 'pre_restore_${DateTime.now().millisecondsSinceEpoch}';
       await _settingsBox.put(key, currentBackup);
+
+      try {
+        final preRestoreKeys =
+            _settingsBox.keys
+                .whereType<String>()
+                .where((k) => k.startsWith('pre_restore_'))
+                .toList()
+              ..sort();
+        if (preRestoreKeys.length > 3) {
+          final obsolete = preRestoreKeys.sublist(0, preRestoreKeys.length - 3);
+          for (final oldKey in obsolete) {
+            await _settingsBox.delete(oldKey);
+          }
+        }
+      } catch (_) {
+        // Minimal fake boxes in tests may omit `keys`
+      }
       return true;
     } catch (_) {
       return false;
@@ -470,8 +505,9 @@ class BackupService {
 
     try {
       final now = DateTime.now();
+      final existingSettings = await _settingsRepository.getSettings();
 
-      // 1. Restore User Settings
+      // 1. Restore User Settings while preserving DailyFlow prefs if absent in older backups
       final settings = UserSettingsEntity(
         name: backupData['name']?.toString() ?? '',
         programName: backupData['programName']?.toString() ?? '',
@@ -482,12 +518,31 @@ class BackupService {
             : 75.0,
         classDays: backupData['classDays'] is List
             ? (backupData['classDays'] as List)
-                  .map((e) => (e as num).toInt())
+                  .whereType<num>()
+                  .map((e) => e.toInt())
                   .toList()
             : const [1, 2, 3, 4, 5],
         reminderTime: backupData['reminderTime']?.toString() ?? '18:00',
         pushNotificationsEnabled:
             backupData['pushNotificationsEnabled'] == true,
+        dailyFlowMorningTime:
+            backupData['dailyFlowMorningTime']?.toString() ??
+            existingSettings.dailyFlowMorningTime,
+        dailyFlowEveningTime:
+            backupData['dailyFlowEveningTime']?.toString() ??
+            existingSettings.dailyFlowEveningTime,
+        dailyFlowSmartRemindersEnabled:
+            backupData['dailyFlowSmartRemindersEnabled'] is bool
+            ? backupData['dailyFlowSmartRemindersEnabled'] as bool
+            : existingSettings.dailyFlowSmartRemindersEnabled,
+        dailyFlowFollowUpsEnabled:
+            backupData['dailyFlowFollowUpsEnabled'] is bool
+            ? backupData['dailyFlowFollowUpsEnabled'] as bool
+            : existingSettings.dailyFlowFollowUpsEnabled,
+        dailyFlowPlanningHorizonDays:
+            backupData['dailyFlowPlanningHorizonDays'] is num
+            ? (backupData['dailyFlowPlanningHorizonDays'] as num).toInt()
+            : existingSettings.dailyFlowPlanningHorizonDays,
       );
       await _settingsRepository.saveSettings(settings);
 
@@ -625,6 +680,16 @@ class BackupService {
           );
         }).toList();
         await _notesRepository.saveNotes(noteEntities);
+      }
+
+      // 7. Restore DailyFlow Tasks when present
+      if (_dailyFlowRepository != null &&
+          backupData['dailyFlowTasks'] is List) {
+        final tasks = (backupData['dailyFlowTasks'] as List)
+            .whereType<Map>()
+            .map((t) => DailyTaskModel.fromMap(Map<String, dynamic>.from(t)))
+            .toList();
+        await _dailyFlowRepository.saveTasks(tasks);
       }
 
       return BackupRestoreResult.success();

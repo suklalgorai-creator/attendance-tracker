@@ -7,9 +7,7 @@ import 'repository_providers.dart';
 
 /// Provider for [NotificationService] using the real local notifications implementation.
 final notificationServiceProvider = Provider<NotificationService>((ref) {
-  final service = FlutterLocalNotificationServiceImpl();
-  service.initialize();
-  return service;
+  return FlutterLocalNotificationServiceImpl();
 });
 
 /// Auto-sync notifier that schedules reminders when user settings, holidays,
@@ -149,9 +147,7 @@ DateTime? computeTaskFollowUpTime(dynamic task, DateTime now) {
     final m = int.tryParse(parts[1].trim());
     if (h != null && m != null) {
       final start = DateTime(date.year, date.month, date.day, h, m);
-      return start.add(
-        Duration(minutes: (task.estimatedMinutes as int) + 15),
-      );
+      return start.add(Duration(minutes: (task.estimatedMinutes as int) + 15));
     }
   }
   return DateTime(date.year, date.month, date.day, 19, 0);

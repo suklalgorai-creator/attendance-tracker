@@ -28,98 +28,98 @@ class AuthPage extends ConsumerWidget {
           const Positioned.fill(child: MeshBackdrop()),
           SafeArea(
             child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 24.0,
-            ),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: GlassCard(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 22.0,
-                  vertical: 28.0,
+                  horizontal: 16.0,
+                  vertical: 24.0,
                 ),
-                useBlur: true,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Title: Attendance Tracker (Gradient Outfit Typography)
-                    ShaderMask(
-                      shaderCallback: (bounds) => LinearGradient(
-                        colors: isDark
-                            ? [
-                                AppColors.textGradientStartDark,
-                                AppColors.textGradientEndDark,
-                              ]
-                            : [
-                                AppColors.textGradientStartLight,
-                                AppColors.textGradientEndLight,
-                              ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ).createShader(bounds),
-                      child: Text(
-                        'Attendance Tracker',
-                        textAlign: TextAlign.center,
-                        style: AppTypography.courseTitle(Colors.white),
-                      ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: GlassCard(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 22.0,
+                      vertical: 28.0,
                     ),
-                    const SizedBox(height: 8),
+                    useBlur: true,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Title: Attendance Tracker (Gradient Outfit Typography)
+                        ShaderMask(
+                          shaderCallback: (bounds) => LinearGradient(
+                            colors: isDark
+                                ? [
+                                    AppColors.textGradientStartDark,
+                                    AppColors.textGradientEndDark,
+                                  ]
+                                : [
+                                    AppColors.textGradientStartLight,
+                                    AppColors.textGradientEndLight,
+                                  ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ).createShader(bounds),
+                          child: Text(
+                            'Attendance Tracker',
+                            textAlign: TextAlign.center,
+                            style: AppTypography.courseTitle(Colors.white),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
 
-                    // Subtitle: Sign in to track your attendance
-                    Text(
-                      'Sign in to track your attendance',
-                      textAlign: TextAlign.center,
-                      style: AppTypography.inputText(
-                        mutedColor,
-                      ).copyWith(fontSize: 15, fontWeight: FontWeight.w500),
+                        // Subtitle: Sign in to track your attendance
+                        Text(
+                          'Sign in to track your attendance',
+                          textAlign: TextAlign.center,
+                          style: AppTypography.inputText(
+                            mutedColor,
+                          ).copyWith(fontSize: 15, fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Optional Error Banner
+                        if (authState.errorMessage != null &&
+                            authState.errorMessage!.isNotEmpty) ...[
+                          AppBanner.danger(message: authState.errorMessage!),
+                          const SizedBox(height: 24),
+                        ],
+
+                        // Google Sign-In Button (.btn-google)
+                        _GoogleSignInButton(
+                          isLoading: authState.isLoading,
+                          onPressed: authState.isLoading
+                              ? null
+                              : () {
+                                  ref
+                                      .read(authNotifierProvider.notifier)
+                                      .signInWithGoogle();
+                                },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Guest Mode Button (.btn-ghost)
+                        AppButton(
+                          label: 'Skip for now (Use as Guest)',
+                          variant: AppButtonVariant.ghost,
+                          isWide: true,
+                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                          fontSize: 15,
+                          onPressed: authState.isLoading
+                              ? null
+                              : () {
+                                  ref
+                                      .read(authNotifierProvider.notifier)
+                                      .signInAsGuest();
+                                },
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 24),
-
-                    // Optional Error Banner
-                    if (authState.errorMessage != null &&
-                        authState.errorMessage!.isNotEmpty) ...[
-                      AppBanner.danger(message: authState.errorMessage!),
-                      const SizedBox(height: 24),
-                    ],
-
-                    // Google Sign-In Button (.btn-google)
-                    _GoogleSignInButton(
-                      isLoading: authState.isLoading,
-                      onPressed: authState.isLoading
-                          ? null
-                          : () {
-                              ref
-                                  .read(authNotifierProvider.notifier)
-                                  .signInWithGoogle();
-                            },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Guest Mode Button (.btn-ghost)
-                    AppButton(
-                      label: 'Skip for now (Use as Guest)',
-                      variant: AppButtonVariant.ghost,
-                      isWide: true,
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      fontSize: 15,
-                      onPressed: authState.isLoading
-                          ? null
-                          : () {
-                              ref
-                                  .read(authNotifierProvider.notifier)
-                                  .signInAsGuest();
-                            },
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ),
         ],
       ),
     );

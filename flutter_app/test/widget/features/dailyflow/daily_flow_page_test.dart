@@ -104,43 +104,44 @@ void main() {
       expect(find.text('New Task'), findsOneWidget);
     });
 
-    testWidgets('executes Start -> Complete lifecycle and renders cleanly at 320px', (
-      tester,
-    ) async {
-      await tester.binding.setSurfaceSize(const Size(320, 640));
-      addTearDown(() => tester.binding.setSurfaceSize(null));
+    testWidgets(
+      'executes Start -> Complete lifecycle and renders cleanly at 320px',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(320, 640));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
 
-      final now = DateTime.now();
-      final repo = _InMemoryDailyFlowRepository([
-        DailyTaskEntity(
-          id: 'df_test_1',
-          title: 'Revise Compiler Design',
-          priority: DailyTaskPriority.high,
-          scheduledDate: AppDateUtils.todayStr(),
-          estimatedMinutes: 30,
-          createdAt: now,
-          updatedAt: now,
-        ),
-      ]);
+        final now = DateTime.now();
+        final repo = _InMemoryDailyFlowRepository([
+          DailyTaskEntity(
+            id: 'df_test_1',
+            title: 'Revise Compiler Design',
+            priority: DailyTaskPriority.high,
+            scheduledDate: AppDateUtils.todayStr(),
+            estimatedMinutes: 30,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        ]);
 
-      await tester.pumpWidget(buildApp(repo));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(buildApp(repo));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Revise Compiler Design'), findsWidgets);
+        expect(find.text('Revise Compiler Design'), findsWidgets);
 
-      // Start task from Suggested Next Focus or task card
-      await tester.tap(find.text('Start').first);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 50));
+        // Start task from Suggested Next Focus or task card
+        await tester.tap(find.text('Start').first);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
 
-      expect(find.text('ACTIVE FOCUS'), findsOneWidget);
+        expect(find.text('ACTIVE FOCUS'), findsOneWidget);
 
-      // Complete task
-      await tester.tap(find.text('Complete').first);
-      await tester.pumpAndSettle();
+        // Complete task
+        await tester.tap(find.text('Complete').first);
+        await tester.pumpAndSettle();
 
-      expect(find.text('1/1 done'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
+        expect(find.text('1/1 done'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
   });
 }

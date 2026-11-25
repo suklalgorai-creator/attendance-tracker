@@ -55,8 +55,7 @@ class _DayRowState extends State<DayRow> {
     final today = AppDateUtils.todayStr();
     final future = widget.dateStr.compareTo(today) > 0;
     final editable = !future && !widget.isHoliday;
-    final showEditor =
-        editable && (widget.legacyRecord == null || _isEditing);
+    final showEditor = editable && (widget.legacyRecord == null || _isEditing);
 
     final String status;
     final Color statusColor;

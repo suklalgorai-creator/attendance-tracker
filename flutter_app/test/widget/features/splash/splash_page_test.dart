@@ -21,16 +21,13 @@ void main() {
         ),
         GoRoute(
           path: '/',
-          builder: (context, state) => const Scaffold(
-            body: Center(child: Text('Home Target')),
-          ),
+          builder: (context, state) =>
+              const Scaffold(body: Center(child: Text('Home Target'))),
         ),
       ],
     );
 
-    return ProviderScope(
-      child: MaterialApp.router(routerConfig: router),
-    );
+    return ProviderScope(child: MaterialApp.router(routerConfig: router));
   }
 
   group('SplashPage Widget Tests', () {

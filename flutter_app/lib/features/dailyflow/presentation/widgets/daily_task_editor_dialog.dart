@@ -209,7 +209,9 @@ class _DailyTaskEditorDialogState extends State<DailyTaskEditorDialog> {
                 children: [
                   Text(
                     widget.existingTask == null ? 'Plan Task' : 'Edit Task',
-                    style: AppTypography.cardTitle(paper).copyWith(fontSize: 18),
+                    style: AppTypography.cardTitle(
+                      paper,
+                    ).copyWith(fontSize: 18),
                   ),
                   IconButton(
                     icon: Icon(Icons.close_rounded, color: muted),
@@ -273,8 +275,7 @@ class _DailyTaskEditorDialogState extends State<DailyTaskEditorDialog> {
                   return ChoiceChip(
                     label: Text('${mins}m'),
                     selected: selected,
-                    onSelected: (_) =>
-                        setState(() => _estimatedMinutes = mins),
+                    onSelected: (_) => setState(() => _estimatedMinutes = mins),
                   );
                 }).toList(),
               ),
@@ -313,7 +314,10 @@ class _DailyTaskEditorDialogState extends State<DailyTaskEditorDialog> {
 
               if (activeSubjects.isNotEmpty) ...[
                 const SizedBox(height: 14),
-                Text('Link Subject (Optional)', style: AppTypography.inputLabel(muted)),
+                Text(
+                  'Link Subject (Optional)',
+                  style: AppTypography.inputLabel(muted),
+                ),
                 const SizedBox(height: 6),
                 DropdownButtonFormField<String?>(
                   initialValue: _selectedSubjectId,
@@ -339,7 +343,10 @@ class _DailyTaskEditorDialogState extends State<DailyTaskEditorDialog> {
 
               const SizedBox(height: 14),
               // Reminder section
-              Text('Reminder Notification', style: AppTypography.inputLabel(muted)),
+              Text(
+                'Reminder Notification',
+                style: AppTypography.inputLabel(muted),
+              ),
               const SizedBox(height: 6),
               Wrap(
                 spacing: 8,
@@ -412,7 +419,10 @@ class _DailyTaskEditorDialogState extends State<DailyTaskEditorDialog> {
                       size: 18,
                       color: st.isDone ? AppColors.inkGreen : muted,
                     ),
-                    title: Text(st.title, style: AppTypography.bodyMedium(paper)),
+                    title: Text(
+                      st.title,
+                      style: AppTypography.bodyMedium(paper),
+                    ),
                     trailing: IconButton(
                       icon: const Icon(Icons.close_rounded, size: 16),
                       onPressed: () => setState(
@@ -436,7 +446,9 @@ class _DailyTaskEditorDialogState extends State<DailyTaskEditorDialog> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: AppButton(
-                      label: widget.existingTask == null ? 'Create Task' : 'Save',
+                      label: widget.existingTask == null
+                          ? 'Create Task'
+                          : 'Save',
                       variant: AppButtonVariant.present,
                       onPressed: _submit,
                     ),

@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import '../core/services/database_service.dart';
 
 const _firebaseApiKey = String.fromEnvironment('FIREBASE_API_KEY');
@@ -40,7 +41,9 @@ Future<void> bootstrap() async {
       }
     }
   } catch (e) {
-    debugPrint('[BOOTSTRAP] Firebase initialization skipped/failed: $e');
+    if (kDebugMode) {
+      debugPrint('[BOOTSTRAP] Firebase initialization skipped/failed: $e');
+    }
   }
   await DatabaseService.init();
 }

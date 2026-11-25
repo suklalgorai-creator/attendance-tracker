@@ -168,10 +168,7 @@ class _ProfileSectionTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  section.title,
-                  style: AppTypography.cardTitle(titleColor),
-                ),
+                Text(section.title, style: AppTypography.cardTitle(titleColor)),
                 const SizedBox(height: 2),
                 Text(
                   section.subtitle,
@@ -183,11 +180,7 @@ class _ProfileSectionTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
-          Icon(
-            Icons.chevron_right_rounded,
-            size: 20,
-            color: mutedColor,
-          ),
+          Icon(Icons.chevron_right_rounded, size: 20, color: mutedColor),
         ],
       ),
     );
@@ -209,8 +202,12 @@ class _ProfileSectionDetailPage extends ConsumerWidget {
         : (isDark ? AppColors.paperDark : AppColors.paperLight);
 
     final Widget sectionWidget = switch (section) {
-      _ProfileSection.personalization => PersonalizationCard(settings: settings),
-      _ProfileSection.attendanceRules => AttendanceRulesCard(settings: settings),
+      _ProfileSection.personalization => PersonalizationCard(
+        settings: settings,
+      ),
+      _ProfileSection.attendanceRules => AttendanceRulesCard(
+        settings: settings,
+      ),
       _ProfileSection.notifications => NotificationsCard(settings: settings),
       _ProfileSection.backupRestore => const BackupRestoreCard(),
       _ProfileSection.dangerZone => const DangerZoneCard(),

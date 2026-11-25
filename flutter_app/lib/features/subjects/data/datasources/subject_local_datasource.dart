@@ -25,9 +25,9 @@ class SubjectLocalDataSourceImpl implements SubjectLocalDataSource {
       final rawData = _box.get('items', defaultValue: []);
       if (rawData is List) {
         return rawData
+            .whereType<Map>()
             .map(
-              (item) =>
-                  SubjectModel.fromMap(Map<String, dynamic>.from(item as Map)),
+              (item) => SubjectModel.fromMap(Map<String, dynamic>.from(item)),
             )
             .toList();
       }

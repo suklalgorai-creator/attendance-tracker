@@ -268,7 +268,9 @@ class NotificationsCard extends ConsumerWidget {
                     onSelected: (_) {
                       ref
                           .read(settingsControllerProvider.notifier)
-                          .updateDailyFlowPreferences(planningHorizonDays: days);
+                          .updateDailyFlowPreferences(
+                            planningHorizonDays: days,
+                          );
                     },
                   );
                 }).toList(),

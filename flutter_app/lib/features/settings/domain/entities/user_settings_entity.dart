@@ -56,10 +56,8 @@ class UserSettingsEntity {
       reminderTime: reminderTime ?? this.reminderTime,
       pushNotificationsEnabled:
           pushNotificationsEnabled ?? this.pushNotificationsEnabled,
-      dailyFlowMorningTime:
-          dailyFlowMorningTime ?? this.dailyFlowMorningTime,
-      dailyFlowEveningTime:
-          dailyFlowEveningTime ?? this.dailyFlowEveningTime,
+      dailyFlowMorningTime: dailyFlowMorningTime ?? this.dailyFlowMorningTime,
+      dailyFlowEveningTime: dailyFlowEveningTime ?? this.dailyFlowEveningTime,
       dailyFlowSmartRemindersEnabled:
           dailyFlowSmartRemindersEnabled ?? this.dailyFlowSmartRemindersEnabled,
       dailyFlowFollowUpsEnabled:

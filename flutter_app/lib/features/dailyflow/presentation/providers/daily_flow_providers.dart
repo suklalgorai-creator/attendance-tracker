@@ -49,7 +49,8 @@ final dailyFlowTimelineProvider = Provider<List<DailyFlowTimelineItem>>((ref) {
 final dailyFlowDaySummaryProvider = Provider<DailyFlowDaySummary>((ref) {
   final date = ref.watch(dailyFlowSelectedDateProvider);
   final tasks = ref.watch(dailyFlowTasksStreamProvider).valueOrNull ?? const [];
-  final subjectStats = ref.watch(subjectStatsListProvider).valueOrNull ?? const [];
+  final subjectStats =
+      ref.watch(subjectStatsListProvider).valueOrNull ?? const [];
   final planner = ref.watch(dailyFlowPlannerServiceProvider);
 
   return planner.computeDaySummary(
@@ -62,7 +63,8 @@ final dailyFlowDaySummaryProvider = Provider<DailyFlowDaySummary>((ref) {
 /// Today's DailyFlow summary for the Dashboard overview card.
 final todaysDailyFlowSummaryProvider = Provider<DailyFlowDaySummary>((ref) {
   final tasks = ref.watch(dailyFlowTasksStreamProvider).valueOrNull ?? const [];
-  final subjectStats = ref.watch(subjectStatsListProvider).valueOrNull ?? const [];
+  final subjectStats =
+      ref.watch(subjectStatsListProvider).valueOrNull ?? const [];
   final planner = ref.watch(dailyFlowPlannerServiceProvider);
 
   return planner.computeDaySummary(

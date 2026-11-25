@@ -23,8 +23,8 @@ class DailyFlowRepositoryImpl implements DailyFlowRepository {
       localDataSource.saveTask(DailyTaskModel.fromEntity(task));
 
   @override
-  Future<void> saveTasks(List<DailyTaskEntity> tasks) => localDataSource
-      .saveTasks(tasks.map(DailyTaskModel.fromEntity).toList());
+  Future<void> saveTasks(List<DailyTaskEntity> tasks) =>
+      localDataSource.saveTasks(tasks.map(DailyTaskModel.fromEntity).toList());
 
   @override
   Future<void> deleteTask(String id) => localDataSource.deleteTask(id);

@@ -261,7 +261,9 @@ void main() {
         expect(thuReminder.scheduledTime, DateTime(2026, 11, 26, 18, 0));
         expect(
           service.scheduledReminders.any(
-            (r) => r.id == DefaultNotificationService.defaultTaskNotificationId('df_keep'),
+            (r) =>
+                r.id ==
+                DefaultNotificationService.defaultTaskNotificationId('df_keep'),
           ),
           isTrue,
         );
@@ -311,7 +313,9 @@ void main() {
           service.scheduledReminders.any(
             (r) =>
                 r.id ==
-                DefaultNotificationService.defaultFollowUpNotificationId('df_99'),
+                DefaultNotificationService.defaultFollowUpNotificationId(
+                  'df_99',
+                ),
           ),
           isTrue,
         );
@@ -321,16 +325,53 @@ void main() {
           service.scheduledReminders.any(
             (r) =>
                 r.id ==
-                DefaultNotificationService.defaultFollowUpNotificationId('df_99'),
+                DefaultNotificationService.defaultFollowUpNotificationId(
+                  'df_99',
+                ),
           ),
           isFalse,
         );
 
         await service.scheduleDailyFlowRoutineReminders(isEnabled: false);
         expect(
-          service.scheduledReminders.where((r) => r.id >= 40001 && r.id <= 40003),
+          service.scheduledReminders.where(
+            (r) => r.id >= 40001 && r.id <= 40003,
+          ),
           isEmpty,
         );
+      },
+    );
+
+    test(
+      'Notification IDs are deterministic and use non-overlapping category ranges',
+      () {
+        const sameId = 'shared_entity_42';
+        final noteId = FlutterLocalNotificationServiceImpl.noteNotificationId(
+          sameId,
+        );
+        final taskId = FlutterLocalNotificationServiceImpl.taskNotificationId(
+          sameId,
+        );
+        final followUpId =
+            FlutterLocalNotificationServiceImpl.followUpNotificationId(sameId);
+
+        expect(
+          noteId,
+          FlutterLocalNotificationServiceImpl.noteNotificationId(sameId),
+        );
+        expect(
+          taskId,
+          FlutterLocalNotificationServiceImpl.taskNotificationId(sameId),
+        );
+        expect(
+          followUpId,
+          FlutterLocalNotificationServiceImpl.followUpNotificationId(sameId),
+        );
+
+        expect(noteId, inInclusiveRange(100000, 199999));
+        expect(taskId, inInclusiveRange(200000, 299999));
+        expect(followUpId, inInclusiveRange(300000, 399999));
+        expect({noteId, taskId, followUpId}.length, 3);
       },
     );
   });

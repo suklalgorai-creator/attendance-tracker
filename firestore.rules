@@ -38,7 +38,8 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if signedIn() && (request.auth.uid == userId || isAdmin());
       allow create: if signedIn() && request.auth.uid == userId
-        && request.resource.data.keys().hasOnly(userFields());
+        && request.resource.data.keys().hasOnly(userFields())
+        && !request.resource.data.keys().hasAny(['consistencyPoints', 'admin', 'role']);
       allow update: if isAdmin() || (signedIn() && request.auth.uid == userId && safeUserUpdate());
       allow delete: if isAdmin();
     }

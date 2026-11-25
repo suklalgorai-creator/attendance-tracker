@@ -137,32 +137,31 @@ void main() {
   }
 
   group('SettingsPage Widget Tests', () {
-    testWidgets(
-      'Renders ProfileCard and collapsed section tiles by default',
-      (tester) async {
-        tester.view.physicalSize = const Size(400, 1200);
-        tester.view.devicePixelRatio = 1.0;
-        addTearDown(tester.view.resetPhysicalSize);
-        addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets('Renders ProfileCard and collapsed section tiles by default', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(400, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-        await tester.pumpWidget(createWidget());
-        await tester.pumpAndSettle();
+      await tester.pumpWidget(createWidget());
+      await tester.pumpAndSettle();
 
-        expect(find.byType(ProfileCard), findsOneWidget);
-        expect(find.text('Personalization'), findsOneWidget);
-        expect(find.text('Attendance Rules'), findsOneWidget);
-        expect(find.text('Notifications & DailyFlow'), findsOneWidget);
-        expect(find.text('Backup & Restore'), findsOneWidget);
-        expect(find.text('Danger Zone'), findsOneWidget);
+      expect(find.byType(ProfileCard), findsOneWidget);
+      expect(find.text('Personalization'), findsOneWidget);
+      expect(find.text('Attendance Rules'), findsOneWidget);
+      expect(find.text('Notifications & DailyFlow'), findsOneWidget);
+      expect(find.text('Backup & Restore'), findsOneWidget);
+      expect(find.text('Danger Zone'), findsOneWidget);
 
-        // Detail cards are collapsed (not rendered inline) until tapped
-        expect(find.byType(PersonalizationCard), findsNothing);
-        expect(find.byType(AttendanceRulesCard), findsNothing);
-        expect(find.byType(NotificationsCard), findsNothing);
-        expect(find.byType(BackupRestoreCard), findsNothing);
-        expect(find.byType(DangerZoneCard), findsNothing);
-      },
-    );
+      // Detail cards are collapsed (not rendered inline) until tapped
+      expect(find.byType(PersonalizationCard), findsNothing);
+      expect(find.byType(AttendanceRulesCard), findsNothing);
+      expect(find.byType(NotificationsCard), findsNothing);
+      expect(find.byType(BackupRestoreCard), findsNothing);
+      expect(find.byType(DangerZoneCard), findsNothing);
+    });
 
     testWidgets('ProfileCard displays user display name and email', (
       tester,

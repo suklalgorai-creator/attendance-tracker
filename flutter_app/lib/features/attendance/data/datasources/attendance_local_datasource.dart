@@ -40,9 +40,10 @@ class AttendanceLocalDataSourceImpl implements AttendanceLocalDataSource {
       final rawData = _recordsBox.get('items', defaultValue: []);
       if (rawData is List) {
         return rawData
+            .whereType<Map>()
             .map(
               (item) => AttendanceRecordModel.fromMap(
-                Map<String, dynamic>.from(item as Map),
+                Map<String, dynamic>.from(item),
               ),
             )
             .toList();
@@ -117,9 +118,10 @@ class AttendanceLocalDataSourceImpl implements AttendanceLocalDataSource {
       final rawData = _legacyBox.get('items', defaultValue: []);
       if (rawData is List) {
         return rawData
+            .whereType<Map>()
             .map(
               (item) => LegacyAttendanceModel.fromMap(
-                Map<String, dynamic>.from(item as Map),
+                Map<String, dynamic>.from(item),
               ),
             )
             .toList();

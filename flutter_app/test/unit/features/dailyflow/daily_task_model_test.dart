@@ -49,26 +49,29 @@ void main() {
   });
 
   group('DefaultNotificationService DailyFlow Reminders', () {
-    test('schedules and cancels task reminders in dedicated namespace', () async {
-      final service = DefaultNotificationService();
-      await service.initialize();
+    test(
+      'schedules and cancels task reminders in dedicated namespace',
+      () async {
+        final service = DefaultNotificationService();
+        await service.initialize();
 
-      final future = DateTime.now().add(const Duration(hours: 2));
-      await service.scheduleTaskReminder(
-        taskId: 'df_42',
-        title: 'DailyFlow: OS Lab',
-        body: 'Review scheduling algorithms',
-        reminderAt: future,
-      );
+        final future = DateTime.now().add(const Duration(hours: 2));
+        await service.scheduleTaskReminder(
+          taskId: 'df_42',
+          title: 'DailyFlow: OS Lab',
+          body: 'Review scheduling algorithms',
+          reminderAt: future,
+        );
 
-      expect(service.scheduledReminders.length, 1);
-      expect(
-        service.scheduledReminders.first.id,
-        DefaultNotificationService.defaultTaskNotificationId('df_42'),
-      );
+        expect(service.scheduledReminders.length, 1);
+        expect(
+          service.scheduledReminders.first.id,
+          DefaultNotificationService.defaultTaskNotificationId('df_42'),
+        );
 
-      await service.cancelTaskReminder('df_42');
-      expect(service.scheduledReminders, isEmpty);
-    });
+        await service.cancelTaskReminder('df_42');
+        expect(service.scheduledReminders, isEmpty);
+      },
+    );
   });
 }

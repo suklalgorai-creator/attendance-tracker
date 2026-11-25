@@ -50,7 +50,9 @@ final subjectDetailStatsProvider =
       final records = recordsAsync.value ?? [];
       final settings = settingsAsync.value;
       final minPercent = settings?.minPercent ?? 75.0;
-      final rawHolidays = ref.watch(globalSettingsProvider).valueOrNull?['holidays'];
+      final rawHolidays = ref
+          .watch(globalSettingsProvider)
+          .valueOrNull?['holidays'];
       final holidays = rawHolidays is Map
           ? rawHolidays.keys.map((k) => k.toString()).toSet()
           : const <String>{};

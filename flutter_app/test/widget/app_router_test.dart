@@ -98,7 +98,7 @@ void main() {
           ProviderScope(
             overrides: [
               showSplashProvider.overrideWithValue(false),
-            authRepositoryProvider.overrideWithValue(mockRepo),
+              authRepositoryProvider.overrideWithValue(mockRepo),
               authNotifierProvider.overrideWith(
                 (ref) => AuthNotifier(mockRepo),
               ),
@@ -126,7 +126,7 @@ void main() {
           ProviderScope(
             overrides: [
               showSplashProvider.overrideWithValue(false),
-            authRepositoryProvider.overrideWithValue(mockRepo),
+              authRepositoryProvider.overrideWithValue(mockRepo),
               authNotifierProvider.overrideWith(
                 (ref) => AuthNotifier(mockRepo),
               ),
@@ -165,7 +165,7 @@ void main() {
           ProviderScope(
             overrides: [
               showSplashProvider.overrideWithValue(false),
-            authRepositoryProvider.overrideWithValue(mockRepo),
+              authRepositoryProvider.overrideWithValue(mockRepo),
               authNotifierProvider.overrideWith(
                 (ref) => AuthNotifier(mockRepo),
               ),
@@ -196,7 +196,7 @@ void main() {
           ProviderScope(
             overrides: [
               showSplashProvider.overrideWithValue(false),
-            authRepositoryProvider.overrideWithValue(mockRepo),
+              authRepositoryProvider.overrideWithValue(mockRepo),
               authNotifierProvider.overrideWith(
                 (ref) => AuthNotifier(mockRepo),
               ),
@@ -240,7 +240,7 @@ void main() {
           ProviderScope(
             overrides: [
               showSplashProvider.overrideWithValue(false),
-            authRepositoryProvider.overrideWithValue(mockRepo),
+              authRepositoryProvider.overrideWithValue(mockRepo),
               authNotifierProvider.overrideWith(
                 (ref) => AuthNotifier(mockRepo),
               ),
@@ -354,7 +354,7 @@ void main() {
           ProviderScope(
             overrides: [
               showSplashProvider.overrideWithValue(false),
-            authRepositoryProvider.overrideWithValue(mockRepo),
+              authRepositoryProvider.overrideWithValue(mockRepo),
               authNotifierProvider.overrideWith(
                 (ref) => AuthNotifier(mockRepo),
               ),

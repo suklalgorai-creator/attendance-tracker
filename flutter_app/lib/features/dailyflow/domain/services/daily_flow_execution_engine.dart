@@ -115,7 +115,8 @@ class DailyFlowExecutionEngine {
     DateTime? now,
   }) {
     final effectiveNow = now ?? DateTime.now();
-    final base = (task.reminderAt != null && task.reminderAt!.isAfter(effectiveNow))
+    final base =
+        (task.reminderAt != null && task.reminderAt!.isAfter(effectiveNow))
         ? task.reminderAt!
         : effectiveNow;
     return task.copyWith(
@@ -187,9 +188,7 @@ class DailyFlowExecutionEngine {
       reminderAt: nextReminder,
       subjectId: source.subjectId,
       timetableSessionId: source.timetableSessionId,
-      subtasks: source.subtasks
-          .map((s) => s.copyWith(isDone: false))
-          .toList(),
+      subtasks: source.subtasks.map((s) => s.copyWith(isDone: false)).toList(),
       createdAt: now,
       updatedAt: now,
     );

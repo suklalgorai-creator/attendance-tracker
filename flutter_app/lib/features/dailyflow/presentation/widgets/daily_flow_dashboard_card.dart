@@ -43,9 +43,9 @@ class DailyFlowDashboardCard extends ConsumerWidget {
               ),
               Text(
                 '${summary.completedTasks}/${summary.totalTasks} done',
-                style: AppTypography.bodySmall(AppColors.inkGreen).copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+                style: AppTypography.bodySmall(
+                  AppColors.inkGreen,
+                ).copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(width: 4),
               Icon(Icons.chevron_right_rounded, size: 18, color: muted),
@@ -75,7 +75,11 @@ class DailyFlowDashboardCard extends ConsumerWidget {
                   Expanded(
                     child: AppButton(
                       label: 'Complete',
-                      icon: const Icon(Icons.check_rounded, size: 16, color: Colors.white),
+                      icon: const Icon(
+                        Icons.check_rounded,
+                        size: 16,
+                        color: Colors.white,
+                      ),
                       variant: AppButtonVariant.present,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
@@ -91,7 +95,11 @@ class DailyFlowDashboardCard extends ConsumerWidget {
                   Expanded(
                     child: AppButton(
                       label: 'Start Focus',
-                      icon: const Icon(Icons.play_arrow_rounded, size: 16, color: Colors.white),
+                      icon: const Icon(
+                        Icons.play_arrow_rounded,
+                        size: 16,
+                        color: Colors.white,
+                      ),
                       variant: AppButtonVariant.present,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,

@@ -97,9 +97,8 @@ class DailyFlowPage extends ConsumerWidget {
                         lastDate: DateTime(2035),
                       );
                       if (picked != null) {
-                        ref
-                            .read(dailyFlowSelectedDateProvider.notifier)
-                            .state = picked;
+                        ref.read(dailyFlowSelectedDateProvider.notifier).state =
+                            picked;
                       }
                     },
                     child: Column(
@@ -143,7 +142,8 @@ class DailyFlowPage extends ConsumerWidget {
                     .valueOrNull
                     ?.dailyFlowPlanningHorizonDays ??
                 7,
-            tasks: ref.watch(dailyFlowTasksStreamProvider).valueOrNull ?? const [],
+            tasks:
+                ref.watch(dailyFlowTasksStreamProvider).valueOrNull ?? const [],
             onSelectDate: (d) =>
                 ref.read(dailyFlowSelectedDateProvider.notifier).state = d,
           ),
@@ -189,7 +189,11 @@ class DailyFlowPage extends ConsumerWidget {
                   const SizedBox(width: 8),
                   AppButton(
                     label: 'Start',
-                    icon: const Icon(Icons.play_arrow_rounded, size: 16, color: Colors.white),
+                    icon: const Icon(
+                      Icons.play_arrow_rounded,
+                      size: 16,
+                      color: Colors.white,
+                    ),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 8,
@@ -334,10 +338,7 @@ class DailyFlowPage extends ConsumerWidget {
                     subject: subjectById[session.subjectId],
                   ),
                 ),
-                TaskTimelineItem(
-                  :final task,
-                  :final hasTimetableConflict,
-                ) =>
+                TaskTimelineItem(:final task, :final hasTimetableConflict) =>
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),
                     child: _DailyTaskCard(
@@ -443,7 +444,10 @@ class _LiveFocusCardState extends ConsumerState<_LiveFocusCard> {
             children: [
               Flexible(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.inkGreenSoft,
                     borderRadius: BorderRadius.circular(999),
@@ -499,7 +503,11 @@ class _LiveFocusCardState extends ConsumerState<_LiveFocusCard> {
               Expanded(
                 child: AppButton(
                   label: 'Complete',
-                  icon: const Icon(Icons.check_rounded, size: 16, color: Colors.white),
+                  icon: const Icon(
+                    Icons.check_rounded,
+                    size: 16,
+                    color: Colors.white,
+                  ),
                   variant: AppButtonVariant.present,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
@@ -646,7 +654,8 @@ class _DailyTaskCard extends ConsumerWidget {
                         ),
                         if (task.startTime != null)
                           _BadgeChip(
-                            label: '${task.startTime} (${task.estimatedMinutes}m)',
+                            label:
+                                '${task.startTime} (${task.estimatedMinutes}m)',
                             color: muted,
                           )
                         else
@@ -655,7 +664,10 @@ class _DailyTaskCard extends ConsumerWidget {
                             color: muted,
                           ),
                         if (subject != null)
-                          _BadgeChip(label: subject!.name, color: AppColors.inkGreen),
+                          _BadgeChip(
+                            label: subject!.name,
+                            color: AppColors.inkGreen,
+                          ),
                         if (hasConflict)
                           const _BadgeChip(
                             label: 'Overlaps class',
@@ -780,7 +792,11 @@ class _DailyTaskCard extends ConsumerWidget {
                       label: task.status == DailyTaskStatus.paused
                           ? 'Resume'
                           : 'Start',
-                      icon: Icon(Icons.play_arrow_rounded, size: 16, color: paper),
+                      icon: Icon(
+                        Icons.play_arrow_rounded,
+                        size: 16,
+                        color: paper,
+                      ),
                       variant: AppButtonVariant.ghost,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
@@ -794,7 +810,11 @@ class _DailyTaskCard extends ConsumerWidget {
                 Expanded(
                   child: AppButton(
                     label: 'Complete',
-                    icon: const Icon(Icons.check_rounded, size: 16, color: Colors.white),
+                    icon: const Icon(
+                      Icons.check_rounded,
+                      size: 16,
+                      color: Colors.white,
+                    ),
                     variant: AppButtonVariant.present,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -829,10 +849,9 @@ class _BadgeChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: AppTypography.bodySmall(color).copyWith(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-        ),
+        style: AppTypography.bodySmall(
+          color,
+        ).copyWith(fontSize: 11, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -881,9 +900,7 @@ class _HorizonStrip extends StatelessWidget {
               : (index == 1 ? 'Tomorrow' : DateFormat('EEE d').format(day));
 
           return ChoiceChip(
-            label: Text(
-              pendingCount > 0 ? '$label ($pendingCount)' : label,
-            ),
+            label: Text(pendingCount > 0 ? '$label ($pendingCount)' : label),
             selected: isSelected,
             onSelected: (_) => onSelectDate(day),
           );

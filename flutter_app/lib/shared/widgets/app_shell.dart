@@ -51,9 +51,6 @@ class _AppShellState extends ConsumerState<AppShell> {
     final authState = ref.watch(authNotifierProvider);
     final settings = ref.watch(settingsStreamProvider).valueOrNull;
     final streak = ref.watch(streakCountProvider).valueOrNull ?? 0;
-    ref.watch(notificationSchedulerProvider);
-    ref.watch(dailyFlowReminderSchedulerProvider);
-    ref.watch(dailyFlowRoutineSchedulerProvider);
 
     return Scaffold(
       key: _scaffoldKey,
@@ -177,6 +174,7 @@ class _ShellContent extends StatelessWidget {
       child: Stack(
         children: [
           const Positioned.fill(child: MeshBackdrop()),
+          const _NotificationSchedulersBridge(),
           Column(
             children: [
               AppHeader(
@@ -568,5 +566,19 @@ class _NavBarItem extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Isolated leaf widget keeping OS notification schedulers subscribed without
+/// forcing parent [AppShell] rebuilds when schedule dependencies emit.
+class _NotificationSchedulersBridge extends ConsumerWidget {
+  const _NotificationSchedulersBridge();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(notificationSchedulerProvider);
+    ref.watch(dailyFlowReminderSchedulerProvider);
+    ref.watch(dailyFlowRoutineSchedulerProvider);
+    return const SizedBox.shrink();
   }
 }

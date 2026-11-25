@@ -52,7 +52,9 @@ class FirestoreRemoteSyncDataSource implements RemoteSyncDataSource {
       });
       return merged;
     } on FirebaseException catch (e) {
-      throw SyncNetworkException(e.message ?? 'Firestore sync transaction failed.');
+      throw SyncNetworkException(
+        e.message ?? 'Firestore sync transaction failed.',
+      );
     } catch (e) {
       throw SyncNetworkException('Firestore sync transaction failed: $e');
     }
