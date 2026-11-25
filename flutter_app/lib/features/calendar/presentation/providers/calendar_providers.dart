@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../attendance/domain/entities/attendance_record_entity.dart';
 import '../../../attendance/domain/entities/legacy_attendance_entity.dart';
+import '../../../sync/presentation/providers/sync_providers.dart';
 import '../../domain/models/calendar_day_summary.dart';
 import '../../domain/services/calendar_analytics_service.dart';
 
@@ -72,8 +73,17 @@ final calendarDaysInMonthProvider =
           if (!l.isDeleted) l.date: l,
       };
 
-      // Convert settings holidays or custom dates if present
+      // Read declared global holidays from settings/global
+      final globalSettings = ref.watch(globalSettingsProvider).valueOrNull;
       final Map<String, bool> holidays = {};
+      final rawHolidays = globalSettings?['holidays'];
+      if (rawHolidays is Map) {
+        for (final entry in rawHolidays.entries) {
+          if (entry.value != false) {
+            holidays[entry.key.toString()] = true;
+          }
+        }
+      }
 
       try {
         final summaries = service.computeDaysInMonth(

@@ -51,11 +51,12 @@ class CalendarAnalyticsService {
     final totalHeld = heldRecords.length + (legacy?.held ?? 0);
     final totalAttended = attendedCount + (legacy?.attended ?? 0);
 
-    // 5. Cancelled classes with no held sessions count as holiday
+    // 5. Cancelled classes or "Holiday / No class" legacy mark (held == 0) count as holiday
     final hasCancelled = dateRecords.any(
       (record) => record.status == AttendanceStatus.cancelled,
     );
-    if (hasCancelled && totalHeld == 0) {
+    final isMarkedNoClass = legacy != null && legacy.held == 0;
+    if ((hasCancelled || isMarkedNoClass) && totalHeld == 0) {
       return CalendarDaySummary(
         date: date,
         type: CalendarDayType.holiday,

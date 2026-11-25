@@ -188,7 +188,7 @@ class CalendarViewWidget extends ConsumerWidget {
               child: _buildStatColumn(
                 'Present',
                 monthSummary.attended,
-                paperColor,
+                AppColors.amber,
                 mutedColor,
               ),
             ),
@@ -196,7 +196,7 @@ class CalendarViewWidget extends ConsumerWidget {
               child: _buildStatColumn(
                 'Holidays',
                 monthSummary.holidays,
-                paperColor,
+                const Color(0xFF3B82F6),
                 mutedColor,
               ),
             ),
