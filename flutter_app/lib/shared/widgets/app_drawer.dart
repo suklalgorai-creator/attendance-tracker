@@ -60,14 +60,6 @@ class AppDrawer extends ConsumerWidget {
                     color: mutedColor,
                   ),
                   _DrawerItem(
-                    emoji: '⚡',
-                    label: 'DailyFlow',
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      context.push('/dailyflow');
-                    },
-                  ),
-                  _DrawerItem(
                     emoji: '📅',
                     label: 'Timetable',
                     onTap: () {

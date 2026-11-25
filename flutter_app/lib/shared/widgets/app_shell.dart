@@ -119,18 +119,26 @@ class _AppShellState extends ConsumerState<AppShell> {
                   ),
                   Expanded(
                     child: _NavBarItem(
-                      label: 'Leaderboard',
-                      icon: Icons.emoji_events_rounded,
+                      label: 'DailyFlow',
+                      icon: Icons.bolt_rounded,
                       isActive: widget.navigationShell.currentIndex == 2,
                       onTap: () => _onTabSelected(2),
                     ),
                   ),
                   Expanded(
                     child: _NavBarItem(
-                      label: 'Settings',
-                      icon: Icons.settings_rounded,
+                      label: 'Leaderboard',
+                      icon: Icons.emoji_events_rounded,
                       isActive: widget.navigationShell.currentIndex == 3,
                       onTap: () => _onTabSelected(3),
+                    ),
+                  ),
+                  Expanded(
+                    child: _NavBarItem(
+                      label: 'Profile',
+                      icon: Icons.person_rounded,
+                      isActive: widget.navigationShell.currentIndex == 4,
+                      onTap: () => _onTabSelected(4),
                     ),
                   ),
                 ],
@@ -293,30 +301,31 @@ class _DesktopSidebar extends ConsumerWidget {
             onTap: () => onTabSelected(1),
           ),
           _SidebarItem(
-            label: 'Leaderboard',
-            icon: Icons.emoji_events_outlined,
+            label: 'DailyFlow',
+            icon: Icons.bolt_rounded,
             active: currentIndex == 2,
             collapsed: collapsed,
             onTap: () => onTabSelected(2),
           ),
           _SidebarItem(
-            label: 'Settings',
-            icon: Icons.settings_outlined,
+            label: 'Leaderboard',
+            icon: Icons.emoji_events_outlined,
             active: currentIndex == 3,
             collapsed: collapsed,
             onTap: () => onTabSelected(3),
           ),
+          _SidebarItem(
+            label: 'Profile',
+            icon: Icons.person_outline_rounded,
+            active: currentIndex == 4,
+            collapsed: collapsed,
+            onTap: () => onTabSelected(4),
+          ),
+          const SizedBox(height: 16),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  _SidebarItem(
-                    label: 'DailyFlow',
-                    icon: Icons.bolt_rounded,
-                    active: false,
-                    collapsed: collapsed,
-                    onTap: () => context.push('/dailyflow'),
-                  ),
                   _SidebarItem(
                     label: 'Timetable',
                     icon: Icons.calendar_view_week_rounded,

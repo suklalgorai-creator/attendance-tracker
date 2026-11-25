@@ -25,7 +25,7 @@ class DailyFlowDashboardCard extends ConsumerWidget {
 
     return GlassCard(
       padding: const EdgeInsets.all(14),
-      onTap: () => context.push('/dailyflow'),
+      onTap: () => context.go('/dailyflow'),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -113,7 +113,7 @@ class DailyFlowDashboardCard extends ConsumerWidget {
                       vertical: 8,
                     ),
                     fontSize: 12.5,
-                    onPressed: () => context.push('/dailyflow'),
+                    onPressed: () => context.go('/dailyflow'),
                   ),
                 ),
               ],
@@ -138,7 +138,7 @@ class DailyFlowDashboardCard extends ConsumerWidget {
                     vertical: 8,
                   ),
                   fontSize: 12.5,
-                  onPressed: () => context.push('/dailyflow'),
+                  onPressed: () => context.go('/dailyflow'),
                 ),
               ],
             ),

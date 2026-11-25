@@ -20,7 +20,9 @@ import '../widgets/daily_task_editor_dialog.dart';
 
 /// Production DailyFlow Planning, Reminder & Execution screen.
 class DailyFlowPage extends ConsumerWidget {
-  const DailyFlowPage({super.key});
+  final bool showBackButton;
+
+  const DailyFlowPage({super.key, this.showBackButton = true});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -36,29 +38,32 @@ class DailyFlowPage extends ConsumerWidget {
     final muted = isDark ? AppColors.mutedDark : AppColors.mutedLight;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('DailyFlow'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go('/');
-            }
-          },
-        ),
-        actions: [
-          IconButton(
-            tooltip: 'Jump to Today',
-            icon: const Icon(Icons.today_rounded),
-            onPressed: () {
-              ref.read(dailyFlowSelectedDateProvider.notifier).state =
-                  DateTime.now();
-            },
-          ),
-        ],
-      ),
+      backgroundColor: showBackButton ? null : Colors.transparent,
+      appBar: showBackButton
+          ? AppBar(
+              title: const Text('DailyFlow'),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_rounded),
+                onPressed: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go('/');
+                  }
+                },
+              ),
+              actions: [
+                IconButton(
+                  tooltip: 'Jump to Today',
+                  icon: const Icon(Icons.today_rounded),
+                  onPressed: () {
+                    ref.read(dailyFlowSelectedDateProvider.notifier).state =
+                        DateTime.now();
+                  },
+                ),
+              ],
+            )
+          : null,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openEditor(context, ref, selectedDate, subjects),
         backgroundColor: AppColors.inkGreen,

@@ -20,6 +20,9 @@ final homeNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'homeBranch');
 final registerNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'registerBranch',
 );
+final dailyFlowNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'dailyFlowBranch',
+);
 final leaderboardNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'leaderboardBranch',
 );
@@ -129,7 +132,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          // Branch 2: Leaderboard
+          // Branch 2: DailyFlow
+          StatefulShellBranch(
+            navigatorKey: dailyFlowNavigatorKey,
+            routes: [
+              GoRoute(
+                path: '/dailyflow',
+                name: 'dailyflow',
+                builder: (context, state) =>
+                    const DailyFlowPage(showBackButton: false),
+              ),
+            ],
+          ),
+          // Branch 3: Leaderboard
           StatefulShellBranch(
             navigatorKey: leaderboardNavigatorKey,
             routes: [
@@ -140,7 +155,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          // Branch 3: Settings
+          // Branch 4: Profile & Settings
           StatefulShellBranch(
             navigatorKey: settingsNavigatorKey,
             routes: [
@@ -160,14 +175,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'notes',
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const NotesPage(),
-      ),
-
-      // Standalone top-level route (DailyFlow Planner & Execution pushed over shell)
-      GoRoute(
-        path: '/dailyflow',
-        name: 'dailyflow',
-        parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const DailyFlowPage(),
       ),
 
       // Standalone top-level route (Timetable pushed over shell)

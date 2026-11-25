@@ -137,8 +137,9 @@ void main() {
         expect(find.text('Dashboard'), findsOneWidget);
         expect(find.text('Home'), findsOneWidget);
         expect(find.text('Register'), findsOneWidget);
+        expect(find.text('DailyFlow'), findsWidgets);
         expect(find.text('Leaderboard'), findsOneWidget);
-        expect(find.text('Settings'), findsOneWidget);
+        expect(find.text('Profile'), findsOneWidget);
         // No guest warning banner for authenticated Google user
         expect(find.textContaining('Data not backed up!'), findsNothing);
       },
@@ -173,8 +174,9 @@ void main() {
         expect(tester.takeException(), isNull);
         expect(find.text('Home'), findsOneWidget);
         expect(find.text('Register'), findsOneWidget);
+        expect(find.text('DailyFlow'), findsWidgets);
         expect(find.text('Leaderboard'), findsOneWidget);
-        expect(find.text('Settings'), findsOneWidget);
+        expect(find.text('Profile'), findsOneWidget);
       },
     );
 
@@ -247,15 +249,20 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('Session Register'), findsOneWidget);
 
+        // Tap DailyFlow Tab
+        await tester.tap(find.text('DailyFlow'));
+        await tester.pumpAndSettle();
+        expect(find.text('Execution Progress'), findsOneWidget);
+
         // Tap Leaderboard Tab
         await tester.tap(find.byIcon(Icons.emoji_events_rounded));
         await tester.pumpAndSettle();
         expect(find.text('Attendance Leaderboard'), findsOneWidget);
 
-        // Tap Settings Tab
-        await tester.tap(find.text('Settings'));
+        // Tap Profile Tab
+        await tester.tap(find.text('Profile'));
         await tester.pumpAndSettle();
-        expect(find.text('Profile'), findsOneWidget);
+        expect(find.text('ACCOUNT & PROFILE'), findsOneWidget);
 
         // Return to Home Tab
         await tester.tap(find.text('Home'));
