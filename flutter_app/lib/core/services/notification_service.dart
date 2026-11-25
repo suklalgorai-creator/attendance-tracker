@@ -66,6 +66,23 @@ Future<void> notificationTapBackground(NotificationResponse response) async {
   }
 }
 
+String _buildMorningBriefingBody({
+  required int todayTaskCount,
+  required int pendingCarryoverCount,
+}) {
+  if (todayTaskCount > 0) {
+    final noun = todayTaskCount == 1 ? 'task' : 'tasks';
+    final carryover = pendingCarryoverCount > 0
+        ? ' ($pendingCarryoverCount pending from earlier)'
+        : '';
+    return 'Good morning! Your DailyFlow plan is ready. You have $todayTaskCount $noun planned today$carryover.';
+  }
+  if (pendingCarryoverCount > 0) {
+    return 'Good morning! Your DailyFlow plan is ready. You have $pendingCarryoverCount pending task(s) from earlier.';
+  }
+  return 'Good morning! Your DailyFlow plan is ready. Tap to plan your day.';
+}
+
 /// Contract for system notifications and scheduled reminders.
 abstract class NotificationService {
   Future<void> initialize();
@@ -98,9 +115,11 @@ abstract class NotificationService {
   Future<void> cancelPendingTaskFollowUp(String taskId);
   Future<void> scheduleDailyFlowRoutineReminders({
     required bool isEnabled,
-    String morningTime = '08:00',
-    String eveningTime = '20:30',
+    String morningTime = '07:00',
+    String eveningTime = '22:00',
     String nextDayPlanTime = '21:15',
+    int todayTaskCount = 0,
+    int pendingCarryoverCount = 0,
   });
   Future<void> cancelDailyFlowRoutineReminders();
   Future<String?> requestFCMToken();
@@ -257,26 +276,32 @@ class DefaultNotificationService implements NotificationService {
   @override
   Future<void> scheduleDailyFlowRoutineReminders({
     required bool isEnabled,
-    String morningTime = '08:00',
-    String eveningTime = '20:30',
+    String morningTime = '07:00',
+    String eveningTime = '22:00',
     String nextDayPlanTime = '21:15',
+    int todayTaskCount = 0,
+    int pendingCarryoverCount = 0,
   }) async {
     await cancelDailyFlowRoutineReminders();
     if (!isEnabled) return;
 
     final now = DateTime.now();
+    final morningBody = _buildMorningBriefingBody(
+      todayTaskCount: todayTaskCount,
+      pendingCarryoverCount: pendingCarryoverCount,
+    );
     final items = <(int, String, String, String)>[
       (
         40001,
         morningTime,
-        'Morning DailyFlow Briefing ☀️',
-        'Review your classes and plan today\'s focus blocks.',
+        'Good Morning — DailyFlow ☀️',
+        morningBody,
       ),
       (
         40002,
         eveningTime,
         'Evening DailyFlow Review 🌙',
-        'Check off completed tasks and wrap up pending items.',
+        'Your day is almost over. Take a moment to review your tasks and prepare tomorrow.',
       ),
       (
         40003,
@@ -414,6 +439,7 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
 
     try {
       tz.initializeTimeZones();
+      _configureLocalTimeZone();
     } catch (_) {}
 
     const androidSettings = AndroidInitializationSettings(
@@ -638,27 +664,33 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
   @override
   Future<void> scheduleDailyFlowRoutineReminders({
     required bool isEnabled,
-    String morningTime = '08:00',
-    String eveningTime = '20:30',
+    String morningTime = '07:00',
+    String eveningTime = '22:00',
     String nextDayPlanTime = '21:15',
+    int todayTaskCount = 0,
+    int pendingCarryoverCount = 0,
   }) async {
     await cancelDailyFlowRoutineReminders();
     if (!isEnabled) return;
 
     final now = DateTime.now();
+    final morningBody = _buildMorningBriefingBody(
+      todayTaskCount: todayTaskCount,
+      pendingCarryoverCount: pendingCarryoverCount,
+    );
     final routines = <(int, String, String, String, String)>[
       (
         40001,
         morningTime,
-        'Morning DailyFlow Briefing ☀️',
-        'Review your classes and plan today\'s focus blocks.',
+        'Good Morning — DailyFlow ☀️',
+        morningBody,
         'dailyflow:morning',
       ),
       (
         40002,
         eveningTime,
         'Evening DailyFlow Review 🌙',
-        'Check off completed tasks and wrap up pending items.',
+        'Your day is almost over. Take a moment to review your tasks and prepare tomorrow.',
         'dailyflow:evening',
       ),
       (
@@ -701,6 +733,17 @@ class FlutterLocalNotificationServiceImpl implements NotificationService {
           matchDateTimeComponents: DateTimeComponents.time,
         );
       } catch (_) {}
+    }
+  }
+
+  void _configureLocalTimeZone() {
+    final localOffset = DateTime.now().timeZoneOffset;
+    if (tz.local.currentTimeZone.offset == localOffset) return;
+    for (final loc in tz.timeZoneDatabase.locations.values) {
+      if (loc.currentTimeZone.offset == localOffset) {
+        tz.setLocalLocation(loc);
+        return;
+      }
     }
   }
 

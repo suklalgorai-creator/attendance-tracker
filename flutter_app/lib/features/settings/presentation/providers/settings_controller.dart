@@ -90,6 +90,24 @@ class SettingsController extends StateNotifier<SettingsState> {
     await settingsRepo.saveSettings(updated);
   }
 
+  Future<void> updateDailyFlowPreferences({
+    String? morningTime,
+    String? eveningTime,
+    bool? smartRemindersEnabled,
+    bool? followUpsEnabled,
+    int? planningHorizonDays,
+  }) async {
+    await updateSettings(
+      (current) => current.copyWith(
+        dailyFlowMorningTime: morningTime,
+        dailyFlowEveningTime: eveningTime,
+        dailyFlowSmartRemindersEnabled: smartRemindersEnabled,
+        dailyFlowFollowUpsEnabled: followUpsEnabled,
+        dailyFlowPlanningHorizonDays: planningHorizonDays,
+      ),
+    );
+  }
+
   Future<void> updateName(String name) async {
     await updateSettings((c) => c.copyWith(name: name.trim()));
   }

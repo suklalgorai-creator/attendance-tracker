@@ -9,6 +9,11 @@ class UserSettingsEntity {
   final List<int> classDays; // 0 = Sun, 1 = Mon ... 6 = Sat
   final String reminderTime; // HH:mm
   final bool pushNotificationsEnabled;
+  final String dailyFlowMorningTime; // HH:mm (default 07:00)
+  final String dailyFlowEveningTime; // HH:mm (default 22:00)
+  final bool dailyFlowSmartRemindersEnabled;
+  final bool dailyFlowFollowUpsEnabled;
+  final int dailyFlowPlanningHorizonDays;
 
   const UserSettingsEntity({
     this.name = '',
@@ -19,6 +24,11 @@ class UserSettingsEntity {
     this.classDays = const [1, 2, 3, 4, 5],
     this.reminderTime = '18:00',
     this.pushNotificationsEnabled = false,
+    this.dailyFlowMorningTime = '07:00',
+    this.dailyFlowEveningTime = '22:00',
+    this.dailyFlowSmartRemindersEnabled = true,
+    this.dailyFlowFollowUpsEnabled = true,
+    this.dailyFlowPlanningHorizonDays = 7,
   });
 
   UserSettingsEntity copyWith({
@@ -30,6 +40,11 @@ class UserSettingsEntity {
     List<int>? classDays,
     String? reminderTime,
     bool? pushNotificationsEnabled,
+    String? dailyFlowMorningTime,
+    String? dailyFlowEveningTime,
+    bool? dailyFlowSmartRemindersEnabled,
+    bool? dailyFlowFollowUpsEnabled,
+    int? dailyFlowPlanningHorizonDays,
   }) {
     return UserSettingsEntity(
       name: name ?? this.name,
@@ -41,6 +56,16 @@ class UserSettingsEntity {
       reminderTime: reminderTime ?? this.reminderTime,
       pushNotificationsEnabled:
           pushNotificationsEnabled ?? this.pushNotificationsEnabled,
+      dailyFlowMorningTime:
+          dailyFlowMorningTime ?? this.dailyFlowMorningTime,
+      dailyFlowEveningTime:
+          dailyFlowEveningTime ?? this.dailyFlowEveningTime,
+      dailyFlowSmartRemindersEnabled:
+          dailyFlowSmartRemindersEnabled ?? this.dailyFlowSmartRemindersEnabled,
+      dailyFlowFollowUpsEnabled:
+          dailyFlowFollowUpsEnabled ?? this.dailyFlowFollowUpsEnabled,
+      dailyFlowPlanningHorizonDays:
+          dailyFlowPlanningHorizonDays ?? this.dailyFlowPlanningHorizonDays,
     );
   }
 
@@ -55,18 +80,30 @@ class UserSettingsEntity {
           minPercent == other.minPercent &&
           _listEquals(classDays, other.classDays) &&
           reminderTime == other.reminderTime &&
-          pushNotificationsEnabled == other.pushNotificationsEnabled;
+          pushNotificationsEnabled == other.pushNotificationsEnabled &&
+          dailyFlowMorningTime == other.dailyFlowMorningTime &&
+          dailyFlowEveningTime == other.dailyFlowEveningTime &&
+          dailyFlowSmartRemindersEnabled ==
+              other.dailyFlowSmartRemindersEnabled &&
+          dailyFlowFollowUpsEnabled == other.dailyFlowFollowUpsEnabled &&
+          dailyFlowPlanningHorizonDays == other.dailyFlowPlanningHorizonDays;
 
   @override
-  int get hashCode =>
-      name.hashCode ^
-      programName.hashCode ^
-      courseName.hashCode ^
-      startDate.hashCode ^
-      minPercent.hashCode ^
-      Object.hashAll(classDays) ^
-      reminderTime.hashCode ^
-      pushNotificationsEnabled.hashCode;
+  int get hashCode => Object.hash(
+    name,
+    programName,
+    courseName,
+    startDate,
+    minPercent,
+    Object.hashAll(classDays),
+    reminderTime,
+    pushNotificationsEnabled,
+    dailyFlowMorningTime,
+    dailyFlowEveningTime,
+    dailyFlowSmartRemindersEnabled,
+    dailyFlowFollowUpsEnabled,
+    dailyFlowPlanningHorizonDays,
+  );
 
   static bool _listEquals<T>(List<T>? a, List<T>? b) {
     if (identical(a, b)) return true;

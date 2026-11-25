@@ -271,10 +271,34 @@ void main() {
     test(
       'schedules and cancels DailyFlow routine and pending follow-up notifications',
       () async {
-        await service.scheduleDailyFlowRoutineReminders(isEnabled: true);
+        await service.scheduleDailyFlowRoutineReminders(
+          isEnabled: true,
+          todayTaskCount: 5,
+          pendingCarryoverCount: 0,
+        );
         expect(
           service.scheduledReminders.map((r) => r.id),
           containsAll([40001, 40002, 40003]),
+        );
+
+        final morning = service.scheduledReminders.firstWhere(
+          (r) => r.id == 40001,
+        );
+        expect(morning.scheduledTime.hour, 7);
+        expect(morning.scheduledTime.minute, 0);
+        expect(
+          morning.body,
+          'Good morning! Your DailyFlow plan is ready. You have 5 tasks planned today.',
+        );
+
+        final evening = service.scheduledReminders.firstWhere(
+          (r) => r.id == 40002,
+        );
+        expect(evening.scheduledTime.hour, 22);
+        expect(evening.scheduledTime.minute, 0);
+        expect(
+          evening.body,
+          'Your day is almost over. Take a moment to review your tasks and prepare tomorrow.',
         );
 
         final followUpAt = DateTime.now().add(const Duration(hours: 2));

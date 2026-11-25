@@ -137,27 +137,37 @@ void main() {
   }
 
   group('SettingsPage Widget Tests', () {
-    testWidgets('Renders all 6 core settings cards', (tester) async {
-      tester.view.physicalSize = const Size(400, 2400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets(
+      'Renders ProfileCard and collapsed section tiles by default',
+      (tester) async {
+        tester.view.physicalSize = const Size(400, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(createWidget());
+        await tester.pumpAndSettle();
 
-      expect(find.byType(ProfileCard), findsOneWidget);
-      expect(find.byType(PersonalizationCard), findsOneWidget);
-      expect(find.byType(AttendanceRulesCard), findsOneWidget);
-      expect(find.byType(NotificationsCard), findsOneWidget);
-      expect(find.byType(BackupRestoreCard), findsOneWidget);
-      expect(find.byType(DangerZoneCard), findsOneWidget);
-    });
+        expect(find.byType(ProfileCard), findsOneWidget);
+        expect(find.text('Personalization'), findsOneWidget);
+        expect(find.text('Attendance Rules'), findsOneWidget);
+        expect(find.text('Notifications & DailyFlow'), findsOneWidget);
+        expect(find.text('Backup & Restore'), findsOneWidget);
+        expect(find.text('Danger Zone'), findsOneWidget);
+
+        // Detail cards are collapsed (not rendered inline) until tapped
+        expect(find.byType(PersonalizationCard), findsNothing);
+        expect(find.byType(AttendanceRulesCard), findsNothing);
+        expect(find.byType(NotificationsCard), findsNothing);
+        expect(find.byType(BackupRestoreCard), findsNothing);
+        expect(find.byType(DangerZoneCard), findsNothing);
+      },
+    );
 
     testWidgets('ProfileCard displays user display name and email', (
       tester,
     ) async {
-      tester.view.physicalSize = const Size(400, 2400);
+      tester.view.physicalSize = const Size(400, 1200);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
@@ -173,7 +183,7 @@ void main() {
     testWidgets('ProfileCard displays guest info when user is not logged in', (
       tester,
     ) async {
-      tester.view.physicalSize = const Size(400, 2400);
+      tester.view.physicalSize = const Size(400, 1200);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
@@ -190,27 +200,10 @@ void main() {
       );
     });
 
-    testWidgets('PersonalizationCard displays form labels and initial values', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(400, 2400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
-
-      expect(find.text('Personalization'), findsOneWidget);
-      expect(find.text('Your Name'), findsOneWidget);
-      expect(find.text('Degree / Program name'), findsOneWidget);
-      expect(find.text('Semester name'), findsOneWidget);
-    });
-
     testWidgets(
-      'AttendanceRulesCard displays minimum criteria and class days',
+      'Tapping Personalization opens detail page with only PersonalizationCard',
       (tester) async {
-        tester.view.physicalSize = const Size(400, 2400);
+        tester.view.physicalSize = const Size(400, 1200);
         tester.view.devicePixelRatio = 1.0;
         addTearDown(tester.view.resetPhysicalSize);
         addTearDown(tester.view.resetDevicePixelRatio);
@@ -218,32 +211,43 @@ void main() {
         await tester.pumpWidget(createWidget());
         await tester.pumpAndSettle();
 
-        expect(find.text('Attendance Rules'), findsOneWidget);
+        await tester.tap(find.text('Personalization'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(PersonalizationCard), findsOneWidget);
+        expect(find.byType(AttendanceRulesCard), findsNothing);
+        expect(find.byType(NotificationsCard), findsNothing);
+        expect(find.text('Your Name'), findsOneWidget);
+        expect(find.text('Degree / Program name'), findsOneWidget);
+        expect(find.text('Semester name'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'Tapping Attendance Rules opens detail page with only AttendanceRulesCard',
+      (tester) async {
+        tester.view.physicalSize = const Size(400, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        await tester.pumpWidget(createWidget());
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text('Attendance Rules'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(AttendanceRulesCard), findsOneWidget);
+        expect(find.byType(PersonalizationCard), findsNothing);
         expect(find.text('MINIMUM ATTENDANCE REQUIRED'), findsOneWidget);
         expect(find.text('WHICH DAYS DO YOU HAVE CLASS?'), findsOneWidget);
       },
     );
 
-    testWidgets('BackupRestoreCard renders Export and Choose Backup buttons', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(400, 2400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
-
-      expect(find.text('Backup & Restore'), findsOneWidget);
-      expect(find.text('Export full backup'), findsOneWidget);
-      expect(find.text('Choose backup to restore'), findsOneWidget);
-    });
-
     testWidgets(
-      'DangerZoneCard renders Clear attendance history and triggers confirm dialog',
+      'Tapping Notifications & DailyFlow opens detail page with only NotificationsCard',
       (tester) async {
-        tester.view.physicalSize = const Size(400, 2400);
+        tester.view.physicalSize = const Size(400, 1200);
         tester.view.devicePixelRatio = 1.0;
         addTearDown(tester.view.resetPhysicalSize);
         addTearDown(tester.view.resetDevicePixelRatio);
@@ -251,19 +255,64 @@ void main() {
         await tester.pumpWidget(createWidget());
         await tester.pumpAndSettle();
 
-        expect(find.text('Danger Zone'), findsOneWidget);
+        await tester.tap(find.text('Notifications & DailyFlow'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(NotificationsCard), findsOneWidget);
+        expect(find.byType(AttendanceRulesCard), findsNothing);
+        expect(find.text('DAILYFLOW SMART REMINDERS'), findsOneWidget);
+        expect(find.text('Morning 07:00'), findsOneWidget);
+        expect(find.text('Evening 22:00'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'Tapping Backup & Restore opens detail page with only BackupRestoreCard',
+      (tester) async {
+        tester.view.physicalSize = const Size(400, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        await tester.pumpWidget(createWidget());
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text('Backup & Restore'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(BackupRestoreCard), findsOneWidget);
+        expect(find.byType(DangerZoneCard), findsNothing);
+        expect(find.text('Export full backup'), findsOneWidget);
+        expect(find.text('Choose backup to restore'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'Tapping Danger Zone opens detail page and triggers confirm dialog',
+      (tester) async {
+        tester.view.physicalSize = const Size(400, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        await tester.pumpWidget(createWidget());
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text('Danger Zone'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(DangerZoneCard), findsOneWidget);
+        expect(find.byType(BackupRestoreCard), findsNothing);
         final clearBtn = find.text('Clear attendance history');
         expect(clearBtn, findsOneWidget);
 
         await tester.tap(clearBtn);
         await tester.pumpAndSettle();
 
-        // Verify confirmation dialog opened
         expect(find.text('Clear Attendance History?'), findsOneWidget);
         expect(find.text('Cancel'), findsOneWidget);
         expect(find.text('Clear History'), findsOneWidget);
 
-        // Dismiss dialog
         await tester.tap(find.text('Cancel'));
         await tester.pumpAndSettle();
 
@@ -285,15 +334,16 @@ void main() {
         expect(tester.takeException(), isNull);
         expect(find.text('Profile'), findsOneWidget);
 
-        // Scroll through the entire page
-        await tester.drag(find.byType(ListView), const Offset(0, -1200));
-        await tester.pumpAndSettle();
-        await tester.drag(find.byType(ListView), const Offset(0, -1200));
-        await tester.pumpAndSettle();
-        await tester.drag(find.byType(ListView), const Offset(0, -1200));
+        await tester.drag(find.byType(ListView), const Offset(0, -400));
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
         expect(find.text('Danger Zone'), findsOneWidget);
+
+        // Open Notifications & DailyFlow detail page on 320x568
+        await tester.tap(find.text('Notifications & DailyFlow'));
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        expect(find.byType(NotificationsCard), findsOneWidget);
       },
     );
   });

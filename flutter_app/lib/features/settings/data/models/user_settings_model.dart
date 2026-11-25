@@ -11,6 +11,11 @@ class UserSettingsModel extends UserSettingsEntity {
     super.classDays,
     super.reminderTime,
     super.pushNotificationsEnabled,
+    super.dailyFlowMorningTime,
+    super.dailyFlowEveningTime,
+    super.dailyFlowSmartRemindersEnabled,
+    super.dailyFlowFollowUpsEnabled,
+    super.dailyFlowPlanningHorizonDays,
   });
 
   factory UserSettingsModel.fromEntity(UserSettingsEntity entity) {
@@ -23,6 +28,11 @@ class UserSettingsModel extends UserSettingsEntity {
       classDays: entity.classDays,
       reminderTime: entity.reminderTime,
       pushNotificationsEnabled: entity.pushNotificationsEnabled,
+      dailyFlowMorningTime: entity.dailyFlowMorningTime,
+      dailyFlowEveningTime: entity.dailyFlowEveningTime,
+      dailyFlowSmartRemindersEnabled: entity.dailyFlowSmartRemindersEnabled,
+      dailyFlowFollowUpsEnabled: entity.dailyFlowFollowUpsEnabled,
+      dailyFlowPlanningHorizonDays: entity.dailyFlowPlanningHorizonDays,
     );
   }
 
@@ -39,6 +49,16 @@ class UserSettingsModel extends UserSettingsEntity {
       reminderTime: (map['reminderTime'] as String?)?.trim() ?? '18:00',
       pushNotificationsEnabled:
           map['pushNotificationsEnabled'] as bool? ?? false,
+      dailyFlowMorningTime:
+          (map['dailyFlowMorningTime'] as String?)?.trim() ?? '07:00',
+      dailyFlowEveningTime:
+          (map['dailyFlowEveningTime'] as String?)?.trim() ?? '22:00',
+      dailyFlowSmartRemindersEnabled:
+          map['dailyFlowSmartRemindersEnabled'] as bool? ?? true,
+      dailyFlowFollowUpsEnabled:
+          map['dailyFlowFollowUpsEnabled'] as bool? ?? true,
+      dailyFlowPlanningHorizonDays:
+          (map['dailyFlowPlanningHorizonDays'] as num?)?.toInt() ?? 7,
     );
   }
 
@@ -52,6 +72,11 @@ class UserSettingsModel extends UserSettingsEntity {
       'classDays': classDays,
       'reminderTime': reminderTime,
       'pushNotificationsEnabled': pushNotificationsEnabled,
+      'dailyFlowMorningTime': dailyFlowMorningTime,
+      'dailyFlowEveningTime': dailyFlowEveningTime,
+      'dailyFlowSmartRemindersEnabled': dailyFlowSmartRemindersEnabled,
+      'dailyFlowFollowUpsEnabled': dailyFlowFollowUpsEnabled,
+      'dailyFlowPlanningHorizonDays': dailyFlowPlanningHorizonDays,
     };
   }
 }

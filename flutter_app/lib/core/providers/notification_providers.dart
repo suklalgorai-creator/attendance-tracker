@@ -56,11 +56,18 @@ final notificationSchedulerProvider = Provider<void>((ref) {
 final dailyFlowReminderSchedulerProvider = Provider<void>((ref) {
   final notificationService = ref.watch(notificationServiceProvider);
   final tasksAsync = ref.watch(dailyFlowTasksStreamProvider);
+  final settings = ref.watch(settingsStreamProvider).valueOrNull;
+  final smartEnabled =
+      (settings?.pushNotificationsEnabled ?? false) &&
+      (settings?.dailyFlowSmartRemindersEnabled ?? true);
+  final followUpsEnabled =
+      smartEnabled && (settings?.dailyFlowFollowUpsEnabled ?? true);
 
   tasksAsync.whenData((tasks) async {
     final now = DateTime.now();
     for (final task in tasks) {
-      if (task.reminderAt != null &&
+      if (smartEnabled &&
+          task.reminderAt != null &&
           !task.status.isTerminal &&
           !task.isDeleted &&
           task.reminderAt!.isAfter(now)) {
@@ -76,7 +83,7 @@ final dailyFlowReminderSchedulerProvider = Provider<void>((ref) {
         await notificationService.cancelTaskReminder(task.id);
       }
 
-      if (!task.status.isTerminal && !task.isDeleted) {
+      if (followUpsEnabled && !task.status.isTerminal && !task.isDeleted) {
         final followUpAt = computeTaskFollowUpTime(task, now);
         if (followUpAt != null && followUpAt.isAfter(now)) {
           await notificationService.schedulePendingTaskFollowUp(
@@ -94,15 +101,40 @@ final dailyFlowReminderSchedulerProvider = Provider<void>((ref) {
   });
 });
 
-/// Schedules recurring DailyFlow morning planning, evening review, and next-day
-/// planning notifications using OS-level daily triggers.
+/// Schedules recurring DailyFlow morning briefing (07:00 default), evening review
+/// (22:00 default), and next-day planning notifications using OS-level daily triggers.
 final dailyFlowRoutineSchedulerProvider = Provider<void>((ref) {
   final notificationService = ref.watch(notificationServiceProvider);
   final settingsAsync = ref.watch(settingsStreamProvider);
+  final tasks = ref.watch(dailyFlowTasksStreamProvider).valueOrNull ?? const [];
 
   settingsAsync.whenData((settings) async {
+    final todayKey = AppDateUtils.todayStr();
+    final todayCount = tasks
+        .where(
+          (t) =>
+              !t.isDeleted &&
+              !t.status.isTerminal &&
+              t.scheduledDate == todayKey,
+        )
+        .length;
+    final carryoverCount = tasks
+        .where(
+          (t) =>
+              !t.isDeleted &&
+              !t.status.isTerminal &&
+              t.scheduledDate.compareTo(todayKey) < 0,
+        )
+        .length;
+
     await notificationService.scheduleDailyFlowRoutineReminders(
-      isEnabled: settings.pushNotificationsEnabled,
+      isEnabled:
+          settings.pushNotificationsEnabled &&
+          settings.dailyFlowSmartRemindersEnabled,
+      morningTime: settings.dailyFlowMorningTime,
+      eveningTime: settings.dailyFlowEveningTime,
+      todayTaskCount: todayCount,
+      pendingCarryoverCount: carryoverCount,
     );
   });
 });

@@ -132,6 +132,22 @@ class DailyFlowPage extends ConsumerWidget {
             ),
           ),
 
+          const SizedBox(height: 10),
+
+          // Rolling Planning Horizon Strip (Default: 7 days)
+          _HorizonStrip(
+            selectedDate: selectedDate,
+            horizonDays:
+                ref
+                    .watch(settingsStreamProvider)
+                    .valueOrNull
+                    ?.dailyFlowPlanningHorizonDays ??
+                7,
+            tasks: ref.watch(dailyFlowTasksStreamProvider).valueOrNull ?? const [],
+            onSelectDate: (d) =>
+                ref.read(dailyFlowSelectedDateProvider.notifier).state = d,
+          ),
+
           const SizedBox(height: 12),
 
           // Active Focus Execution Banner or Smart Next Recommendation
@@ -817,6 +833,61 @@ class _BadgeChip extends StatelessWidget {
           fontSize: 11,
           fontWeight: FontWeight.w600,
         ),
+      ),
+    );
+  }
+}
+
+class _HorizonStrip extends StatelessWidget {
+  final DateTime selectedDate;
+  final int horizonDays;
+  final List<DailyTaskEntity> tasks;
+  final ValueChanged<DateTime> onSelectDate;
+
+  const _HorizonStrip({
+    required this.selectedDate,
+    required this.horizonDays,
+    required this.tasks,
+    required this.onSelectDate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final selectedKey = AppDateUtils.formatDateKey(selectedDate);
+    final count = horizonDays.clamp(1, 14);
+
+    return SizedBox(
+      height: 40,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: count,
+        separatorBuilder: (_, _) => const SizedBox(width: 6),
+        itemBuilder: (context, index) {
+          final day = today.add(Duration(days: index));
+          final key = AppDateUtils.formatDateKey(day);
+          final isSelected = key == selectedKey;
+          final pendingCount = tasks
+              .where(
+                (t) =>
+                    !t.isDeleted &&
+                    !t.status.isTerminal &&
+                    t.scheduledDate == key,
+              )
+              .length;
+          final label = index == 0
+              ? 'Today'
+              : (index == 1 ? 'Tomorrow' : DateFormat('EEE d').format(day));
+
+          return ChoiceChip(
+            label: Text(
+              pendingCount > 0 ? '$label ($pendingCount)' : label,
+            ),
+            selected: isSelected,
+            onSelected: (_) => onSelectDate(day),
+          );
+        },
       ),
     );
   }

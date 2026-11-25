@@ -62,6 +62,36 @@ class NotificationsCard extends ConsumerWidget {
     }
   }
 
+  Future<void> _pickDailyFlowTime(
+    BuildContext context,
+    WidgetRef ref, {
+    required String current,
+    required bool isMorning,
+  }) async {
+    TimeOfDay initial = isMorning
+        ? const TimeOfDay(hour: 7, minute: 0)
+        : const TimeOfDay(hour: 22, minute: 0);
+    if (current.contains(':')) {
+      final parts = current.split(':');
+      final h = int.tryParse(parts[0]);
+      final m = int.tryParse(parts[1]);
+      if (h != null && m != null) {
+        initial = TimeOfDay(hour: h.clamp(0, 23), minute: m.clamp(0, 59));
+      }
+    }
+    final picked = await showTimePicker(context: context, initialTime: initial);
+    if (picked != null) {
+      final formatted =
+          '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+      await ref
+          .read(settingsControllerProvider.notifier)
+          .updateDailyFlowPreferences(
+            morningTime: isMorning ? formatted : null,
+            eveningTime: isMorning ? null : formatted,
+          );
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -143,6 +173,107 @@ class NotificationsCard extends ConsumerWidget {
           Text(
             'Disabling removes this app\u2019s token; notification permissions can also be changed in device settings.',
             style: GoogleFonts.outfit(fontSize: 12, color: mutedColor),
+          ),
+          const Divider(height: 28),
+          Text(
+            'DAILYFLOW SMART REMINDERS',
+            style: AppTypography.inputLabel(mutedColor),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => _pickDailyFlowTime(
+                    context,
+                    ref,
+                    current: settings.dailyFlowMorningTime,
+                    isMorning: true,
+                  ),
+                  icon: const Icon(Icons.wb_sunny_outlined, size: 15),
+                  label: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text('Morning ${settings.dailyFlowMorningTime}'),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => _pickDailyFlowTime(
+                    context,
+                    ref,
+                    current: settings.dailyFlowEveningTime,
+                    isMorning: false,
+                  ),
+                  icon: const Icon(Icons.nights_stay_outlined, size: 15),
+                  label: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text('Evening ${settings.dailyFlowEveningTime}'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.zero,
+            title: Text(
+              'Smart Reminders',
+              style: GoogleFonts.outfit(fontSize: 14, color: paperColor),
+            ),
+            subtitle: Text(
+              'Morning briefing, evening review, and task alerts',
+              style: GoogleFonts.outfit(fontSize: 12, color: mutedColor),
+            ),
+            value: settings.dailyFlowSmartRemindersEnabled,
+            activeTrackColor: AppColors.inkGreen,
+            onChanged: (val) {
+              ref
+                  .read(settingsControllerProvider.notifier)
+                  .updateDailyFlowPreferences(smartRemindersEnabled: val);
+            },
+          ),
+          SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.zero,
+            title: Text(
+              'Pending Task Follow-Ups',
+              style: GoogleFonts.outfit(fontSize: 14, color: paperColor),
+            ),
+            value: settings.dailyFlowFollowUpsEnabled,
+            activeTrackColor: AppColors.inkGreen,
+            onChanged: (val) {
+              ref
+                  .read(settingsControllerProvider.notifier)
+                  .updateDailyFlowPreferences(followUpsEnabled: val);
+            },
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(
+                'Planning Horizon',
+                style: GoogleFonts.outfit(fontSize: 13.5, color: paperColor),
+              ),
+              Wrap(
+                spacing: 6,
+                children: [3, 7, 14].map((days) {
+                  return ChoiceChip(
+                    label: Text('${days}d'),
+                    selected: settings.dailyFlowPlanningHorizonDays == days,
+                    onSelected: (_) {
+                      ref
+                          .read(settingsControllerProvider.notifier)
+                          .updateDailyFlowPreferences(planningHorizonDays: days);
+                    },
+                  );
+                }).toList(),
+              ),
+            ],
           ),
         ],
       ),
